@@ -1,17 +1,16 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Resources;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Controller")]
-[assembly: AssemblyDescription("Netduino Plus Aquarium Controller")]
+[assembly: AssemblyTitle("Plugins")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Fishfornerds.com")]
-[assembly: AssemblyProduct("Aquarium Controller")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCompany("NRCan-RNCan")]
+[assembly: AssemblyProduct("Plugins")]
+[assembly: AssemblyCopyright("Copyright © NRCan-RNCan 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

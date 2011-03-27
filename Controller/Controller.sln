@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "Controller.csproj", "{117848BD-213C-4AE4-8F58-D27F14DAA534}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins", "..\Plugins\Plugins.csproj", "{98744D25-78D9-4C11-A5B2-D0A366D26C49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Build.0 = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{98744D25-78D9-4C11-A5B2-D0A366D26C49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98744D25-78D9-4C11-A5B2-D0A366D26C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98744D25-78D9-4C11-A5B2-D0A366D26C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98744D25-78D9-4C11-A5B2-D0A366D26C49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
