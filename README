@@ -1,0 +1,4 @@
+Code for a Netduino based Aquarium Controller.
+Features will be added as built.
+Ideally this code will handle as many monitors as possible, however to start
+it will be temperature and hopefully pH.
