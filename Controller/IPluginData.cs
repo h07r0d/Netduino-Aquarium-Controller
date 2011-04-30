@@ -3,7 +3,8 @@ using Microsoft.SPOT;
 
 namespace Controller
 {
-    public class IPluginData
+    public interface IPluginData
     {
+		float GetValue();
     }
 }
