@@ -2,7 +2,7 @@
 using Controller;
 using Microsoft.SPOT;
 
-namespace Plugin_Temperature
+namespace Plugin
 {
 	public class TemperatureData : IPluginData
 	{
@@ -13,7 +13,7 @@ namespace Plugin_Temperature
 
 	public class Temperature : IPlugin
 	{
-		private TemperatureData m_data;
+		private TemperatureData m_data = new TemperatureData();
 		public int PluginTimerInterval() { return 60; }
 		public Category PluginCategory() { return Category.Input; }
 		public IPluginData GetData() { return m_data; }
