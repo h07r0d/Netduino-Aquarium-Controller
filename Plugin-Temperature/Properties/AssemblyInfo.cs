@@ -6,11 +6,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Controller")]
-[assembly: AssemblyDescription("Netduino Plus Aquarium Controller")]
+[assembly: AssemblyTitle("Input Plugin - Temperature")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Fishfornerds.com")]
-[assembly: AssemblyProduct("Aquarium Controller")]
+[assembly: AssemblyCompany("fishfornerds.com")]
+[assembly: AssemblyProduct("Controller - Input Plugin")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
