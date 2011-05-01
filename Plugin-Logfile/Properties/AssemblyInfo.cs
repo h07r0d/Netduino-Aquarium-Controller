@@ -6,11 +6,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Input Plugin - Temperature")]
+[assembly: AssemblyTitle("Output Plugin - Logfile")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("fishfornerds.com")]
-[assembly: AssemblyProduct("Controller - Input Plugin")]
+[assembly: AssemblyProduct("Controller - Output Plugin")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

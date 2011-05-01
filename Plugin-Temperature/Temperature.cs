@@ -2,24 +2,27 @@
 using Controller;
 using Microsoft.SPOT;
 
-namespace Plugin
+namespace Plugins
 {
 	public class TemperatureData : IPluginData
 	{
 		private float m_value;
 		public float GetValue() { return m_value; }
 		public void SetValue(float _value) { m_value = _value; }
+		public string DataUnits() { return "C"; }
+		public string DataType() { return "Temperature"; }
 	}
 
 	public class Temperature : IPlugin
 	{
 		private TemperatureData m_data = new TemperatureData();
-		public int PluginTimerInterval() { return 60; }
-		public Category PluginCategory() { return Category.Input; }
+		public int TimerInterval() { return 60; }
+		public Category Category() { return Controller.Category.Input; }
 		public IPluginData GetData() { return m_data; }
-		public void PluginEventHandler(object sender, IPluginData data) { }
-		public void PluginTimerCallback(object state)
+		public void EventHandler(object sender, IPluginData data) { }
+		public void TimerCallback(object state)
 		{
+			Debug.Print("Temperature Callbackk Hit\n");
 			// get current temperature
 			m_data.SetValue(24.6f);
 
