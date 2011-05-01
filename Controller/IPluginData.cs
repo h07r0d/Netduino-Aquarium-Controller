@@ -5,6 +5,8 @@ namespace Controller
 {
     public interface IPluginData
     {
+		string DataType();
+		string DataUnits();
 		float GetValue();
     }
 }

@@ -8,6 +8,8 @@ Thumbs.db
 *.user
 *.aps
 *.pch
+*.dat
+*.cache
 *.vspscc
 *_i.c
 *_p.c

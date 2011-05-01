@@ -9,14 +9,35 @@ using System.Runtime.CompilerServices;
 
 namespace Controller
 {
-	public delegate void OutputPluginEventHandler(Object sender, IPluginData data);
+	/// <summary>
+	/// Delegate for Output Plugins
+	/// </summary>
+	/// <param name="_sender">Who sent up the data</param>
+	/// <param name="_data">Data sent up from Input Plugin</param>
+	public delegate void OutputPluginEventHandler(Object _sender, IPluginData _data);
+
+	/// <summary>
+	/// Delegate for Input Plugins
+	/// </summary>
+	/// <param name="_data">Data sent up from input plugin</param>
 	public delegate void InputDataAvailable(IPluginData _data);
 	
     public class Program
     {
-		public static readonly string pluginFolder = @"\SD\Plugins\";
-		private static OutputPluginControl m_opc;
+		/// <summary>
+		/// Location of Plugins folder
+		/// </summary>
+		private static readonly string m_pluginFolder = @"\SD\Plugins\";
 
+		/// <summary>
+		/// Control class for holding Output Plugin weak delegates
+		/// </summary>
+		private static OutputPluginControl m_opc = new OutputPluginControl();
+
+		/// <summary>
+		/// Delegate for signaling output plugins that data is available
+		/// </summary>
+		/// <param name="_data">data passed up from input plugin</param>
 		private static void DataAvailable(IPluginData _data)
 		{
 			// data should be available in the queue
@@ -28,7 +49,7 @@ namespace Controller
         {
 			// storage for Plugins			
 			IPlugin[] m_plugins;
-			InputDataAvailable inputAvailable = new InputDataAvailable(DataAvailable);
+			InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
 
 			// parse and add all plugins found in the given folder
 			m_plugins = LoadPlugins();
@@ -38,17 +59,17 @@ namespace Controller
 			Category m_pluginCategory = new Category();
 			for (int i = 0; i < pluginCount; i++)
 			{
-				m_pluginCategory = m_plugins[i].PluginCategory();
+				m_pluginCategory = m_plugins[i].Category();
 				switch (m_pluginCategory)
 				{
 					case Category.Input:
-						// spin out a Timer to handle the data
-						TimeSpan timespan = new TimeSpan(0, m_plugins[i].PluginTimerInterval(), 0);
-						Timer input = new Timer(m_plugins[i].PluginTimerCallback, inputAvailable, TimeSpan.Zero, timespan);						
+						// spin out a Timer to handle the data, and provide the delegate to pass data back
+						TimeSpan timespan = new TimeSpan(0, m_plugins[i].TimerInterval(),0);
+						Timer input = new Timer(m_plugins[i].TimerCallback, m_inputAvailable, timespan, timespan);						
 						break;
 					case Category.Output:
 						// Add output EventHandler to weak delegate list
-						m_opc.DataEvent += m_plugins[i].PluginEventHandler;
+						m_opc.DataEvent += m_plugins[i].EventHandler;
 						break;
 					default:
 						break;
@@ -67,11 +88,12 @@ namespace Controller
 		private static IPlugin[] LoadPlugins()
 		{
 			// Determine the number of plugins available
-			string[] pluginNames = Directory.GetFiles(pluginFolder);
+			string[] pluginNames = Directory.GetFiles(m_pluginFolder);
 			byte[] pluginBytes;			
 			FileStream fs;
 			FileInfo fi;
 			Assembly asm;
+			MethodInfo mi;
 			if (pluginNames.Length > 0)
 			{
 				// Plugins found, process them and instanciate
@@ -90,17 +112,19 @@ namespace Controller
 							pluginBytes = new byte[fs.Length];
 							fs.Read(pluginBytes, 0, (int)fs.Length);
 							asm = Assembly.Load(pluginBytes);
-
+							
+							// figure out properties
+							// we only need actual Input and Output plugins
+							// if the type does not have a PluginCategory, don't
+							// hold it
 							foreach (Type test in asm.GetTypes())
 							{
-								Debug.Print(test.FullName);
-							}
-							Debug.Print("\n"+asm.FullName+"\n");
-							// figure out properties
-							
-
-							// Create an object and add to array
-							plugins[i] = (IPlugin)typeof(IPlugin).GetConstructor(new Type[0]).Invoke(new object[0]);
+								if((mi = test.GetMethod("Category"))!= null)
+								{
+									// Create an object and add to array
+									plugins[i] = (IPlugin)test.GetConstructor(new Type[0]).Invoke(new object[0]);
+								}								
+							}																					
 						}
 					}
 				}
