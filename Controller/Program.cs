@@ -14,7 +14,7 @@ namespace Controller
 	
     public class Program
     {
-		public static readonly string pluginFolder = @"\SD\Plugins";
+		public static readonly string pluginFolder = @"\SD\Plugins\";
 		private static OutputPluginControl m_opc;
 
 		private static void DataAvailable(IPluginData _data)
@@ -81,7 +81,7 @@ namespace Controller
 				{
 					fi = new FileInfo(pluginNames[i]);
 					// open the file only if it's an assembly
-					if (fi.Extension == "dll")
+					if (fi.Extension == ".pe")
 					{						
 						//Open the file and dump to byte array
 						using (fs = new FileStream(pluginNames[i], FileMode.Open, FileAccess.Read))
@@ -90,6 +90,14 @@ namespace Controller
 							pluginBytes = new byte[fs.Length];
 							fs.Read(pluginBytes, 0, (int)fs.Length);
 							asm = Assembly.Load(pluginBytes);
+
+							foreach (Type test in asm.GetTypes())
+							{
+								Debug.Print(test.FullName);
+							}
+							Debug.Print("\n"+asm.FullName+"\n");
+							// figure out properties
+							
 
 							// Create an object and add to array
 							plugins[i] = (IPlugin)typeof(IPlugin).GetConstructor(new Type[0]).Invoke(new object[0]);
