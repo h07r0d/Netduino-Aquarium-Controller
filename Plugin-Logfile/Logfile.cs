@@ -14,6 +14,7 @@ namespace Plugins
 		public void EventHandler(Object sender, IPluginData data)
 		{
 			Debug.Print("Logfile eventhandler hit\n");
+			Debug.Print(data.GetValue().ToString());
 			// take data and write it out to text
 			using (StreamWriter sw = new StreamWriter(_logFile,true))
 			{

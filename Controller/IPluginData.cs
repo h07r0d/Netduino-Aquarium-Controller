@@ -7,6 +7,6 @@ namespace Controller
     {
 		string DataType();
 		string DataUnits();
-		float GetValue();
+		double GetValue();
     }
 }

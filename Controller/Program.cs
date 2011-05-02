@@ -64,7 +64,7 @@ namespace Controller
 				{
 					case Category.Input:
 						// spin out a Timer to handle the data, and provide the delegate to pass data back
-						TimeSpan timespan = new TimeSpan(0, m_plugins[i].TimerInterval(),0);
+						TimeSpan timespan = new TimeSpan(0, 0/*m_plugins[i].TimerInterval()*/,10);
 						Timer input = new Timer(m_plugins[i].TimerCallback, m_inputAvailable, timespan, timespan);						
 						break;
 					case Category.Output:
