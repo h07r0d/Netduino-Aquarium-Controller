@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "Controller.csproj", "{117848BD-213C-4AE4-8F58-D27F14DAA534}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "Controller\Controller.csproj", "{117848BD-213C-4AE4-8F58-D27F14DAA534}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Temperature", "..\Plugin-Temperature\Plugin-Temperature.csproj", "{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Logfile", "Plugin-Logfile\Plugin-Logfile.csproj", "{65B2EAC1-B841-4134-9229-B24583B46FFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Logfile", "..\Plugin-Logfile\Plugin-Logfile.csproj", "{65B2EAC1-B841-4134-9229-B24583B46FFB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Temperature", "Plugin-Temperature\Plugin-Temperature.csproj", "{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Build.0 = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.Build.0 = Release|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
