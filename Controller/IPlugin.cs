@@ -5,7 +5,8 @@ using System.Threading;
 namespace Controller
 {
 	public enum Category : uint { Input=1, Output=2 };
-	public interface IPlugin
+	public enum ThingSpeakFields : uint { Temperature = 1, pH = 2 };
+	public interface IPlugin : IDisposable
 	{ 
 		Category Category();
 		int TimerInterval();

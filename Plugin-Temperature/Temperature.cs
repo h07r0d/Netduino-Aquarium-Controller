@@ -1,28 +1,43 @@
-﻿using System;
-using Controller;
+﻿using Controller;
 using Microsoft.SPOT;
 using SecretLabs.NETMF.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using System;
 
 namespace Plugins
 {
-
+	
 	public class TemperatureData : IPluginData
 	{
-		private double m_value;
-		public double GetValue() { return m_value; }
-		public void SetValue(double _value) { m_value = _value; }
+		private float m_value;
+		public float GetValue() { return m_value; }
+		public void SetValue(float _value) { m_value = _value; }
 		public string DataUnits() { return "C"; }
-		public string DataType() { return "Temperature"; }
+		public ThingSpeakFields DataType() { return ThingSpeakFields.Temperature; }
 	}
 
+	/// <summary>
+	/// LN35DZ precision Centigrade chip
+	/// </summary>
 	public class Temperature : IPlugin
 	{
-		private TemperatureData m_data = new TemperatureData();
+		~Temperature() { Dispose(); }
+		public void Dispose() { }
+
+		private TemperatureData m_data;
+		private AnalogInput m_analogInput;
+
 		public int TimerInterval() { return 60; }
 		public Category Category() { return Controller.Category.Input; }
 		public IPluginData GetData() { return m_data; }
 		public void EventHandler(object sender, IPluginData data) { }
+
+		public Temperature()
+		{
+			m_data = new TemperatureData();
+			m_analogInput = new AnalogInput(Pins.GPIO_PIN_A0);
+		}
+
 		public void TimerCallback(object state)
 		{
 			Debug.Print("Temperature Callback Hit\n");
@@ -36,64 +51,19 @@ namespace Plugins
 			ida(m_data);
 		}
 
-		private double CalculateTemperature()
+		/// <summary>
+		/// Calculate Temperature value
+		/// </summary>
+		/// <returns>Float value of current Temperature reading</returns>
+		private float CalculateTemperature()
 		{
-			// pulled from http://www.arduino.cc/playground/ComponentLib/Thermistor2
-			AnalogInput temp_in;
-			double temp=0;
-			double temp_out=0;
-
-			// run this 10 times and average to ensure we're accurate
-			for (int i = 0; i < 10; i++)
-			{
-				temp_in = new AnalogInput(Pins.GPIO_PIN_A0);				
-				temp = Log(((10240000 / temp_in.Read()) - 10000));
-				temp = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * temp * temp)) * temp);
-				temp_out = temp - 273.15;            // Convert Kelvin to Celcius
-			}
-			return temp_out/10; 
-		}
-
-
-		public static double Log(double x)
-		{
-			// Based on Python sourcecode from:
-			// http://en.literateprograms.org/Logarithm_Function_%28Python%29
-
-			double partial = 0.5F;
-			double integer = 0F;
-			double fractional = 0.0F;
-			double newBase = 10F;
-
-			if (x == 0.0F) return double.NegativeInfinity;
-			if ((x < 1.0F) & (newBase < 1.0F)) throw new ArgumentOutOfRangeException("can't compute Log");
-
-			while (x < 1.0F)
-			{
-				integer -= 1F;
-				x *= newBase;
-			}
-
-			while (x >= newBase)
-			{
-				integer += 1F;
-				x /= newBase;
-			}
-
-			x *= x;
-
-			while (partial >= double.Epsilon)
-			{
-				if (x >= newBase)
-				{
-					fractional += partial;
-					x = x / newBase;
-				}
-				partial *= 0.5F;
-				x *= x;
-			}
-
-			return (integer + fractional);
+			// read analog pin and convert to celcius according to datasheet
+			// assuming AREF of 3.3V
+			int raw = m_analogInput.Read();
+			Debug.Print(raw.ToString());
+			float result = (1023.0f * raw) / 3.3f;
+			Debug.Print(result.ToString("F"));
+			return result;
 		}
 	}
 }

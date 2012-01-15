@@ -5,8 +5,8 @@ namespace Controller
 {
     public interface IPluginData
     {
-		string DataType();
+		ThingSpeakFields DataType();
 		string DataUnits();
-		double GetValue();
+		float GetValue();
     }
 }
