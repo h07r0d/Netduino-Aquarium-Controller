@@ -46,4 +46,7 @@
       <Name>Controller</Name>
     </ProjectReference>
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe e:\plugins</PostBuildEvent>
+  </PropertyGroup>
 </Project>

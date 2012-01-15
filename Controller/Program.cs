@@ -47,13 +47,29 @@ namespace Controller
 
         public static void Main()
         {
+			int pluginCount = 0;
+			// On startup, set internal clock from DS1307
+			//DS1307 m_clock = new DS1307();
+			// Make sure clock is running
+			//m_clock.Halt(false);
+			//Utility.SetLocalTime(m_clock.Get());
+			//m_clock.Dispose();
+
 			// storage for Plugins			
 			IPlugin[] m_plugins;
 			InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
 
 			// parse and add all plugins found in the given folder
-			m_plugins = LoadPlugins();
-			int pluginCount = m_plugins.Length;
+			try
+			{
+				m_plugins = LoadPlugins();
+				pluginCount = m_plugins.Length;
+			}
+			catch (Exception)
+			{				
+				throw;
+			}
+			
 
 			// process the received plugins
 			Category m_pluginCategory = new Category();
@@ -89,49 +105,49 @@ namespace Controller
 		{
 			// Determine the number of plugins available
 			string[] pluginNames = Directory.GetFiles(m_pluginFolder);
-			byte[] pluginBytes;			
+			byte[] pluginBytes;
 			FileStream fs;
 			FileInfo fi;
 			Assembly asm;
 			MethodInfo mi;
-			if (pluginNames.Length > 0)
+
+			// Plugins found, process them and instanciate
+			int plugCount = pluginNames.Length;
+			IPlugin[] plugins = new IPlugin[plugCount];
+			for (int i = 0; i < plugCount; i++)
 			{
-				// Plugins found, process them and instanciate
-				int plugCount = pluginNames.Length;
-				IPlugin[] plugins = new IPlugin[plugCount];
-				for (int i = 0; i < plugCount; i++)
+				fi = new FileInfo(pluginNames[i]);
+				// open the file only if it's an assembly
+				if (fi.Extension == ".pe")
 				{
-					fi = new FileInfo(pluginNames[i]);
-					// open the file only if it's an assembly
-					if (fi.Extension == ".pe")
-					{						
-						//Open the file and dump to byte array
+					//Open the file and dump to byte array
+					try
+					{
 						using (fs = new FileStream(pluginNames[i], FileMode.Open, FileAccess.Read))
 						{
 							// Create an assembly
-							pluginBytes = new byte[fs.Length];
+							pluginBytes = new byte[(int)fs.Length];
 							fs.Read(pluginBytes, 0, (int)fs.Length);
 							asm = Assembly.Load(pluginBytes);
-							
+
 							// figure out properties
 							// we only need actual Input and Output plugins
 							// if the type does not have a PluginCategory, don't
 							// hold it
 							foreach (Type test in asm.GetTypes())
 							{
-								if((mi = test.GetMethod("Category"))!= null)
+								if ((mi = test.GetMethod("Category")) != null)
 								{
 									// Create an object and add to array
 									plugins[i] = (IPlugin)test.GetConstructor(new Type[0]).Invoke(new object[0]);
-								}								
-							}																					
+								}
+							}
 						}
 					}
+					catch (IOException) { throw; }				
 				}
-				return plugins;
 			}
-			// No files found
-			return null;			
+			return plugins;
 		}
     }
 
