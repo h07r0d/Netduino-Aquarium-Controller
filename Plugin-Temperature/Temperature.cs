@@ -19,18 +19,18 @@ namespace Plugins
 	/// <summary>
 	/// LN35DZ precision Centigrade chip
 	/// </summary>
-	public class Temperature : IPlugin
+	public class Temperature : Plugin
 	{
 		~Temperature() { Dispose(); }
-		public void Dispose() { }
+		public override void Dispose() { }
 
 		private TemperatureData m_data;
 		private AnalogInput m_analogInput;
 
-		public int TimerInterval() { return 60; }
-		public Category Category() { return Controller.Category.Input; }
+		public override int TimerInterval() { return 60; }
+		public override Category Category() { return Controller.Category.Input; }
 		public IPluginData GetData() { return m_data; }
-		public void EventHandler(object sender, IPluginData data) { }
+		public override void EventHandler(object sender, IPluginData data) { }
 
 		public Temperature()
 		{
@@ -38,9 +38,9 @@ namespace Plugins
 			m_analogInput = new AnalogInput(Pins.GPIO_PIN_A0);
 		}
 
-		public void TimerCallback(object state)
+		public override void TimerCallback(object state)
 		{
-			Debug.Print("Temperature Callback Hit\n");
+			if (!Enabled()) return;
 			// get current temperature
 			m_data.SetValue(CalculateTemperature());
 
@@ -55,15 +55,20 @@ namespace Plugins
 		/// Calculate Temperature value
 		/// </summary>
 		/// <returns>Float value of current Temperature reading</returns>
+		/// <remarks>Assuming AREF of 3.3v, the default for Rev. B Netduino Plus boards.
+		/// It's an internal value, no feed to AREF required.
+		/// Pinouts for the probe:
+		/// - Brown=Ground
+		/// - White/Green=VIn
+		/// - Green=AnalogRead</remarks>
 		private float CalculateTemperature()
 		{
-			// read analog pin and convert to celcius according to datasheet
-			// assuming AREF of 3.3V
-			int raw = m_analogInput.Read();
-			Debug.Print(raw.ToString());
-			float result = (1023.0f * raw) / 3.3f;
-			Debug.Print(result.ToString("F"));
-			return result;
+			// take 10 readings to even out the voltage
+			int voltage = 0;
+			for (int i = 0; i < 10; i++) { voltage += m_analogInput.Read(); }
+			voltage /= 10;
+			
+			return (3.3f * voltage * 100f) / 1023f;
 		}
 	}
 }
