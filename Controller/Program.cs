@@ -4,6 +4,7 @@ using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
 using System.IO;
+using System.Xml;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -45,52 +46,25 @@ namespace Controller
 			m_opc.ProcessInputData(_data);			
 		}
 
+		/// <summary>
+		/// Handle to attach to Input Plugin timers.  This event will be raised when an Input Plugin
+		/// is processed to trigger Output Plugins to run
+		/// </summary>
+		private static InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
+
         public static void Main()
         {
-			int pluginCount = 0;
-			// On startup, set internal clock from DS1307
-			//DS1307 m_clock = new DS1307();
-			// Make sure clock is running
-			//m_clock.Halt(false);
-			//Utility.SetLocalTime(m_clock.Get());
-			//m_clock.Dispose();
+			// Initialize required components
+			bootstrap();
+			 
 
-			// storage for Plugins			
-			IPlugin[] m_plugins;
-			InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
-
-			// parse and add all plugins found in the given folder
-			try
-			{
-				m_plugins = LoadPlugins();
-				pluginCount = m_plugins.Length;
-			}
-			catch (Exception)
-			{				
-					throw;
-			}
+			
 			
 
-			// process the received plugins
-			Category m_pluginCategory = new Category();
-			for (int i = 0; i < pluginCount; i++)
-			{
-				m_pluginCategory = m_plugins[i].Category();
-				switch (m_pluginCategory)
-				{
-					case Category.Input:
-						// spin out a Timer to handle the data, and provide the delegate to pass data back
-						TimeSpan timespan = new TimeSpan(0, 0/*m_plugins[i].TimerInterval()*/,10);
-						Timer input = new Timer(m_plugins[i].TimerCallback, m_inputAvailable, timespan, timespan);						
-						break;
+			
 					case Category.Output:
-						// Add output EventHandler to weak delegate list
-						m_opc.DataEvent += m_plugins[i].EventHandler;
-						break;
-					default:
-						break;
-				}
-			}
+						
+		
 
 			OutputPort led = new OutputPort(Pins.ONBOARD_LED, false);
 			while (true)
@@ -101,8 +75,98 @@ namespace Controller
 			}
         }
 
-		private static IPlugin[] LoadPlugins()
+		private static void bootstrap()
 		{
+			// On startup, set internal clock from DS1307
+			DS1307 m_clock = new DS1307();
+			// Make sure clock is running
+			m_clock.Halt(false);
+			Utility.SetLocalTime(m_clock.Get());
+			m_clock.Dispose();
+
+			// Load app config and pull enabled plugins
+			FileStream config = new FileStream(@"\SD\app.config", FileMode.Open);
+			using (XmlReader rdr = XmlReader.Create(config))
+			{
+				while (rdr.Read())
+				{
+					// If it's a plugin and it's enabled, process it
+					if ( (rdr.NodeType == XmlNodeType.Element) && (rdr.GetAttribute("enabled") == "true") )
+					{
+						switch (rdr.LocalName)
+						{
+							case "input":
+								InputPlugin newInputPlugin = LoadInputPlugin(rdr.GetAttribute("name"));
+								// spin out a Timer to handle the data, and provide the delegate to pass data back
+								TimeSpan timespan = new TimeSpan(0, 0/*newPlugin.TimerInterval()*/, 10);
+								Timer input = new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan);
+								break;
+							case "output":
+								OutputPlugin newOutputPlugin = LoadOutputPlugin(rdr.GetAttribute("name"));
+								// Add output EventHandler to weak delegate list
+								m_opc.DataEvent += newOutputPlugin.EventHandler;
+								break;
+							default:
+								break;
+						}						
+					}
+				}
+			}
+		}
+
+		private static Assembly LoadAssembly(string _name)
+		{
+			try
+			{
+				using (FileStream fs = new FileStream(@"\SD\Plugins" + _name + ".pe", FileMode.Open, FileAccess.Read))
+				{					
+					// Create an assembly
+					byte[] pluginBytes = new byte[(int)fs.Length];
+					fs.Read(pluginBytes, 0, (int)fs.Length);
+					Assembly asm = Assembly.Load(pluginBytes);
+					return asm;
+				}
+			}
+			catch (IOException ioe) { throw; }
+		}
+
+		private static InputPlugin LoadInputPlugin(string _name, string[] _options = null)
+		{
+			Assembly asm = LoadAssembly(_name);
+				
+			//Input Plugins have a TimerCallback function, search for that in the assembly
+			foreach (Type type in asm.GetTypes())
+			{
+				if (type.GetMethod("TimerCallback") != null)
+				{
+					// It's an Input Plugin, create it and pass back
+					return (InputPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
+				}
+			}
+			// couldn't find an appropriate plugin
+			return null;
+		}
+
+		private static OutputPlugin LoadOutputPlugin(string _name, string[] _options = null)
+		{
+			Assembly asm = LoadAssembly(_name);
+
+			//Output Plugins have an EventHandler function, search for that in the assembly
+			foreach (Type type in asm.GetTypes())
+			{
+				if (type.GetMethod("EventHandler") != null)
+				{
+					// It's an output Plugin, create it and pass back
+					return (OutputPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
+				}
+			}
+			// couldn't find an appropriate plugin
+			return null;
+		}
+
+		private static Plugin[] LoadPlugins()
+		{
+			// parse app.config
 			// Determine the number of plugins available
 			string[] pluginNames = Directory.GetFiles(m_pluginFolder);
 			byte[] pluginBytes;
@@ -113,7 +177,7 @@ namespace Controller
 
 			// Plugins found, process them and instanciate
 			int plugCount = pluginNames.Length;
-			IPlugin[] plugins = new IPlugin[plugCount];
+			Plugin[] plugins = new Plugin[plugCount];
 			for (int i = 0; i < plugCount; i++)
 			{
 				fi = new FileInfo(pluginNames[i]);
@@ -136,11 +200,7 @@ namespace Controller
 							// hold it
 							foreach (Type test in asm.GetTypes())
 							{
-								if ((mi = test.GetMethod("Category")) != null)
-								{
-									// Create an object and add to array
-									plugins[i] = (IPlugin)test.GetConstructor(new Type[0]).Invoke(new object[0]);
-								}
+								
 							}
 						}
 					}

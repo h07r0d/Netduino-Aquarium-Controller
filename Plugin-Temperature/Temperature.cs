@@ -19,7 +19,7 @@ namespace Plugins
 	/// <summary>
 	/// LN35DZ precision Centigrade chip
 	/// </summary>
-	public class Temperature : Plugin
+	public class Temperature : InputPlugin
 	{
 		~Temperature() { Dispose(); }
 		public override void Dispose() { }
@@ -28,7 +28,6 @@ namespace Plugins
 		private AnalogInput m_analogInput;
 
 		public override int TimerInterval() { return 60; }
-		public override Category Category() { return Controller.Category.Input; }
 		public IPluginData GetData() { return m_data; }
 		public override void EventHandler(object sender, IPluginData data) { }
 
@@ -40,7 +39,6 @@ namespace Plugins
 
 		public override void TimerCallback(object state)
 		{
-			if (!Enabled()) return;
 			// get current temperature
 			m_data.SetValue(CalculateTemperature());
 
