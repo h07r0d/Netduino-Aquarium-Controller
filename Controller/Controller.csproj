@@ -32,7 +32,6 @@
   <ItemGroup>
     <Compile Include="DS1307.cs" />
     <Compile Include="IPlugin.cs" />
-    <Compile Include="IPluginData.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
@@ -47,5 +46,10 @@
     <Reference Include="System.Http" />
     <Reference Include="System.IO" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
 </Project>
