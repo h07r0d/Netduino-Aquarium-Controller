@@ -46,7 +46,11 @@
       <Name>Controller</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Temperature.config" />
+  </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe e:\plugins</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe e:\plugins
+copy $(ProjectDir)$(TargetName).config e:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

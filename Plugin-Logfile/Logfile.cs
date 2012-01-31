@@ -5,24 +5,23 @@ using Microsoft.SPOT;
 
 namespace Plugins
 {
-	public class Logfile : IPlugin
+	public class Logfile : Plugin
 	{
 		~Logfile() { Dispose(); }
-		public void Dispose() { }
+		public override void Dispose() { }
 		private readonly char m_comma = ',';
 		private readonly string m_logFile = @"\SD\log.txt";
-		public Category Category() { return Controller.Category.Output; }
-		public int TimerInterval() { return 0; }
-		public void TimerCallback(Object state){}
-		public void EventHandler(Object sender, IPluginData data)
+		public override Category Category() { return Controller.Category.Output; }
+		public override int TimerInterval() { return 0; }
+		public override void TimerCallback(Object state){}
+		public override void EventHandler(Object sender, IPluginData data)
 		{
-			Debug.Print("Logfile eventhandler hit\n");
 			Debug.Print(data.GetValue().ToString());
 
 			// Format string for output
-			string output = String.Concat(DateTime.Now.ToString(), m_comma, data.DataType(), m_comma);
-			output = String.Concat(output, m_comma, data.GetValue(), m_comma);
-			output = String.Concat(output, m_comma, data.DataUnits());
+			string output = String.Concat(DateTime.Now.ToString(), m_comma, data.DataType().ToString(), m_comma);
+			output = String.Concat(output, data.GetValue().ToString("F"), m_comma);
+			output = String.Concat(output, data.DataUnits());
 
 			// take data and write it out to text
 			using (StreamWriter sw = new StreamWriter(m_logFile,true))
