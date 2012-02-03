@@ -8,7 +8,7 @@
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{65B2EAC1-B841-4134-9229-B24583B46FFB}</ProjectGuid>
-    <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
     <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -34,21 +34,16 @@
     <Compile Include="Logfile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.SPOT.Native">
-    </Reference>
-    <Reference Include="System.IO" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Controller\Controller.csproj">
       <Project>{117848BD-213C-4AE4-8F58-D27F14DAA534}</Project>
       <Name>Controller</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Logfile.config" />
+    <Reference Include="Microsoft.SPOT.Native" />
+    <Reference Include="System.IO" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe e:\plugins
-copy $(ProjectDir)$(TargetName).config e:\plugins</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe e:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>
