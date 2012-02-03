@@ -76,7 +76,7 @@ namespace Controller {
         /// Sets the time on the clock using the datetime object. Milliseconds are not used.
         /// </summary>
         /// <param name="dt">A DateTime object used to set the clock</param>
-        public void Set(DateTime dt) {
+        /*public void Set(DateTime dt) {
             var transaction = new I2CDevice.I2CWriteTransaction[] {
                 I2CDevice.CreateWriteTransaction(new byte[] { 
                                   DS1307_RTC_START_ADDRESS, 
@@ -92,7 +92,7 @@ namespace Controller {
             if (clock.Execute(transaction, DS1307_I2C_TRANSACTION_TIMEOUT_MS) == 0) {
                 throw new Exception("I2C write transaction failed");
             }
-        }
+        }*/
 
         /// <summary>
         /// Enables / Disables the square wave generation function of the clock.
@@ -100,7 +100,7 @@ namespace Controller {
         /// </summary>
         /// <param name="Freq">Desired frequency or disabled</param>
         /// <param name="OutCtrl">Logical level of output pin when the frequency is disabled (zero by default)</param>
-        public void SetSquareWave(SQWFreq Freq, SQWDisabledOutputControl OutCtrl = SQWDisabledOutputControl.Zero)
+        /*public void SetSquareWave(SQWFreq Freq, SQWDisabledOutputControl OutCtrl = SQWDisabledOutputControl.Zero)
         {
             byte SqwCtrlReg = (byte) OutCtrl;
             
@@ -117,7 +117,7 @@ namespace Controller {
             SqwCtrlReg |= (byte) Freq; // bit 1 & 0 define the frequency of the square wave
             
             WriteRegister(DS1307_SQUARE_WAVE_CTRL_REGISTER_ADDRESS, SqwCtrlReg);
-        }
+        }*/
 
         /// <summary>
         /// Halts / Resumes the time-keeping function on the clock.
