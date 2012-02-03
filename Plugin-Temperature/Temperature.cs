@@ -2,7 +2,7 @@
 using Microsoft.SPOT;
 using SecretLabs.NETMF.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
-using System;
+
 
 namespace Plugins
 {
@@ -29,7 +29,6 @@ namespace Plugins
 
 		public override int TimerInterval() { return 60; }
 		public IPluginData GetData() { return m_data; }
-		public override void EventHandler(object sender, IPluginData data) { }
 
 		public Temperature()
 		{
@@ -39,6 +38,7 @@ namespace Plugins
 
 		public override void TimerCallback(object state)
 		{
+			Debug.Print("Temperature Callback");
 			// get current temperature
 			m_data.SetValue(CalculateTemperature());
 

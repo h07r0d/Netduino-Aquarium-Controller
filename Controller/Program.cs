@@ -1,12 +1,11 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
-using System.IO;
-using System.Xml;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Controller
 {
@@ -57,15 +56,6 @@ namespace Controller
 			// Initialize required components
 			bootstrap();
 			 
-
-			
-			
-
-			
-					case Category.Output:
-						
-		
-
 			OutputPort led = new OutputPort(Pins.ONBOARD_LED, false);
 			while (true)
 			{
@@ -77,48 +67,53 @@ namespace Controller
 
 		private static void bootstrap()
 		{
-			// On startup, set internal clock from DS1307
-			DS1307 m_clock = new DS1307();
-			// Make sure clock is running
-			m_clock.Halt(false);
-			Utility.SetLocalTime(m_clock.Get());
-			m_clock.Dispose();
-
-			// Load app config and pull enabled plugins
-			FileStream config = new FileStream(@"\SD\app.config", FileMode.Open);
-			using (XmlReader rdr = XmlReader.Create(config))
+			// Set system time
+			//DS1307 clock = new DS1307();
+			//clock.Halt(false);
+			//Utility.SetLocalTime(clock.Get());
+			//clock.Dispose();
+		
+			Config settings = new Config();
+			settings.Load(@"\SD\app.ini");
+			
+			// loop through config sections and load modules as needed
+			foreach (Section item in settings.Sections)
 			{
-				while (rdr.Read())
+				// skip the plugin if it's disabled
+				if (item.Keys["enabled"] == "false")
+					continue;
+
+				switch (item.Keys["type"])
 				{
-					// If it's a plugin and it's enabled, process it
-					if ( (rdr.NodeType == XmlNodeType.Element) && (rdr.GetAttribute("enabled") == "true") )
-					{
-						switch (rdr.LocalName)
-						{
-							case "input":
-								InputPlugin newInputPlugin = LoadInputPlugin(rdr.GetAttribute("name"));
-								// spin out a Timer to handle the data, and provide the delegate to pass data back
-								TimeSpan timespan = new TimeSpan(0, 0/*newPlugin.TimerInterval()*/, 10);
-								Timer input = new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan);
-								break;
-							case "output":
-								OutputPlugin newOutputPlugin = LoadOutputPlugin(rdr.GetAttribute("name"));
-								// Add output EventHandler to weak delegate list
-								m_opc.DataEvent += newOutputPlugin.EventHandler;
-								break;
-							default:
-								break;
-						}						
-					}
+					case "input":
+						InputPlugin newInputPlugin = LoadInputPlugin(item.Name);
+						// spin out a Timer to handle the data, and provide the delegate to pass data back
+						TimeSpan timespan = new TimeSpan(0, 0/*newPlugin.TimerInterval()*/, 10);
+						Timer input = new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan);
+						break;
+					case "output":
+						OutputPlugin newOutputPlugin = null;
+						// Special case for Thingspeak plugin, requires an API key from the config file
+						if (item.Keys["write_api"] != null)
+							newOutputPlugin = LoadOutputPlugin(item.Name, item.Keys["write_api"]);
+						else if(item.Keys["location"] != null)
+							// Special case for Logfile plugin, requires file name for writing
+							newOutputPlugin = LoadOutputPlugin(item.Name, item.Keys["location"]);
+						else
+							newOutputPlugin = LoadOutputPlugin(item.Name);
+
+						// Add output EventHandler to weak delegate list
+						m_opc.DataEvent += newOutputPlugin.EventHandler;
+						break;
 				}
-			}
+			}			
 		}
 
 		private static Assembly LoadAssembly(string _name)
 		{
 			try
 			{
-				using (FileStream fs = new FileStream(@"\SD\Plugins" + _name + ".pe", FileMode.Open, FileAccess.Read))
+				using (FileStream fs = new FileStream(m_pluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
 				{					
 					// Create an assembly
 					byte[] pluginBytes = new byte[(int)fs.Length];
@@ -127,10 +122,10 @@ namespace Controller
 					return asm;
 				}
 			}
-			catch (IOException ioe) { throw; }
+			catch (IOException) { throw; }
 		}
 
-		private static InputPlugin LoadInputPlugin(string _name, string[] _options = null)
+		private static InputPlugin LoadInputPlugin(string _name)
 		{
 			Assembly asm = LoadAssembly(_name);
 				
@@ -147,7 +142,7 @@ namespace Controller
 			return null;
 		}
 
-		private static OutputPlugin LoadOutputPlugin(string _name, string[] _options = null)
+		private static OutputPlugin LoadOutputPlugin(string _name, string _options = null)
 		{
 			Assembly asm = LoadAssembly(_name);
 
@@ -157,57 +152,16 @@ namespace Controller
 				if (type.GetMethod("EventHandler") != null)
 				{
 					// It's an output Plugin, create it and pass back
+					if (_options != null)
+					{
+						// Provided options means the Constructor has arguments
+						return (OutputPlugin)type.GetConstructor(new[] { typeof(string) }).Invoke(new object[] { _options }); 
+					}
 					return (OutputPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
 				}
 			}
 			// couldn't find an appropriate plugin
 			return null;
-		}
-
-		private static Plugin[] LoadPlugins()
-		{
-			// parse app.config
-			// Determine the number of plugins available
-			string[] pluginNames = Directory.GetFiles(m_pluginFolder);
-			byte[] pluginBytes;
-			FileStream fs;
-			FileInfo fi;
-			Assembly asm;
-			MethodInfo mi;
-
-			// Plugins found, process them and instanciate
-			int plugCount = pluginNames.Length;
-			Plugin[] plugins = new Plugin[plugCount];
-			for (int i = 0; i < plugCount; i++)
-			{
-				fi = new FileInfo(pluginNames[i]);
-				// open the file only if it's an assembly
-				if (fi.Extension == ".pe")
-				{
-					//Open the file and dump to byte array
-					try
-					{
-						using (fs = new FileStream(pluginNames[i], FileMode.Open, FileAccess.Read))
-						{
-							// Create an assembly
-							pluginBytes = new byte[(int)fs.Length];
-							fs.Read(pluginBytes, 0, (int)fs.Length);
-							asm = Assembly.Load(pluginBytes);
-
-							// figure out properties
-							// we only need actual Input and Output plugins
-							// if the type does not have a PluginCategory, don't
-							// hold it
-							foreach (Type test in asm.GetTypes())
-							{
-								
-							}
-						}
-					}
-					catch (IOException) { throw; }				
-				}
-			}
-			return plugins;
 		}
     }
 
