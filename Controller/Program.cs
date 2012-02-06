@@ -6,6 +6,7 @@ using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using System.Collections;
 
 namespace Controller
 {
@@ -51,6 +52,8 @@ namespace Controller
 		/// </summary>
 		private static InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
 
+		private static ArrayList m_timers = new ArrayList();
+
         public static void Main()
         {
 			// Initialize required components
@@ -88,8 +91,8 @@ namespace Controller
 					case "input":
 						InputPlugin newInputPlugin = LoadInputPlugin(item.Name);
 						// spin out a Timer to handle the data, and provide the delegate to pass data back
-						TimeSpan timespan = new TimeSpan(0, 0/*newPlugin.TimerInterval()*/, 10);
-						Timer input = new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan);
+						TimeSpan timespan = new TimeSpan(0, newInputPlugin.TimerInterval(), 0);
+						m_timers.Add(new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan));
 						break;
 					case "output":
 						OutputPlugin newOutputPlugin = null;
