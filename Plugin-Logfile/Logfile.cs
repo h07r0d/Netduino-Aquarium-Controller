@@ -5,19 +5,27 @@ using Microsoft.SPOT;
 
 namespace Plugins
 {
-	public class Logfile : IPlugin
+	public class Logfile : OutputPlugin
 	{
-		private readonly string _logFile = @"\SD\log.txt";
-		public Category Category() { return Controller.Category.Output; }
-		public int TimerInterval() { return 0; }
-		public void TimerCallback(Object state){}
-		public void EventHandler(Object sender, IPluginData data)
+		~Logfile() { Dispose(); }
+		public override void Dispose() { }
+		private string m_logFile;
+		public Logfile(string _location) { m_logFile = _location; }
+
+		public override void EventHandler(Object sender, IPluginData data)
 		{
-			Debug.Print("Logfile eventhandler hit\n");
+			Debug.Print(data.GetValue().ToString());
+
+			// Format string for output
+			string output = DateTime.Now.ToString() +",";
+			output += "," + data.DataType().ToString() + ",";
+			output += data.GetValue().ToString("F") + ",";
+			output += data.DataUnits();
+
 			// take data and write it out to text
-			using (StreamWriter sw = new StreamWriter(_logFile,true))
+			using (StreamWriter sw = new StreamWriter(m_logFile,true))
 			{
-				sw.WriteLine(DateTime.Now.ToString() + "," + data.DataType() + "," + data.GetValue() + "," + data.DataUnits());
+				sw.WriteLine(output);
 				sw.Flush();
 			}
 		}
