@@ -7,6 +7,8 @@ using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
 using System.Collections;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Controller
 {
@@ -52,6 +54,9 @@ namespace Controller
 		/// </summary>
 		private static InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
 
+		/// <summary>
+		/// Reference to any running timers to ensure they are not GC'd before they run
+		/// </summary>
 		private static ArrayList m_timers = new ArrayList();
 
         public static void Main()
@@ -71,11 +76,11 @@ namespace Controller
 		private static void bootstrap()
 		{
 			// Set system time
-			//DS1307 clock = new DS1307();
-			//clock.Halt(false);
-			//Utility.SetLocalTime(clock.Get());
-			//clock.Dispose();
-		
+			DS1307 clock = new DS1307();
+			clock.TwelveHourMode = false;
+			Utility.SetLocalTime(clock.CurrentDateTime);
+			
+			// Load Config file and spin out timers
 			Config settings = new Config();
 			settings.Load(@"\SD\app.ini");
 			
@@ -86,12 +91,30 @@ namespace Controller
 				if (item.Keys["enabled"] == "false")
 					continue;
 
+				// Relays use a bunch of timers to handle events
+				if (item.Name == "Relays")
+				{
+					ControlPlugin relayPlugin = LoadControlPlugin(item.Name);					
+					foreach (DictionaryEntry relay in item.Keys)
+					{
+						Debug.Print("Time=" + relay.Key.ToString() + ", Command=" + relay.Value.ToString());
+						if (relay.Key.ToString().Substring(0, 4) != "time")
+							continue;
+						
+						DictionaryEntry timerCommand = relayPlugin.ParseCommand(relay.Key.ToString(), relay.Value.ToString());
+						Debug.Print("execute in: "+timerCommand.Key.ToString());
+						// setup timer to run when configured, and every 24 hours after that.
+						// The ExecuteControl will receive an ArrayList of RelayCommands to run when the timer hits
+						m_timers.Add(new Timer(relayPlugin.ExecuteControl, timerCommand.Value, (TimeSpan)timerCommand.Key, new TimeSpan(24, 0, 0)));
+					}
+					continue;
+				}
 				switch (item.Keys["type"])
 				{
 					case "input":
 						InputPlugin newInputPlugin = LoadInputPlugin(item.Name);
 						// spin out a Timer to handle the data, and provide the delegate to pass data back
-						TimeSpan timespan = new TimeSpan(0, newInputPlugin.TimerInterval(), 0);
+						TimeSpan timespan = new TimeSpan(0, /*newInputPlugin.TimerInterval()*/0, 5);
 						m_timers.Add(new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan));
 						break;
 					case "output":
@@ -142,6 +165,27 @@ namespace Controller
 				}
 			}
 			// couldn't find an appropriate plugin
+			return null;
+		}
+
+		private static ControlPlugin LoadControlPlugin(string _name, string _options = null)
+		{
+			Assembly asm = LoadAssembly(_name);
+
+			//Control plugins have an ExecuteControl method, check for it
+			foreach (Type type in asm.GetTypes())
+			{
+				if (type.GetMethod("ExecuteControl") != null)
+				{
+					// Pass options if given
+					if(_options != null)
+						return (ControlPlugin)type.GetConstructor(new [] { typeof(string) }).Invoke(new object[] { _options });
+
+					return (ControlPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
+				}
+			}
+
+			// didn't find the correct method
 			return null;
 		}
 

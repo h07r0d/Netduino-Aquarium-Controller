@@ -27,7 +27,7 @@ namespace Plugins
 		private TemperatureData m_data;
 		private AnalogInput m_analogInput;
 
-		public override int TimerInterval() { return 60; }
+		public override int TimerInterval() { return 15; }
 		public IPluginData GetData() { return m_data; }
 
 		public Temperature()
@@ -42,6 +42,7 @@ namespace Plugins
 			// get current temperature
 			m_data.SetValue(CalculateTemperature());
 
+			Debug.Print(m_data.GetValue().ToString());
 			//Timer Callbacks receive a Delegate in the state object
 			InputDataAvailable ida = (InputDataAvailable)state;
 
@@ -54,19 +55,19 @@ namespace Plugins
 		/// </summary>
 		/// <returns>Float value of current Temperature reading</returns>
 		/// <remarks>Assuming AREF of 3.3v, the default for Rev. B Netduino Plus boards.
-		/// It's an internal value, no feed to AREF required.
-		/// Pinouts for the probe:
-		/// - Brown=Ground
-		/// - White/Green=VIn
-		/// - Green=AnalogRead</remarks>
+		/// It's an internal value, no feed to AREF required.</remarks>
 		private float CalculateTemperature()
 		{
 			// take 10 readings to even out the voltage
 			int voltage = 0;
-			for (int i = 0; i < 10; i++) { voltage += m_analogInput.Read(); }
+			for (int i = 0; i < 10; i++) { voltage += m_analogInput.Read();
+			Debug.Print(voltage.ToString());}
 			voltage /= 10;
 			
-			return (3.3f * voltage * 100f) / 1023f;
+			// Amplifier circuit in place, pumping up the millivolt readings to volts
+			// Also, the amplifier circuit introduces some drift, so adding a 'fudge' factor
+			// to compensate.  This is purely from emperical data gathered
+			return (3.3f * voltage * 10f) / 1023f;
 		}
 	}
 }
