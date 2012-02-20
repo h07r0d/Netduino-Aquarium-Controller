@@ -11,3 +11,14 @@ write_api=api key goes here
 enabled=false
 type=output
 location=log.txt
+
+[Relays]
+enabled=false
+type=control
+#The Time entries show when control events should fire.
+#The Relays plugin assumes an identifier and a status flag per relay
+#Multiple relays are delimited by |
+time0730=0,on|1,on
+time1730=0,off|1,off
+time1000=2,on
+time1010=2,off
