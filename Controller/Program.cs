@@ -59,6 +59,15 @@ namespace Controller
 
         public static void Main()
         {
+			// test JSON
+			using (FileStream fs = new FileStream(@"\SD\config.json", FileMode.Open))
+			{
+				using (StreamReader sr = new StreamReader(fs))
+				{
+					string configString = sr.ReadToEnd();
+					Hashtable test = (Hashtable)JSON.JsonDecode(configString);
+				}
+			}
 			// Initialize required components
 			bootstrap();
 			 

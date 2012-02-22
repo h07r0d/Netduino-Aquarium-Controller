@@ -1,4 +1,3 @@
-
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
@@ -22,6 +21,7 @@ Thumbs.db
 *.ilk
 *.log
 *.ini
+config.js
 [Bb]in
 [Dd]ebug*/
 *.lib
