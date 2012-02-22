@@ -1,0 +1,28 @@
+﻿{"config": {
+	"input": {
+		"Temperature": {
+			"enabled":"true"
+		}
+	},
+	"output": {
+		"Thingspeak": {
+			"enabled":"true",
+			"write-api":"Thingspeak API Key"
+		},
+		"Logfile": {
+			"enabled":"true",
+			"file-name":"\\SD\\log.txt"
+		}
+	},
+	"control": {
+		"Relays": {
+			"enabled":"true",
+			"relays": [
+				{"id":1, "on":730, "off":1700},
+				{"id":2, "on":730, "off":1700},
+				{"id":3, "on":100, "off":200},
+				{"id":4, "on":1000, "off":1010}
+			]
+		}
+	}
+}}

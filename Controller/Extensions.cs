@@ -22,6 +22,20 @@ namespace Controller
 			}
 			return false;
 		}
+
+		public static string PadLeft(this String _src, int _count, char _pad)
+		{
+			if (_src.Length >= _count)
+				return _src;
+
+			StringBuilder newString = new StringBuilder();
+			for (int i = 0; i < _count-_src.Length; i++)
+			{
+				newString.Append(_pad);
+			}
+			newString.Append(_src);
+			return newString.ToString();
+		}
 	}
 
 	public static class StringBuilderExtensions
