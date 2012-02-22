@@ -72,45 +72,45 @@ namespace Controller {
 			if ((clockData[0x02] & 0x40) == 0x40) { // 12-hour mode
 				if ((hour & 0x20) == 0x20)
 					hour += 12;
-				hour += BcdToDec((byte)(clockData[0x02] & 0x1f)) + 1;
+				hour += ((byte)(clockData[0x02] & 0x1f)).ToDecimal() + 1;
 			}
 			else { // 24-hour mode
-				hour += BcdToDec((byte)(clockData[0x02] & 0x3f));
+				hour += ((byte)(clockData[0x02] & 0x3f)).ToDecimal();
 			}
 
 			return new DateTime(
-				BcdToDec(clockData[0x06]) + 2000, // year
-				BcdToDec(clockData[0x05]), // month
-				BcdToDec(clockData[0x04]), // day
+				clockData[0x06].ToDecimal() + 2000, // year
+				clockData[0x05].ToDecimal(), // month
+				clockData[0x04].ToDecimal(), // day
 				hour, // hour
-				BcdToDec(clockData[0x01]), // minutes
-				BcdToDec((byte)(clockData[0x00] & 0x7f)));
+				clockData[0x01].ToDecimal(), // minutes
+				((byte)(clockData[0x00] & 0x7f)).ToDecimal());
 		}
 
 		private byte[] EncodeDate(DateTime value, bool clockHalt, bool hourMode) {
 			byte seconds = 0x00;
 			if (clockHalt) seconds |= 0x80;
-			seconds |= (byte)(DecToBcd(value.Second) & 0x7f);
+			seconds |= (byte)(value.Second.ToBcd() & 0x7f);
 
 			byte hour = 0x00;
 			if (hourMode) { // 12-hour mode
 				hour |= 0x40; //set the 12-hour flag
 				if (value.Hour >= 12)
 					hour |= 0x20;
-				hour |= DecToBcd((value.Hour % 12) + 1);
+				hour |= ((value.Hour % 12) + 1).ToBcd();
 			}
 			else { //24-hour mode
-				hour |= DecToBcd(value.Hour);
+				hour |= value.Hour.ToBcd();
 			}
 
 			return new byte[DS1307_RTC_SIZE] { 
 				seconds, 
-				DecToBcd(value.Minute), 
+				value.Minute.ToBcd(), 
 				hour, 
-				DecToBcd((int)value.DayOfWeek), 
-				DecToBcd(value.Day), 
-				DecToBcd(value.Month), 
-				DecToBcd(value.Year - 2000)};
+				((int)value.DayOfWeek).ToBcd(), 
+				value.Day.ToBcd(), 
+				value.Month.ToBcd(), 
+				(value.Year - 2000).ToBcd()};
 		}
 
 		/// <summary>
@@ -265,27 +265,10 @@ namespace Controller {
 			}
 		}
 
-		/// <summary>
-		/// Takes a Binary-Coded-Decimal value and returns it as an integer value
-		/// </summary>
-		/// <param name="val">BCD encoded value</param>
-		/// <returns>An integer value</returns>
-		protected int BcdToDec(byte val) {
-			int ones = (val & 0x0f);
-			int tens = (val & 0xf0) >> 4;
-			return (tens * 10) + ones;
-		}
+		
 
-		/// <summary>
-		/// Takes a Decimal value and converts it into a Binary-Coded-Decimal value
-		/// </summary>
-		/// <param name="val">Value to be converted</param>
-		/// <returns>A BCD-encoded value</returns>
-		protected byte DecToBcd(int val) {
-			byte lowOrder = (byte)(val % 10);
-			byte highOrder = (byte)((val / 10) << 4);
-			return (byte)(highOrder | lowOrder);
-		}
+		
+		
 		
 		/// <summary>
 		/// Releases clock resources

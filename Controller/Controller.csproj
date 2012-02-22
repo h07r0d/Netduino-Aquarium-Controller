@@ -30,7 +30,8 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Bootstrap.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="IcDS1307.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
