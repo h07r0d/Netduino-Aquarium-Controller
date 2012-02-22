@@ -67,7 +67,8 @@ namespace Plugins
 			// Amplifier circuit in place, pumping up the millivolt readings to volts
 			// Also, the amplifier circuit introduces some drift, so adding a 'fudge' factor
 			// to compensate.  This is purely from emperical data gathered
-			return (3.3f * voltage * 10f) / 1023f;
+			float tempValue = ((3.3f * voltage * 10f) / 1023f) - 1.4f;
+			return tempValue;
 		}
 	}
 }

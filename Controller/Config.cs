@@ -3,36 +3,22 @@ using System.IO;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using System.Collections;
+using System.Text;
 
 /**
  * Parts taken from ini4net.codeplex.com
  * Full code not pulled, as most functionality is not needed
  */
 
-#region String Extension
-public static class Strings
-{
-	public static bool Contains(string _src, string _search)
-	{
-		for (int i = 0; i < _src.Length; i++)
-		{
-			if (_src.IndexOf(_search) >= 0) { return true; }
-		}
-		return false;
-	}
-}
-#endregion
-
 namespace Controller
 {
-
 	#region Syntax Class
 	internal class Syntax
 	{
-		public static readonly char Comment = '#';
-		public static readonly char Seperator = '=';
-		public static readonly char SectionStart = '[';
-		public static readonly char SectionEnd = '[';
+		public const char Comment = '#';
+		public const char Seperator = '=';
+		public const char SectionStart = '[';
+		public const char SectionEnd = '[';
 	}
 	#endregion
 
@@ -81,6 +67,7 @@ namespace Controller
 	}
 	#endregion
 
+	#region KeyPair hashtable wrapper
 	public class KeyPairList : IEnumerable
 	{
 		private Hashtable m_list = new Hashtable();
@@ -120,11 +107,17 @@ namespace Controller
 			m_list.Add(_key.Trim(), _value.Trim());
 		}
 
+		public ICollection GetKeys()
+		{
+			return m_list.Keys;
+		}
+
 		public IEnumerator GetEnumerator()
 		{
 			return m_list.GetEnumerator();
 		}
 	}
+	#endregion
 
 	public class Config : IEnumerable
 	{
@@ -133,8 +126,8 @@ namespace Controller
 
 		private bool IsHeader(string _header)
 		{
-			return Strings.Contains(_header, Syntax.SectionStart.ToString()) &&
-				Strings.Contains(_header, Syntax.SectionEnd.ToString());
+			return _header.Contains(Syntax.SectionStart) &&
+				_header.Contains(Syntax.SectionEnd);
 		}
 
 		public Section this[string sectionName]
@@ -159,11 +152,76 @@ namespace Controller
 			get { return m_sections.Keys; }
 		}
 
+		private ICollection GetSectionsByType(string _type)
+		{
+			Hashtable inputs = new Hashtable();
+			foreach (Section section in m_sections)
+			{
+				if (section.Keys["type"] == _type)
+					inputs.Add(section.Name, section);
+			}
+			return inputs;
+		}
+
+		public ICollection InputSections
+		{
+			get { return GetSectionsByType("input"); }
+		}
+
+		public ICollection OutputSections
+		{
+			get { return GetSectionsByType("output"); }
+		}
+
+		public ICollection ControlSections
+		{
+			get { return GetSectionsByType("control"); }
+		}
+
 		public IEnumerator GetEnumerator()
 		{
 			return this.Sections.GetEnumerator();
 		}
 
+		private StringBuilder GetStringBuilder()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (Section item in Sections)
+			{
+				sb.AppendLine("[" + item.Name + "]");
+				foreach (string key in item.Keys.GetKeys())
+				{
+					sb.AppendLine(key + "=" + item.Keys[key]);
+				}
+				sb.AppendLine();
+			}
+			sb.AppendLine("");
+			return sb;
+		}		
+
+		public override string ToString()
+		{
+			return GetStringBuilder().ToString();
+		}
+		
+		/// <summary>
+		/// Write Config out to ini file
+		/// </summary>
+		/// <param name="_fileName">Name of file to write</param>
+		/// <param name="_overwrite">Overwrite the file if it already exists</param>
+		public void Save(string _fileName, bool _overwrite)
+		{
+			if (File.Exists(_fileName) && !_overwrite)
+				throw new Exception("File exists");
+
+			File.WriteAllBytes(_fileName, GetStringBuilder().ToBytes());
+		}
+
+		/// <summary>
+		/// Load text file into memory
+		/// </summary>
+		/// <param name="_fileName">Name of ini file to Load</param>
+		/// <returns>Config object containing all the sections and parameters</returns>
 		public bool Load(string _fileName)
 		{
 			// Loading file, make sure sections are empty
@@ -208,7 +266,7 @@ namespace Controller
 							section = new Section();
 
 							// ensure it's a valid section header
-							section.Name = Strings.Contains(line, Syntax.SectionEnd.ToString())
+							section.Name = line.Contains(Syntax.SectionEnd)
 								? line.Substring(1, line.Length - 2)
 								: line.Substring(1, line.Length - 1);
 							continue;							
@@ -217,11 +275,9 @@ namespace Controller
 						// working with a section already, add values
 						if (section != null)
 						{
-							if (Strings.Contains(line, Syntax.Seperator.ToString()))
-							{
-								int pos = line.IndexOf(Syntax.Seperator);
+							int pos = line.IndexOf(Syntax.Seperator);
+							if (pos > 0)
 								section.Keys.Add(line.Substring(0, pos), line.Substring(pos + 1));
-							}
 							else
 								section.Keys.Add(line, line);
 						}

@@ -8,10 +8,22 @@ using SecretLabs.NETMF.Hardware.NetduinoPlus;
 
 namespace Plugins
 {
+	/// <summary>
+	/// Control Plugin to manage the RelayShield http://www.seeedstudio.com/depot/relay-shield-p-693.html?cPath=132_134
+	/// Used to control lighting and ATO solenoid
+	/// </summary>
 	public class Relays : ControlPlugin
 	{
 		~Relays() { Dispose(); }
 		public override void Dispose() { m_relayPins = null; }
+
+		/// <summary>
+		/// Used during Command parsing to trigger immediate command execution.
+		/// Example: during mid-day, the lights should be on, but a reboot of the controller will restart
+		/// the Netduino, forcing a re-parse of the ini file.  
+		/// The timers will be setup to turn on the next day, but they need to be on immediately as well
+		/// </summary>
+		private bool m_missedExecute = false;
 
 		private OutputPort[] m_relayPins;
 		public Relays()
@@ -36,15 +48,24 @@ namespace Plugins
 
 		public override DictionaryEntry ParseCommand(string _time, string _command)
 		{
-			return new DictionaryEntry(GetTimeSpan(_time.Substring(4,4)), RelayCommands(_command));
+			TimeSpan timespan = GetTimeSpan(_time.Substring(4,4));
+			ArrayList arrayList = RelayCommands(_command);
+
+			// handle required execution
+			if (m_missedExecute)
+			{
+				ExecuteControl(arrayList);
+				m_missedExecute = false;
+			}
+
+			return new DictionaryEntry(timespan, arrayList);
 		}
 
 		/// <summary>
 		/// Determine the timespan from 'now' when the given command should be run
 		/// </summary>
 		/// <param name="_time">4 digit string representing a 24-hour time</param>
-		/// <returns>Timespan when task should be run</returns>
-		
+		/// <returns>Timespan when task should be run</returns>		
 		private TimeSpan GetTimeSpan(string _time)
 		{
 			// Determine when this event should be fired as a TimeSpan
@@ -56,8 +77,13 @@ namespace Plugins
 			DateTime timeToRun = new DateTime(now.Year, now.Month, now.Day, hours, minutes, 0);
 
 			// we missed the window, so setup for next run
+			// Also, mark that we missed the run, so we can execute the command during the parse.
+			// This fixes issues
 			if (timeToRun < now)
+			{
 				timeToRun = timeToRun.AddDays(1);
+				m_missedExecute = true;
+			}
 
 			return new TimeSpan((timeToRun - now).Ticks);
 		}

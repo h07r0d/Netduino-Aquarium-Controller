@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -6,9 +7,6 @@ using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
-using System.Collections;
-using System.Net;
-using System.Net.Sockets;
 
 namespace Controller
 {
@@ -76,10 +74,11 @@ namespace Controller
 		private static void bootstrap()
 		{
 			// Set system time
-			DS1307 clock = new DS1307();
-			clock.TwelveHourMode = false;
-			Utility.SetLocalTime(clock.CurrentDateTime);
-			
+			//DS1307 clock = new DS1307();
+			//clock.TwelveHourMode = false;
+			//Utility.SetLocalTime(clock.CurrentDateTime);
+			//clock.Dispose();
+
 			// Load Config file and spin out timers
 			Config settings = new Config();
 			settings.Load(@"\SD\app.ini");
@@ -114,7 +113,7 @@ namespace Controller
 					case "input":
 						InputPlugin newInputPlugin = LoadInputPlugin(item.Name);
 						// spin out a Timer to handle the data, and provide the delegate to pass data back
-						TimeSpan timespan = new TimeSpan(0, /*newInputPlugin.TimerInterval()*/0, 5);
+						TimeSpan timespan = new TimeSpan(0, newInputPlugin.TimerInterval(), 0);
 						m_timers.Add(new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan));
 						break;
 					case "output":
