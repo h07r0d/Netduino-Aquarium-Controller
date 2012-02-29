@@ -28,8 +28,21 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Emulator|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Emulator\</OutputPath>
+    <DefineConstants>DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_2</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="Bootstrap.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IcDS1307.cs" />
     <Compile Include="IPlugin.cs" />
@@ -49,6 +62,6 @@
     <Reference Include="System.IO" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(ProjectDir)app.ini e:\</PostBuildEvent>
+    <PostBuildEvent>copy $(ProjectDir)config.js g:\</PostBuildEvent>
   </PropertyGroup>
 </Project>

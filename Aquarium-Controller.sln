@@ -14,29 +14,41 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Emulator|Any CPU = Emulator|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
+		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Emulator|Any CPU.Deploy.0 = Emulator|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Build.0 = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.Build.0 = Release|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

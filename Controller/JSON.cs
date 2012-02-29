@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Text;
+using System.IO;
 
 namespace Controller
 {
@@ -12,6 +13,7 @@ namespace Controller
 	/// All numbers are parsed to doubles.
 	/// Pulled from http://techblog.procurios.nl/k/618/news/view/14605/14863/How-do-I-write-my-own-parser-for-JSON.html
 	/// </summary>
+	/// 	
 	public class JSON
 	{
 		public const int TOKEN_NONE = 0;
@@ -28,6 +30,23 @@ namespace Controller
 		public const int TOKEN_NULL = 11;
 
 		private const int BUILDER_CAPACITY = 2000;
+
+		public static object JsonDecodeFromFile(string file)
+		{
+			using (FileStream fs = new FileStream(file, FileMode.Open))
+			{
+				using (StreamReader sr = new StreamReader(fs))
+				{
+					// config.js is used by both the backend and frontend for configuration.
+					// The frontend requires a js var declaration in it, so strip the var components
+					// from the string
+					string configString = sr.ReadToEnd();
+					configString = configString.Substring(11, configString.Length - 12);
+					bool success = true;
+					return JsonDecode(configString, ref success);
+				}
+			}
+		}
 
 		/// <summary>
 		/// Parses the string json into a value
