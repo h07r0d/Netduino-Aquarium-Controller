@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
+
 
 namespace Controller
 {
@@ -25,15 +24,13 @@ namespace Controller
 	
     public class Program
     {
-		/// <summary>
-		/// Location of Plugins folder
-		/// </summary>
-		private static readonly string m_pluginFolder = @"\SD\Plugins\";
+		
 
 		/// <summary>
 		/// Control class for holding Output Plugin weak delegates
 		/// </summary>
 		private static OutputPluginControl m_opc = new OutputPluginControl();
+		public OutputPluginControl OPC { get { return m_opc; } }
 
 		/// <summary>
 		/// Delegate for signaling output plugins that data is available
@@ -56,20 +53,13 @@ namespace Controller
 		/// Reference to any running timers to ensure they are not GC'd before they run
 		/// </summary>
 		private static ArrayList m_timers = new ArrayList();
-
+		public ArrayList Timers { get { return m_timers; } }
+		
         public static void Main()
         {
-			// test JSON
-			using (FileStream fs = new FileStream(@"\SD\config.json", FileMode.Open))
-			{
-				using (StreamReader sr = new StreamReader(fs))
-				{
-					string configString = sr.ReadToEnd();
-					Hashtable test = (Hashtable)JSON.JsonDecode(configString);
-				}
-			}
 			// Initialize required components
-			bootstrap();
+			//bootstrap();
+			Bootstrap.Start();
 			 
 			OutputPort led = new OutputPort(Pins.ONBOARD_LED, false);
 			while (true)
@@ -88,6 +78,9 @@ namespace Controller
 			//Utility.SetLocalTime(clock.CurrentDateTime);
 			//clock.Dispose();
 
+					
+
+			/*
 			// Load Config file and spin out timers
 			Config settings = new Config();
 			settings.Load(@"\SD\app.ini");
@@ -140,87 +133,14 @@ namespace Controller
 						m_opc.DataEvent += newOutputPlugin.EventHandler;
 						break;
 				}
-			}			
+			}		*/	
 		}
 
-		private static Assembly LoadAssembly(string _name)
-		{
-			try
-			{
-				using (FileStream fs = new FileStream(m_pluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
-				{					
-					// Create an assembly
-					byte[] pluginBytes = new byte[(int)fs.Length];
-					fs.Read(pluginBytes, 0, (int)fs.Length);
-					Assembly asm = Assembly.Load(pluginBytes);
-					return asm;
-				}
-			}
-			catch (IOException) { throw; }
-		}
-
-		private static InputPlugin LoadInputPlugin(string _name)
-		{
-			Assembly asm = LoadAssembly(_name);
-				
-			//Input Plugins have a TimerCallback function, search for that in the assembly
-			foreach (Type type in asm.GetTypes())
-			{
-				if (type.GetMethod("TimerCallback") != null)
-				{
-					// It's an Input Plugin, create it and pass back
-					return (InputPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
-				}
-			}
-			// couldn't find an appropriate plugin
-			return null;
-		}
-
-		private static ControlPlugin LoadControlPlugin(string _name, string _options = null)
-		{
-			Assembly asm = LoadAssembly(_name);
-
-			//Control plugins have an ExecuteControl method, check for it
-			foreach (Type type in asm.GetTypes())
-			{
-				if (type.GetMethod("ExecuteControl") != null)
-				{
-					// Pass options if given
-					if(_options != null)
-						return (ControlPlugin)type.GetConstructor(new [] { typeof(string) }).Invoke(new object[] { _options });
-
-					return (ControlPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
-				}
-			}
-
-			// didn't find the correct method
-			return null;
-		}
-
-		private static OutputPlugin LoadOutputPlugin(string _name, string _options = null)
-		{
-			Assembly asm = LoadAssembly(_name);
-
-			//Output Plugins have an EventHandler function, search for that in the assembly
-			foreach (Type type in asm.GetTypes())
-			{
-				if (type.GetMethod("EventHandler") != null)
-				{
-					// It's an output Plugin, create it and pass back
-					if (_options != null)
-					{
-						// Provided options means the Constructor has arguments
-						return (OutputPlugin)type.GetConstructor(new[] { typeof(string) }).Invoke(new object[] { _options }); 
-					}
-					return (OutputPlugin)type.GetConstructor(new Type[0]).Invoke(new object[0]);
-				}
-			}
-			// couldn't find an appropriate plugin
-			return null;
-		}
+		
+		
     }
-
-	internal sealed class OutputPluginControl
+		
+	public sealed class OutputPluginControl
 	{
 		// Holds all the output delegates
 		private OutputPluginEventHandler m_eventHandler;
