@@ -15,7 +15,15 @@ namespace Plugins
 	public class Relays : ControlPlugin
 	{
 		~Relays() { Dispose(); }
-		public override void Dispose() { m_relayPins = null; }
+		public override void Dispose() { m_relayPins = null; m_commands = null; }
+
+		private Hashtable m_commands;
+		public override Hashtable Commands() { return m_commands; }
+
+		public override string WebFragment
+		{
+			get { return "relays.html"; }
+		}
 
 		/// <summary>
 		/// Used during Command parsing to trigger immediate command execution.
@@ -26,142 +34,83 @@ namespace Plugins
 		private bool m_missedExecute = false;
 
 		private OutputPort[] m_relayPins;
-		public Relays()
+		public Relays(object _config)
 		{
+			// Initialize Relay Pin controls
 			m_relayPins = new OutputPort[4];
 			m_relayPins[0] = new OutputPort(Pins.GPIO_PIN_D7, false);
 			m_relayPins[1] = new OutputPort(Pins.GPIO_PIN_D6, false);
 			m_relayPins[2] = new OutputPort(Pins.GPIO_PIN_D5, false);
 			m_relayPins[3] = new OutputPort(Pins.GPIO_PIN_D4, false);
+
+			// parse config Hashtable and store array list of commands
+			// the individual relays are stored in an Array List
+			m_commands = new Hashtable();
+			Hashtable config = (Hashtable)_config;			
+			ArrayList relays = config["relays"] as ArrayList;
+			ParseCommands(relays);
 		}
 
+		/// <summary>
+		/// Execute RelayCommand given in state object
+		/// </summary>
+		/// <param name="state">RelayCommand object to process on execution</param>
 		public override void ExecuteControl(object state)
 		{
-			// Callback received an ArrayList of RelayCommand structs to execute
-			// Assign each command via array index, and write the pin value in status
-			ArrayList commands = (ArrayList)state;
-			foreach (RelayCommand item in commands)
-			{
-				m_relayPins[item.relay].Write(item.status);
-			}
+			// Callback received a RelayCommand struct to execute			
+			var command = (RelayCommand)state;
+			m_relayPins[command.relay].Write(command.status);			
 		}
 
-		public override DictionaryEntry ParseCommand(string _time, string _command)
-		{
-			TimeSpan timespan = GetTimeSpan(_time.Substring(4,4));
-			ArrayList arrayList = RelayCommands(_command);
-
-			// handle required execution
-			if (m_missedExecute)
+		/// <summary>
+		/// Parse JSON array of relay config and store for delayed execution
+		/// </summary>
+		/// <param name="_commands">JSON formatted list of objects</param>
+		private void ParseCommands(ArrayList _commands)
+		{			
+			foreach (Hashtable command in _commands)
 			{
-				ExecuteControl(arrayList);
-				m_missedExecute = false;
-			}
+				// parse out details from config
+				short relayID = Convert.ToInt16(command["id"].ToString());							
+				TimeSpan timeOn = GetTimeSpan(command["on"].ToString());				
+				RelayCommand relayOn = new RelayCommand(relayID, true);
+				m_commands.Add(timeOn, relayOn);
+				if (m_missedExecute)
+					ExecuteControl(relayOn);
+				
+				TimeSpan timeOff = GetTimeSpan(command["off"].ToString());
+				RelayCommand relayOff = new RelayCommand(relayID, false);
+				m_commands.Add(timeOff, relayOff);
+				if (m_missedExecute)
+					ExecuteControl(relayOff);
 
-			return new DictionaryEntry(timespan, arrayList);
+			}			
 		}
 
 		/// <summary>
 		/// Determine the timespan from 'now' when the given command should be run
 		/// </summary>
-		/// <param name="_time">4 digit string representing a 24-hour time</param>
+		/// <param name="_time">An ISO8601 formatted time value representing the time of day for execution</param>
 		/// <returns>Timespan when task should be run</returns>		
 		private TimeSpan GetTimeSpan(string _time)
 		{
 			// Determine when this event should be fired as a TimeSpan
-			// Assuming the hour mark is at "##00" in the time string and
-			// minutes are at "00##" in the time string			
+			// Assuming ISO8601 time format "hh:mm"
 			int hours = int.Parse(_time.Substring(0, 2));
-			int minutes = int.Parse(_time.Substring(2, 2));
+			int minutes = int.Parse(_time.Substring(3, 2));
 			DateTime now = DateTime.Now;
 			DateTime timeToRun = new DateTime(now.Year, now.Month, now.Day, hours, minutes, 0);
 
 			// we missed the window, so setup for next run
 			// Also, mark that we missed the run, so we can execute the command during the parse.
-			// This fixes issues
+			
 			if (timeToRun < now)
 			{
-				timeToRun = timeToRun.AddDays(1);
+				timeToRun = timeToRun.AddDays(1);				
 				m_missedExecute = true;
 			}
 
 			return new TimeSpan((timeToRun - now).Ticks);
-		}
-
-		/// <summary>
-		/// Create list of Relay Commands
-		/// </summary>
-		/// <param name="_commands">formatted command string that needs to be parsed</param>
-		/// <returns>Array of <see cref="RelayCommand"/> objects</returns>
-		private ArrayList RelayCommands(string _commands)
-		{
-			const int GET_RELAY = 0;
-			const int GET_STATE = 1;			
-			int state = GET_RELAY;
-			string value = string.Empty;
-			ArrayList commands = new ArrayList();
-			RelayCommand rc = new RelayCommand();
-			for (int i = 0; i < _commands.Length; i++)
-			{
-				switch (state)
-				{
-					case GET_RELAY:
-						if (_commands[i] == ',')
-							state++;
-						else
-							rc.relay = (_commands[i]-48);	// Convert to int value
-						break;
-					case GET_STATE:
-						if (_commands[i] == '|')	// End of command, store struct
-						{							
-							switch (value)
-							{
-								case "on":
-									rc.status = true;
-									break;
-								case "off":
-									rc.status = false;
-									break;
-								default:
-									break;
-							}
-							commands.Add(rc);							
-							value = string.Empty;
-							state = GET_RELAY;
-							rc = new RelayCommand();
-							break;
-						}
-						else
-							value += _commands[i];
-						break;					
-						
-					default:
-						break;
-				}
-			}
-
-			// For loop done, add a command if there is a relay number set
-			if (rc.relay >= 0)
-			{
-				switch (value)
-				{
-					case "on":
-						rc.status = true;
-						break;
-					case "off":
-						rc.status = false;
-						break;
-					default:
-						break;
-				}
-				commands.Add(rc);
-			}
-			foreach (RelayCommand item in commands)
-			{
-				Debug.Print("Relay - " +item.relay.ToString()+":"+item.status.ToString());
-			}
-
-			return commands;
-		}
+		}		
 	}
 }

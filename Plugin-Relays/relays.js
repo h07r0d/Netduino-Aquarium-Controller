@@ -34,7 +34,7 @@ var relayInit = function() {
 		/*
 			var button = this;
 			$.ajax({
-				url: '192.168.1.42/relay',
+				url: '/relay',
 				type: 'POST',
 				dataType: 'json',
 				data: {

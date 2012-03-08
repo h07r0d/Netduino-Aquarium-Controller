@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using Controller;
+using System.Collections;
 
 namespace Plugins
 {
@@ -10,16 +11,22 @@ namespace Plugins
 		~Thingspeak() { Dispose(); }
 		public override void Dispose() { }
 		private string m_httpPost;
+		private const string m_thingSpeakIP = "184.106.153.149";
+
+		public override string WebFragment
+		{
+			get { return "thingspeak.html"; }
+		}
 
 		public Thingspeak() { }
 
-		public Thingspeak(string _key)
+		public Thingspeak(object _config)
 		{
-			//m_httpPost = String.Concat(m_PostHeader, _key, m_PostFooter);
+			Hashtable config = (Hashtable)_config;			
 			m_httpPost = "POST /update HTTP/1.1\n";
 			m_httpPost += "Host: api.thingspeak.com\n";
 			m_httpPost += "Connection: close\n";
-			m_httpPost += "X-THINGSPEAKAPIKEY: " + _key + "\n";
+			m_httpPost += "X-THINGSPEAKAPIKEY: " + config["writeapi"].ToString() + "\n";
 			m_httpPost += "Content-Type: application/x-www-form-urlencoded\n";
 			m_httpPost += "Content-Length: ";			
 		}
@@ -42,28 +49,19 @@ namespace Plugins
 
 			// add content length to post string, then data
 			string postString = m_httpPost + fieldData.Length + "\n\n" + fieldData;
-
-			Microsoft.SPOT.Debug.Print(postString);
+			
 			//Open the Socket and post the data
 			// create required networking parameters
 			
-			using (Socket thingSpeakSocket = ConnectSocket("184.106.153.149", 80))
+			using (Socket thingSpeakSocket = ConnectSocket(m_thingSpeakIP, 80))
 			{				
 				Byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(postString);
 				thingSpeakSocket.Send(sendBytes, sendBytes.Length, 0);
-
 				
 				// wait for a response to see what happened
 				Byte[] buffer = new Byte[1024];
 				String page = String.Empty;
-				/*
-				// Wait up to 30 seconds for initial data to be available.  Throws an exception if the connection is closed with no data sent.
-				DateTime timeoutAt = DateTime.Now.AddSeconds(20);
-				while (thingSpeakSocket.Available == 0 && DateTime.Now < timeoutAt)
-				{
-					System.Threading.Thread.Sleep(100);
-				}
-				*/
+
 				// Poll for data until 30-second timeout.  Returns true for data and connection closed.
 				while (thingSpeakSocket.Poll(20 * 1000000, SelectMode.SelectRead))
 				{
@@ -77,8 +75,7 @@ namespace Plugins
 					Int32 bytesRead = thingSpeakSocket.Receive(buffer);
 					// Append the chunk to the string.
 					page = page + new String(System.Text.Encoding.UTF8.GetChars(buffer));
-				}
-				Microsoft.SPOT.Debug.Print(page);				
+				}							
 			}			
 		}
 	}
