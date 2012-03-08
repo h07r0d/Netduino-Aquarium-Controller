@@ -40,9 +40,11 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Bootstrap.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IcDS1307.cs" />
     <Compile Include="IPlugin.cs" />
@@ -55,6 +57,7 @@
     <None Include="config.js.example" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.SPOT.Graphics" />
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Native" />
     <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />

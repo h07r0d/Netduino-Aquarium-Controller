@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using Controller;
 using Microsoft.SPOT;
@@ -9,8 +10,18 @@ namespace Plugins
 	{
 		~Logfile() { Dispose(); }
 		public override void Dispose() { }
-		private string m_logFile;
-		public Logfile(string _location) { m_logFile = _location; }
+		public override string WebFragment
+		{
+			get { return "logfile.html"; }
+		}
+
+		private string m_logFile;		
+
+		public Logfile(object _config)
+		{			
+			Hashtable config = (Hashtable)_config;			
+			m_logFile = config["filename"].ToString();			
+		}
 
 		public override void EventHandler(Object sender, IPluginData data)
 		{

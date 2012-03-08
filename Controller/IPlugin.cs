@@ -5,12 +5,23 @@ namespace Controller
 {
 	public enum ThingSpeakFields : uint { Temperature = 1, pH = 2 };
 
+	/// <summary>
+	/// Simple struct to hold Relay instructions.
+	/// The commands are tied to a timespan for execution
+	/// </summary>
 	public struct RelayCommand
 	{
-		public int relay;
+		/// <summary>
+		/// ID of the Relay entry to modify
+		/// </summary>
+		public short relay;
+
+		/// <summary>
+		/// Value to write to the Digital I/O pin
+		/// </summary>
 		public bool status;
 
-		public RelayCommand(int _relay, bool _status)
+		public RelayCommand(short _relay, bool _status)
 		{
 			this.relay = _relay;
 			this.status = _status;
@@ -19,13 +30,19 @@ namespace Controller
 
 	public abstract class Plugin : IDisposable
 	{
-		public abstract void Dispose();		
+		// Implementation for Disposable
+		public abstract void Dispose();
+
+		// The controller is configured with a web front end served from the Netduino
+		// Each plugin handles it's own html generation, so a filename is provided to
+		// the controller pointing to the required html fragment
+		public abstract string WebFragment { get; }
 	}
 
 	public abstract class InputPlugin : Plugin
-	{		
-		public abstract void TimerCallback(Object state);
-		public abstract int TimerInterval();
+	{
+		public abstract int TimerInterval { get; }
+		public abstract void TimerCallback(Object state);		
 	}
 
 	public abstract class OutputPlugin : Plugin 
@@ -34,9 +51,9 @@ namespace Controller
 	}
 
 	public abstract class ControlPlugin : Plugin
-	{
-		public abstract DictionaryEntry ParseCommand(String time, String command);
+	{		
 		public abstract void ExecuteControl(Object state);
+		public abstract Hashtable Commands();
 	}
 
 	public interface IPluginData

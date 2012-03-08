@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.SPOT;
@@ -24,8 +26,6 @@ namespace Controller
 	
     public class Program
     {
-		
-
 		/// <summary>
 		/// Control class for holding Output Plugin weak delegates
 		/// </summary>
@@ -54,17 +54,19 @@ namespace Controller
 		/// </summary>
 		private static ArrayList m_timers = new ArrayList();
 		public ArrayList Timers { get { return m_timers; } }
-		
+
+		private static readonly string m_pluginFolder = @"\SD\Plugins\";
+
         public static void Main()
         {
 			// Initialize required components
-			//bootstrap();
-			Bootstrap.Start();
-			 
+			bootstrap();
+			// All plugins have been spun out and are running
+
+			// Blink LED to show we're still responsive
 			OutputPort led = new OutputPort(Pins.ONBOARD_LED, false);
 			while (true)
-			{
-				// Blink LED to show we're still responsive
+			{				
 				led.Write(!led.Read());
 				Thread.Sleep(500);
 			}
@@ -73,73 +75,96 @@ namespace Controller
 		private static void bootstrap()
 		{
 			// Set system time
+			DateTime.Now.SetFromNetwork(new TimeSpan(-5, 0, 0));
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
 			//clock.Dispose();
-
-					
-
-			/*
-			// Load Config file and spin out timers
-			Config settings = new Config();
-			settings.Load(@"\SD\app.ini");
 			
-			// loop through config sections and load modules as needed
-			foreach (Section item in settings.Sections)
-			{
-				// skip the plugin if it's disabled
-				if (item.Keys["enabled"] == "false")
-					continue;
+			// Each key in 'config' is a collection of plugin types (input, output, control),
+			// so pull out of the root element
+			Hashtable config = ((Hashtable)JSON.JsonDecodeFromFile(@"\SD\config.js"))["config"] as Hashtable;
 
-				// Relays use a bunch of timers to handle events
-				if (item.Name == "Relays")
-				{
-					ControlPlugin relayPlugin = LoadControlPlugin(item.Name);					
-					foreach (DictionaryEntry relay in item.Keys)
-					{
-						Debug.Print("Time=" + relay.Key.ToString() + ", Command=" + relay.Value.ToString());
-						if (relay.Key.ToString().Substring(0, 4) != "time")
-							continue;
-						
-						DictionaryEntry timerCommand = relayPlugin.ParseCommand(relay.Key.ToString(), relay.Value.ToString());
-						Debug.Print("execute in: "+timerCommand.Key.ToString());
-						// setup timer to run when configured, and every 24 hours after that.
-						// The ExecuteControl will receive an ArrayList of RelayCommands to run when the timer hits
-						m_timers.Add(new Timer(relayPlugin.ExecuteControl, timerCommand.Value, (TimeSpan)timerCommand.Key, new TimeSpan(24, 0, 0)));
-					}
-					continue;
-				}
-				switch (item.Keys["type"])
-				{
-					case "input":
-						InputPlugin newInputPlugin = LoadInputPlugin(item.Name);
-						// spin out a Timer to handle the data, and provide the delegate to pass data back
-						TimeSpan timespan = new TimeSpan(0, newInputPlugin.TimerInterval(), 0);
-						m_timers.Add(new Timer(newInputPlugin.TimerCallback, m_inputAvailable, timespan, timespan));
-						break;
-					case "output":
-						OutputPlugin newOutputPlugin = null;
-						// Special case for Thingspeak plugin, requires an API key from the config file
-						if (item.Keys["write_api"] != null)
-							newOutputPlugin = LoadOutputPlugin(item.Name, item.Keys["write_api"]);
-						else if(item.Keys["location"] != null)
-							// Special case for Logfile plugin, requires file name for writing
-							newOutputPlugin = LoadOutputPlugin(item.Name, item.Keys["location"]);
-						else
-							newOutputPlugin = LoadOutputPlugin(item.Name);
-
-						// Add output EventHandler to weak delegate list
-						m_opc.DataEvent += newOutputPlugin.EventHandler;
-						break;
-				}
-			}		*/	
+			// parse each plugin type
+			foreach (string name in config.Keys)
+				ParseConfig(config[name] as Hashtable, name);			
 		}
 
-		
-		
-    }
-		
+		/// <summary>
+		/// JSON Object contains nested components which need to be parsed down to indvidual plugin instructions
+		/// </summary>
+		/// <param name="_section">Current Hashtable being processed</param>
+		/// <param name="_type">Plugin type being processed</param>
+		/// <param name="_name">Name of Plugin being searched for</param>
+		private static void ParseConfig(Hashtable _section, string _type = null, string _name = null)
+		{
+			foreach (string name in _section.Keys)
+			{
+				if (_section[name] is Hashtable)
+					ParseConfig((Hashtable)_section[name], _type, name);
+				else
+				{
+					Debug.Print(_section["enabled"].ToString());
+					// reached bottom of config tree, pass the Hashtable to constructors
+					if(_section["enabled"].ToString() == "true")
+						LoadPlugin(_name, _type, _section);
+
+					return;
+				}
+			}
+		}
+
+		private static void LoadPlugin(string _name, string _type, Hashtable _config)
+		{
+			try
+			{
+				using (FileStream fs = new FileStream(m_pluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
+				{
+					// Create an assembly
+					byte[] pluginBytes = new byte[(int)fs.Length];
+					fs.Read(pluginBytes, 0, (int)fs.Length);
+					Assembly asm = Assembly.Load(pluginBytes);
+
+					foreach (Type type in asm.GetTypes())
+					{
+						Debug.Print(type.FullName);
+						if (type.FullName.Contains(_name))
+						{
+							// call the constructor with the hashtable as constructor
+							object plugin = (object)type.GetConstructor(new[] { typeof(object) }).Invoke(new object[] { _config });
+							switch (_type)
+							{
+								case "input":
+									// Input plugins should spin out a timer
+									InputPlugin ip = (InputPlugin)plugin;
+									TimeSpan timespan = new TimeSpan(0, ip.TimerInterval, 0);
+									m_timers.Add(new Timer(ip.TimerCallback, m_inputAvailable, timespan, timespan));
+									break;
+								case "output":
+									// Output plugins need to register an event handler
+									OutputPlugin op = (OutputPlugin)plugin;
+									m_opc.DataEvent += op.EventHandler;
+									break;
+								case "control":
+									// Control Plugins contain a command set that is parsed out into individual timers
+									ControlPlugin cp = (ControlPlugin)plugin;
+									foreach (DictionaryEntry item in cp.Commands())									
+										m_timers.Add(new Timer(cp.ExecuteControl, item.Value, (TimeSpan)item.Key, new TimeSpan(24, 0, 0)));
+									
+									break;
+								default:
+									break;
+							}
+						}
+					}
+
+				}
+			}
+			catch (IOException) { throw; }
+			return;
+		}		
+	}
+
 	public sealed class OutputPluginControl
 	{
 		// Holds all the output delegates
