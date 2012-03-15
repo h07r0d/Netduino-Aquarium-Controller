@@ -59,11 +59,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="thingspeak.html" />
+    <Content Include="Thingspeak.htm" />
     <Content Include="thingspeak.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)thingspeak.html g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

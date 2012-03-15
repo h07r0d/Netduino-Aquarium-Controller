@@ -60,11 +60,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="relays.html" />
+    <Content Include="Relays.htm" />
     <Content Include="relays.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)relays.html g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

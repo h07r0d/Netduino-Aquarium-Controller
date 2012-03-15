@@ -9,11 +9,7 @@ namespace Plugins
 	public class Logfile : OutputPlugin
 	{
 		~Logfile() { Dispose(); }
-		public override void Dispose() { }
-		public override string WebFragment
-		{
-			get { return "logfile.html"; }
-		}
+		public override void Dispose() { }		
 
 		private string m_logFile;		
 

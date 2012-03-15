@@ -4,6 +4,7 @@ using System.Collections;
 namespace Controller
 {
 	public enum ThingSpeakFields : uint { Temperature = 1, pH = 2 };
+	public enum PluginType { Input, Output, Control }
 
 	/// <summary>
 	/// Simple struct to hold Relay instructions.
@@ -31,12 +32,7 @@ namespace Controller
 	public abstract class Plugin : IDisposable
 	{
 		// Implementation for Disposable
-		public abstract void Dispose();
-
-		// The controller is configured with a web front end served from the Netduino
-		// Each plugin handles it's own html generation, so a filename is provided to
-		// the controller pointing to the required html fragment
-		public abstract string WebFragment { get; }
+		public abstract void Dispose();		
 	}
 
 	public abstract class InputPlugin : Plugin

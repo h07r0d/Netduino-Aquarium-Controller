@@ -20,11 +20,6 @@ namespace Plugins
 		private Hashtable m_commands;
 		public override Hashtable Commands() { return m_commands; }
 
-		public override string WebFragment
-		{
-			get { return "relays.html"; }
-		}
-
 		/// <summary>
 		/// Used during Command parsing to trigger immediate command execution.
 		/// Example: during mid-day, the lights should be on, but a reboot of the controller will restart

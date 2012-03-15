@@ -13,11 +13,6 @@ namespace Plugins
 		private string m_httpPost;
 		private const string m_thingSpeakIP = "184.106.153.149";
 
-		public override string WebFragment
-		{
-			get { return "thingspeak.html"; }
-		}
-
 		public Thingspeak() { }
 
 		public Thingspeak(object _config)

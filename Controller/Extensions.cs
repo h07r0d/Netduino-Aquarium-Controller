@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
@@ -11,7 +12,7 @@ namespace Controller
 	{
 		public static bool Contains(this String _src, string _search)
 		{
-			for (int i = 0, length=_src.Length; i < length; i++)
+			for (int i = _src.Length-1; i >= 0; --i)
 			{
 				if (_src.IndexOf(_search) >= 0) { return true; }
 			}
@@ -20,7 +21,7 @@ namespace Controller
 
 		public static bool Contains(this String _src, char _search)
 		{
-			for (int i = 0, length = _src.Length; i < length; i++)
+			for (int i = _src.Length-1; i >= 0; --i)
 			{
 				if (_src.IndexOf(_search) >= 0) { return true; }
 			}
@@ -81,6 +82,18 @@ namespace Controller
 		}
 	}
 
+	public static class FileStreamExtensions
+	{		
+		public static void CopyTo(this FileStream _input, FileStream _output)
+		{			
+			byte[] buffer = new byte[1024];
+			int read;
+			while ((read = _input.Read(buffer, 0, 1024)) > 0)
+				_output.Write(buffer, 0, read);
+			
+		}		
+    }
+		
 	public static class DateTimeExtensions
 	{
 		public static void SetFromNetwork(this DateTime dateTime, TimeSpan TimeZoneOffset)
@@ -92,10 +105,7 @@ namespace Controller
 			var ran = new Random(DateTime.Now.Millisecond);
 			var servers = new string[] { "time-a.nist.gov", "time-b.nist.gov", "nist1-la.ustiming.org", "nist1-chi.ustiming.org", "nist1-ny.ustiming.org", "time-nw.nist.gov" };
 
-			Debug.Print("Setting Date and Time from Network");
-
 			// Try each server in random order to avoid blocked requests due to too frequent request  
-
 			for (int i = 0; i < servers.Length; i++)
 			{
 				try
@@ -128,46 +138,18 @@ namespace Controller
 
 					s.Close();
 
-					// Exit if the last byte was modified (Cheezy)
-					//TODO: Compute the Digest and compare to that included to do a real check...
 					if (ntpData[47] != 0)
 					{
 						TimeSpan timeSpan = TimeSpan.FromTicks((long)milliseconds * TimeSpan.TicksPerMillisecond);
 						DateTime tempDateTime = new DateTime(1900, 1, 1);
 						tempDateTime += timeSpan;
-
-						//var tzi = new TimeZoneInformation(TimeZoneId.Eastern);
-						//TimeZoneId.Eastern
-
-						//Microsoft.SPOT.Time.TimeService.SetTimeZoneOffset(-300);
-
-
-
-						//TimeZone.CurrentTimeZone = TimeZoneId.Eastern;
-						//TimeSpan offsetAmount = TimeZone.CurrentTimeZone.GetUtcOffset(tempDateTime);
-						//offsetAmount = new TimeSpan(-5, 0, 0); // Since the previous line does nothing since the TZ cannot be set, I am manully doing UTC -5
 						DateTime networkDateTime = (tempDateTime + TimeZoneOffset);
-
-						Debug.Print(networkDateTime.ToString());
-
 						Utility.SetLocalTime(networkDateTime);
-
 						break;
 					}
-
 				}
-				catch (Exception)
-				{
-					/* Do Nothing...try the next server */
-				}
-
-				// Check to see that the signiture is there  
-
+				catch (Exception) { /* Do Nothing...try the next server */ }			
 			}
-
-			//TimeZone.CurrentTimeZone = TimeZoneId.Eastern;
-
-			//Microsoft.SPOT.ExtendedTimeZone.SetTimeZone(TimeZoneId.Berlin);
 		}
 	}
 }

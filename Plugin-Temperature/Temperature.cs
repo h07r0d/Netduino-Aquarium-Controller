@@ -26,8 +26,7 @@ namespace Plugins
 		private TempData m_data;
 		private AnalogInput m_analogInput;
 
-		public override int TimerInterval { get { return 15; } }
-		public override string WebFragment { get { return "temperature.html"; } }
+		public override int TimerInterval { get { return 15; } }		
 		public IPluginData GetData() { return m_data; }
 
 		public Temperature()

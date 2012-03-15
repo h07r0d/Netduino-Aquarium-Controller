@@ -62,11 +62,11 @@
     <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="temperature.html" />
+    <Content Include="Temperature.htm" />
     <Content Include="temperature.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)temperature.html g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -57,11 +57,11 @@
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="logfile.html" />
+    <Content Include="Logfile.htm" />
     <Content Include="logfile.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)logfile.html g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>
