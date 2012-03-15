@@ -1,5 +1,8 @@
 ﻿using System;
+<<<<<<< HEAD
+=======
 using System.Collections;
+>>>>>>> frontend
 using System.IO;
 using Controller;
 using Microsoft.SPOT;
@@ -9,15 +12,21 @@ namespace Plugins
 	public class Logfile : OutputPlugin
 	{
 		~Logfile() { Dispose(); }
+<<<<<<< HEAD
 		public override void Dispose() { }
-
 		private string m_logFile;
+		public Logfile(string _location) { m_logFile = _location; }
+=======
+		public override void Dispose() { }		
+
+		private string m_logFile;		
 
 		public Logfile(object _config)
 		{			
 			Hashtable config = (Hashtable)_config;			
 			m_logFile = config["filename"].ToString();			
 		}
+>>>>>>> frontend
 
 		public override void EventHandler(Object sender, IPluginData data)
 		{

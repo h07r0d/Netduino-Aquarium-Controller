@@ -5,8 +5,14 @@ using SecretLabs.NETMF.Hardware.NetduinoPlus;
 
 
 namespace Plugins
+<<<<<<< HEAD
+{
+	
+	public class TemperatureData : IPluginData
+=======
 {	
 	public class TempData : IPluginData
+>>>>>>> frontend
 	{
 		private float m_value;
 		public float GetValue() { return m_value; }
@@ -16,27 +22,45 @@ namespace Plugins
 	}
 
 	/// <summary>
+<<<<<<< HEAD
+	/// LN35DZ precision Centigrade chip
+=======
 	/// LM35DZ precision Centigrade chip
+>>>>>>> frontend
 	/// </summary>
 	public class Temperature : InputPlugin
 	{
 		~Temperature() { Dispose(); }
 		public override void Dispose() { }
 
+<<<<<<< HEAD
+		private TemperatureData m_data;
+		private AnalogInput m_analogInput;
+
+		public override int TimerInterval() { return 15; }
+=======
 		private TempData m_data;
 		private AnalogInput m_analogInput;
 
 		public override int TimerInterval { get { return 15; } }		
+>>>>>>> frontend
 		public IPluginData GetData() { return m_data; }
 
 		public Temperature()
 		{
+<<<<<<< HEAD
+			m_data = new TemperatureData();
+			m_analogInput = new AnalogInput(Pins.GPIO_PIN_A0);
+		}
+
+=======
 			m_data = new TempData();
 			m_analogInput = new AnalogInput(Pins.GPIO_PIN_A0);
 		}
 
 		public Temperature(object _config) : base() { }
 
+>>>>>>> frontend
 		public override void TimerCallback(object state)
 		{
 			Debug.Print("Temperature Callback");

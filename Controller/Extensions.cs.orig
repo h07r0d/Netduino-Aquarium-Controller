@@ -1,10 +1,14 @@
 using System;
+<<<<<<< HEAD
+using System.Text;
+=======
 using System.IO;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT;
+>>>>>>> frontend
 
 namespace Controller
 {
@@ -12,7 +16,11 @@ namespace Controller
 	{
 		public static bool Contains(this String _src, string _search)
 		{
+<<<<<<< HEAD
+			for (int i = 0; i < _src.Length; i++)
+=======
 			for (int i = _src.Length-1; i >= 0; --i)
+>>>>>>> frontend
 			{
 				if (_src.IndexOf(_search) >= 0) { return true; }
 			}
@@ -21,12 +29,18 @@ namespace Controller
 
 		public static bool Contains(this String _src, char _search)
 		{
+<<<<<<< HEAD
+			for (int i = 0; i < _src.Length; i++)
+=======
 			for (int i = _src.Length-1; i >= 0; --i)
+>>>>>>> frontend
 			{
 				if (_src.IndexOf(_search) >= 0) { return true; }
 			}
 			return false;
 		}
+<<<<<<< HEAD
+=======
 
 		public static string PadLeft(this String _src, int _count, char _pad)
 		{
@@ -41,6 +55,7 @@ namespace Controller
 			newString.Append(_src);
 			return newString.ToString();
 		}
+>>>>>>> frontend
 	}
 
 	public static class StringBuilderExtensions
@@ -81,6 +96,8 @@ namespace Controller
 			return (tens * 10) + ones;
 		}
 	}
+<<<<<<< HEAD
+=======
 
 	public static class FileStreamExtensions
 	{		
@@ -152,4 +169,5 @@ namespace Controller
 			}
 		}
 	}
+>>>>>>> frontend
 }

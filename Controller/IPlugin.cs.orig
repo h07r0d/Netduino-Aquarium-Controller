@@ -4,6 +4,15 @@ using System.Collections;
 namespace Controller
 {
 	public enum ThingSpeakFields : uint { Temperature = 1, pH = 2 };
+<<<<<<< HEAD
+
+	public struct RelayCommand
+	{
+		public int relay;
+		public bool status;
+
+		public RelayCommand(int _relay, bool _status)
+=======
 	public enum PluginType { Input, Output, Control }
 
 	/// <summary>
@@ -23,6 +32,7 @@ namespace Controller
 		public bool status;
 
 		public RelayCommand(short _relay, bool _status)
+>>>>>>> frontend
 		{
 			this.relay = _relay;
 			this.status = _status;
@@ -31,14 +41,23 @@ namespace Controller
 
 	public abstract class Plugin : IDisposable
 	{
+<<<<<<< HEAD
+=======
 		// Implementation for Disposable
+>>>>>>> frontend
 		public abstract void Dispose();		
 	}
 
 	public abstract class InputPlugin : Plugin
+<<<<<<< HEAD
+	{		
+		public abstract void TimerCallback(Object state);
+		public abstract int TimerInterval();
+=======
 	{
 		public abstract int TimerInterval { get; }
-		public abstract void TimerCallback(Object state);
+		public abstract void TimerCallback(Object state);		
+>>>>>>> frontend
 	}
 
 	public abstract class OutputPlugin : Plugin 
@@ -47,9 +66,15 @@ namespace Controller
 	}
 
 	public abstract class ControlPlugin : Plugin
+<<<<<<< HEAD
 	{
+		public abstract DictionaryEntry ParseCommand(String time, String command);
+		public abstract void ExecuteControl(Object state);
+=======
+	{		
 		public abstract void ExecuteControl(Object state);
 		public abstract Hashtable Commands();
+>>>>>>> frontend
 	}
 
 	public interface IPluginData

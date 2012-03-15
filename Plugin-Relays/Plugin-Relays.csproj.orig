@@ -16,7 +16,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
+<<<<<<< HEAD
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+=======
     <DefineConstants>TRACE;DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_2</DefineConstants>
+>>>>>>> frontend
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,6 +32,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+<<<<<<< HEAD
+=======
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Emulator|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Emulator\</OutputPath>
@@ -41,6 +47,7 @@
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
+>>>>>>> frontend
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,6 +66,10 @@
       <Name>Controller</Name>
     </ProjectReference>
   </ItemGroup>
+<<<<<<< HEAD
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe e:\plugins</PostBuildEvent>
+=======
   <ItemGroup>
     <Content Include="Relays.htm" />
     <Content Include="relays.js" />
@@ -66,5 +77,6 @@
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
 copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+>>>>>>> frontend
   </PropertyGroup>
 </Project>
