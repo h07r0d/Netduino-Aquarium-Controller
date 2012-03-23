@@ -9,21 +9,17 @@ namespace Controller
 	class HtmlBuilder : IDisposable
 	{
 		~HtmlBuilder() { Dispose(); }
-		public void Dispose()
-		{ 
-			m_headerScripts = null;
-			m_scriptCalls = null;
-			m_controlPlugins = null;
-			m_inputPlugins = null;
-			m_outputPlugins = null;
-		}
+		public void Dispose() { }
 
+		private byte[] m_closeDiv;
 		private readonly string m_ffnUrl = @"http://fishfornerds.com/files/";
 		private StringBuilder m_headerScripts;
 		private StringBuilder m_scriptCalls;
 		private ArrayList m_controlPlugins;
 		private ArrayList m_inputPlugins;
 		private ArrayList m_outputPlugins;
+
+
 		public HtmlBuilder()
 		{
 			m_headerScripts = new StringBuilder();
@@ -31,6 +27,7 @@ namespace Controller
 			m_controlPlugins = new ArrayList();
 			m_inputPlugins = new ArrayList();
 			m_outputPlugins = new ArrayList();
+			m_closeDiv = Encoding.UTF8.GetBytes("</div>");
 		}
 
 		public void AddPlugin(string _scriptName, PluginType _type, bool _local)
@@ -68,77 +65,97 @@ namespace Controller
 		}
 
 		public void GenerateIndex()
-		{
-			byte[] closeDiv = Encoding.UTF8.GetBytes("</div>");
-			using (FileStream index = new FileStream(@"\SD\index.html", FileMode.Create))
-			{
-				FileStream fragment = new FileStream(Program.FragmentFolder+"header.htm", FileMode.Open);
-				fragment.CopyTo(index);
-				fragment.Close();
-				index.Flush();
+		{			
+			FileStream index = new FileStream(@"\SD\index.html", FileMode.Create);
+			
+			FileStream fragment = new FileStream(Program.FragmentFolder+"header.htm", FileMode.Open);
+			fragment.CopyTo(index);
+			fragment.Close();
+			index.Flush();
 
-				// Header written, add JS Script links
-				byte[] stringBytes = m_headerScripts.ToBytes();
-				index.Write(stringBytes, 0, stringBytes.Length);
+			// Header written, add JS Script links
+			byte[] stringBytes = m_headerScripts.ToBytes();
+			index.Write(stringBytes, 0, stringBytes.Length);
 
-				fragment = new FileStream(Program.FragmentFolder+"body-start.htm", FileMode.Open);
-				fragment.CopyTo(index);
-				fragment.Close();
-				index.Flush();
+			fragment = new FileStream(Program.FragmentFolder+"body-start.htm", FileMode.Open);
+			fragment.CopyTo(index);
+			fragment.Close();
+			index.Flush();
 
-				//body start written, output plugin groups
-				stringBytes = Encoding.UTF8.GetBytes("<div id=\"control\">");
-				index.Write(stringBytes, 0, stringBytes.Length);
-				foreach (string item in m_controlPlugins)
-				{
-					fragment = new FileStream(Program.PluginFolder + item + ".htm", FileMode.Open);
-					fragment.CopyTo(index);
-					fragment.Close();						
-				}
-				index.Write(closeDiv, 0, closeDiv.Length);
-				index.Flush();
+			//body start written, output plugin groups
+			stringBytes = Encoding.UTF8.GetBytes("<div id=\"control\">");
+			index.Write(stringBytes, 0, stringBytes.Length);
+			if (!WritePlugins(ref index, PluginType.Control))
+				return;
 
-				// input plugins
-				stringBytes = Encoding.UTF8.GetBytes("<div id=\"input\">");
-				index.Write(stringBytes, 0, stringBytes.Length);
-				foreach (string item in m_inputPlugins)
-				{
-					fragment = new FileStream(Program.PluginFolder + item + ".htm", FileMode.Open);
-					fragment.CopyTo(index);
-					fragment.Close();
-				}
-				index.Write(closeDiv, 0, closeDiv.Length);
-				index.Flush();
+			// input plugins
+			stringBytes = Encoding.UTF8.GetBytes("<div id=\"input\">");
+			index.Write(stringBytes, 0, stringBytes.Length);
+			if (!WritePlugins(ref index, PluginType.Input))
+				return;
 
-				// output plugins
-				stringBytes = Encoding.UTF8.GetBytes("<div id=\"output\">");
-				index.Write(stringBytes, 0, stringBytes.Length);
-				foreach (string item in m_outputPlugins)
-				{
-					fragment = new FileStream(Program.PluginFolder + item + ".htm", FileMode.Open);
-					fragment.CopyTo(index);
-					fragment.Close();
-				}
-				index.Write(closeDiv, 0, closeDiv.Length);
-				index.Flush();
-
-				// close body
-				fragment = new FileStream(Program.FragmentFolder+"body-end.htm", FileMode.Open);
-				fragment.CopyTo(index);
-				fragment.Close();
+			// output plugins
+			stringBytes = Encoding.UTF8.GetBytes("<div id=\"output\">");
+			index.Write(stringBytes, 0, stringBytes.Length);
+			if (!WritePlugins(ref index, PluginType.Output))
+				return;
+			
+			// close body
+			fragment = new FileStream(Program.FragmentFolder+"body-end.htm", FileMode.Open);
+			fragment.CopyTo(index);
+			fragment.Close();
 				
-				// add JS calls to initiate front end
-				stringBytes = m_scriptCalls.ToBytes();
-				index.Write(stringBytes, 0, stringBytes.Length);
+			// add JS calls to initiate front end
+			stringBytes = m_scriptCalls.ToBytes();
+			index.Write(stringBytes, 0, stringBytes.Length);
 
-				// close document
-				fragment = new FileStream(Program.FragmentFolder+"footer.htm", FileMode.Open);
-				fragment.CopyTo(index);
-				fragment.Close();
+			// close document
+			fragment = new FileStream(Program.FragmentFolder+"footer.htm", FileMode.Open);
+			fragment.CopyTo(index);
+			fragment.Close();
 
-				index.Flush();
-				index.Close();
+			// finished building index
+			index.Flush();
+			index.Close();					
+		}
+
+		private bool WritePlugins(ref FileStream _index, PluginType _type)
+		{
+			IList currArray;
+			FileStream fragment;
+			switch (_type)
+			{
+				case PluginType.Input:
+					currArray = m_inputPlugins;
+					break;
+				case PluginType.Output:
+					currArray = m_outputPlugins;
+					break;
+				case PluginType.Control:
+					currArray = m_controlPlugins;
+					break;
+				default:
+					currArray = new ArrayList();
+					break;
 			}
+
+			try
+			{
+				foreach (string item in currArray)
+				{
+					fragment = new FileStream(Program.PluginFolder + item + ".htm", FileMode.Open);
+					fragment.CopyTo(_index);
+					fragment.Close();
+				}
+				_index.Write(m_closeDiv, 0, m_closeDiv.Length);
+				_index.Flush();
+			}
+			catch (IOException ioe)
+			{
+				Debug.Print(ioe.StackTrace);
+				return false;
+			}
+			return true;
 		}
 	}
 }

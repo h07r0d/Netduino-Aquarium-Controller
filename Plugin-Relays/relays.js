@@ -30,23 +30,21 @@ var relayInit = function() {
 		});
 		onButton.attr('checked', isRelayOn(onValue, offValue));
 		// AJAX call to Netduino to toggle relay status
-		onButton.click(function() { $(this).button("option","label", this.checked ? "On" : "Off"); });
-		/*
+		onButton.click(function() { $(this).button("option","label", this.checked ? "On" : "Off");
 			var button = this;
 			$.ajax({
-				url: '/relay',
-				type: 'POST',
+				url: '/Relays',
+				type: 'GET',
 				dataType: 'json',
 				data: {
-					relay: relayNumber,
+					relay: relayNumber-1,	//Relays are 0 indexed on the control system.
 					status: button.checked,
 				},
 				success: function(result) {
 					
 				}
 			});
-		});
-		*/
+		});		
 		onButton.button({ label: (isRelayOn(onValue, offValue) ? "On" : "Off") }).button('refresh');
 	});
 };

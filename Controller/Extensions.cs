@@ -5,9 +5,54 @@ using System.Net;
 using System.Net.Sockets;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT;
+using System.Collections;
 
 namespace Controller
 {
+	public sealed class EventHandlerList : IDisposable
+	{
+		private Hashtable table;		
+		public EventHandlerList() { }
+		public void Dispose() { table = null; }
+		public Delegate this[object _key]
+		{
+			get
+			{
+				if (table == null)
+					return null;
+				return table[_key] as Delegate;
+			}
+			set
+			{
+				AddHandler(_key, value);
+			}
+		}
+
+		public void AddHandler(object _key, Delegate _value)
+		{
+			if (table == null)
+				table = new Hashtable();
+
+			Delegate prev = table[_key] as Delegate;
+			prev = WeakDelegate.Combine(prev, _value);
+			table[_key] = prev;
+		}
+
+		public void RemoveHandler(object _key, Delegate _value)
+		{
+			if (table == null)
+				return;
+
+			Delegate prev = table[_key] as Delegate;
+			prev = WeakDelegate.Remove(prev, _value);
+			table[_key] = prev;
+		}
+
+		
+	}
+
+
+
 	public static class StringExtensions
 	{
 		public static bool Contains(this String _src, string _search)

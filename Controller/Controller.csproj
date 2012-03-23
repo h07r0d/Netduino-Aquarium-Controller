@@ -45,15 +45,13 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Config.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="HtmlBuilder.cs" />
     <Compile Include="IcDS1307.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="JSON.cs" />
-    <Compile Include="Listener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Request.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.js" />
@@ -70,6 +68,12 @@
     <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.IO" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebServer\WebServer.csproj">
+      <Project>{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}</Project>
+      <Name>WebServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(ProjectDir)config.js g:\

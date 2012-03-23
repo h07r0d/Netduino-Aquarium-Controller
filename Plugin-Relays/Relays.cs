@@ -54,6 +54,7 @@ namespace Plugins
 		{
 			// Callback received a RelayCommand struct to execute			
 			var command = (RelayCommand)state;
+			Debug.Print(command.relay + "=" + command.status);
 			m_relayPins[command.relay].Write(command.status);			
 		}
 
