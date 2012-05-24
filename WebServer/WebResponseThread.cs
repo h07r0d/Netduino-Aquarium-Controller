@@ -1,11 +1,10 @@
 using System;
-using Microsoft.SPOT;
-using System.Threading;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Collections;
 using System.IO;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using Microsoft.SPOT;
 
 // This code has been modified from Freds Webserver, thanks Fred.
 namespace WebServer
@@ -18,7 +17,7 @@ namespace WebServer
     public class WebResponseThread
     {
         const int _LanPacketByteCount = 1024;
-        const int _PostRxBufferSize = 1500;
+        const int _PostRxBufferSize = 1024;
         private Thread currentThread = null;        
         private ResponseHandler _ResponseHandler = null;
         private WorkFinishedHandler _WorkFinishedHandler = null;

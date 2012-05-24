@@ -6,13 +6,18 @@ using System.IO;
 
 namespace Controller
 {
+	/// <summary>
+	/// Class used to generate the web front-end homepage.
+	/// Uses a combination of files hosted externally from the Netduino,
+	/// some templating fragments, and snippets for each active plugin
+	/// </summary>
 	class HtmlBuilder : IDisposable
 	{
 		~HtmlBuilder() { Dispose(); }
 		public void Dispose() { }
 
 		private byte[] m_closeDiv;
-		private readonly string m_ffnUrl = @"http://fishfornerds.com/files/";
+		private readonly string m_hostUrl = @"http://fishfornerds.com/files/";
 		private StringBuilder m_headerScripts;
 		private StringBuilder m_scriptCalls;
 		private ArrayList m_controlPlugins;
@@ -36,7 +41,7 @@ namespace Controller
 			StringBuilder script = new StringBuilder();
 			script.Append("<script src=\"");
 			if (!_local)
-				script.Append(m_ffnUrl);
+				script.Append(m_hostUrl);
 			script.Append(_scriptName);
 			script.Append(".min.js\" type=\"text/javascript\"></script>");
 			m_headerScripts.Append(script);

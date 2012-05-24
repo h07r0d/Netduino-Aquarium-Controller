@@ -31,15 +31,6 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="HtmlGeneral.cs" />
-    <Compile Include="HttpGeneral.cs" />
-    <Compile Include="Request.cs" />
-    <Compile Include="SDCard.cs" />
-    <Compile Include="WebResponseThread.cs" />
-    <Compile Include="WebResponseThreadList.cs" />
-    <Compile Include="WebServer.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
@@ -51,5 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HttpGeneral.cs" />
+    <Compile Include="Listener.cs" />
+    <Compile Include="Request.cs" />
+    <Compile Include="Response.cs" />
   </ItemGroup>
 </Project>

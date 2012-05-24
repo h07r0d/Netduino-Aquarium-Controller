@@ -1,58 +1,12 @@
 using System;
 using System.IO;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using Microsoft.SPOT.Hardware;
-using Microsoft.SPOT;
-using System.Collections;
 
 namespace Controller
 {
-	public sealed class EventHandlerList : IDisposable
-	{
-		private Hashtable table;		
-		public EventHandlerList() { }
-		public void Dispose() { table = null; }
-		public Delegate this[object _key]
-		{
-			get
-			{
-				if (table == null)
-					return null;
-				return table[_key] as Delegate;
-			}
-			set
-			{
-				AddHandler(_key, value);
-			}
-		}
-
-		public void AddHandler(object _key, Delegate _value)
-		{
-			if (table == null)
-				table = new Hashtable();
-
-			Delegate prev = table[_key] as Delegate;
-			prev = WeakDelegate.Combine(prev, _value);
-			table[_key] = prev;
-		}
-
-		public void RemoveHandler(object _key, Delegate _value)
-		{
-			if (table == null)
-				return;
-
-			Delegate prev = table[_key] as Delegate;
-			prev = WeakDelegate.Remove(prev, _value);
-			table[_key] = prev;
-		}
-
-		
-	}
-
-
-
 	public static class StringExtensions
 	{
 		public static bool Contains(this String _src, string _search)
@@ -138,7 +92,75 @@ namespace Controller
 			
 		}		
     }
-		
+
+	public static class Math
+	{
+		public static double Log(double x, double newBase)
+		{
+			// Based on Python sourcecode from:
+			// http://en.literateprograms.org/Logarithm_Function_%28Python%29
+
+			double partial = 0.5F;
+			double integer = 0F;
+			double fractional = 0.0F;
+
+			double epsilon = 2.22045e-16;
+
+			if (x == 0.0F) return double.NegativeInfinity;
+			if ((x < 1.0F) & (newBase < 1.0F)) throw new ArgumentOutOfRangeException("can't compute Log");
+
+			while (x < 1.0F)
+			{
+				integer -= 1F;
+				x *= newBase;
+			}
+
+			while (x >= newBase)
+			{
+				integer += 1F;
+				x /= newBase;
+			}
+
+			x *= x;
+
+			while (partial >= epsilon)
+			{				
+				if (x >= newBase)
+				{
+					fractional += partial;
+					x = x / newBase;
+				}
+				partial *= 0.5F;
+				x *= x;
+			}
+
+			return (integer + fractional);
+		}
+
+		/// <summary>
+		/// Returns the base 10 logarithm of a specified number. 
+		/// </summary>
+		/// <param name="x">a Number </param>
+		/// <returns>Logaritmic of x</returns>
+		public static double Log(double x)
+		{
+			return Log(x, 10F);
+		}
+
+		/// <summary>
+		/// Performs Log calculations with float variables
+		/// </summary>
+		/// <param name="x">Number</param>
+		/// <returns>Float Log of x</returns>
+		public static float Log(float x)
+		{
+			double cast = (double)x;
+			cast = Log(x, 10F);
+			return (float)cast;
+		}
+	}
+
+
 	public static class DateTimeExtensions
 	{
 		public static void SetFromNetwork(this DateTime dateTime, TimeSpan TimeZoneOffset)

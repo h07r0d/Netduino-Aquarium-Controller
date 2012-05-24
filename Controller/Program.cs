@@ -2,13 +2,10 @@
 using System.Collections;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
-using WebServer;
-using System.Text;
 
 
 namespace Controller
@@ -37,16 +34,27 @@ namespace Controller
 		public const string PluginFolder = @"\SD\plugins\";
 		public const string FragmentFolder = @"\SD\fragments\";
 		public const string ConfigFile = @"\SD\config.js";
+
 		/// <summary>
-		/// Control class for holding Output Plugin weak delegates
+		/// Control class for holding Output Plugin delegates
 		/// </summary>
-		private static OutputPluginControl m_opc = new OutputPluginControl();
-		public OutputPluginControl OPC { get { return m_opc; } }
-
-		private static EventHandlerList m_webResponseHandlerList;		
+		private static OutputPluginControl m_opc = new OutputPluginControl();		
 
 		/// <summary>
-		/// Delegate for signaling output plugins that data is available
+		/// Collection of registered event handlers, mostly for dealing with web requests
+		/// </summary>
+		private static EventHandlerList m_eventHandlerList = new EventHandlerList();
+
+		/// <summary>
+		/// Handle to attach to Input Plugin timers.  This event will be raised when an Input Plugin
+		/// is processed to trigger Output Plugins to run
+		/// </summary>
+		private static InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
+
+
+		/// <summary>
+		/// Delegate for signaling output plugins that data is available.
+		/// This is called from inside each Input Plugin Callback
 		/// </summary>
 		/// <param name="_data">data passed up from input plugin</param>
 		private static void DataAvailable(IPluginData _data)
@@ -61,23 +69,26 @@ namespace Controller
 		/// </summary>
 		/// <param name="request">Request item received from WebServer</param>
 		/// <returns>string containing response to serve back to browser</returns>
+		
+		/*
 		private static string server_CommandReceived(BaseRequest request)
 		{
 			string result = "";
 			try
 			{
 				string requestString = request.BaseUri.Substring(1);	// skip leading slash
-								
-				// convert querystring variables into command
-				short relay = Convert.ToInt16(request.QuerystringVariables["relay"].ToString());
-				bool status = Boolean.Equals(request.QuerystringVariables["status"].ToString(), "true") ? true : false;
 
 				// check ResponseHandlerList for matching response
 				WebResponseEventHandler handler = (WebResponseEventHandler)m_webResponseHandlerList[requestString];
 				if (handler != null)
-					handler(new RelayCommand(relay, status));
+				{
+					handler(new DictionaryEntry(request.QuerystringVariables["relay"].ToString(),
+						request.QuerystringVariables["status"].ToString()));
+				}
 				else
+				{
 					throw new NullReferenceException("No matching Response Handler found");
+				}
 
 				string content = HtmlGeneral.HtmlStart + "<h1>Success</h1>" + HtmlGeneral.HtmlEnd;
 				string header = HttpGeneral.GetHttpHeader(content.Length, "text/html", 10);
@@ -94,21 +105,20 @@ namespace Controller
 			return result;
 
 		}
+		*/
 
-
-		/// <summary>
-		/// Handle to attach to Input Plugin timers.  This event will be raised when an Input Plugin
-		/// is processed to trigger Output Plugins to run
-		/// </summary>
-		private static InputDataAvailable m_inputAvailable = new InputDataAvailable(DataAvailable);
+				
 
 		/// <summary>
-		/// Reference to any running timers to ensure they are not GC'd before they run
+		/// Utility object to build any static html that can be built on boot
+		/// Saves computation time where possible
 		/// </summary>
-		private static ArrayList m_timers = new ArrayList();
-		public ArrayList Timers { get { return m_timers; } }		
-
 		private static HtmlBuilder m_htmlBuilder;
+
+		/// <summary>
+		/// Scheduler for Plugin tasks
+		/// </summary>
+		private static PluginScheduler m_pluginScheduler;
 
         public static void Main()
         {
@@ -117,13 +127,13 @@ namespace Controller
 			// All plugins have been spun out and are running
 
 			// Startup Web Frontend
-			WebServer.WebServer server = new WebServer.WebServer(80);
+			//WebServer.WebServer server = new WebServer.WebServer(80);
 			// Add a handler for commands that are received by the server.
-			server.ResponseHandler += new WebServer.ResponseHandler(server_CommandReceived);
-			server.Start();
+			//server.ResponseHandler += new WebServer.ResponseHandler(server_CommandReceived);
+			//server.Start();
 			
 			// Add handler to save config file received from web front end
-			m_webResponseHandlerList.AddHandler("SaveConfig", new WebResponseEventHandler(SaveConfig));
+			//m_webResponseHandlerList.AddHandler("SaveConfig", new WebResponseEventHandler(SaveConfig));
 
 			// Blink LED to show we're still responsive
 			OutputPort led = new OutputPort(Pins.ONBOARD_LED, false);
@@ -137,14 +147,15 @@ namespace Controller
 		private static void bootstrap()
 		{
 			// Set system time
-			DateTime.Now.SetFromNetwork(new TimeSpan(-5, 0, 0));
+			//DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
 			//clock.Dispose();
 
 			m_htmlBuilder = new HtmlBuilder();
-			m_webResponseHandlerList = new EventHandlerList();			
+			m_eventHandlerList = new EventHandlerList();
+			m_pluginScheduler = new PluginScheduler();
 			
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element
@@ -154,6 +165,7 @@ namespace Controller
 			foreach (string name in config.Keys)
 				ParseConfig(config[name] as Hashtable, name);
 
+			config = null;
 			// config parsed, write out html index
 			m_htmlBuilder.GenerateIndex();
 			m_htmlBuilder.Dispose();
@@ -164,6 +176,7 @@ namespace Controller
 		/// Extract string from Request and overwrite config file with new values
 		/// </summary>
 		/// <param name="_request">PostRequest received from ResponseHandler</param>
+		/*
 		private static void SaveConfig(object _request)
 		{
 			PostRequest postRequest = (PostRequest)_request;
@@ -174,7 +187,7 @@ namespace Controller
 				
 			}
 		}
-
+		*/
 
 		/// <summary>
 		/// JSON Object contains nested components which need to be parsed down to indvidual plugin instructions.
@@ -217,14 +230,16 @@ namespace Controller
 						if (type.FullName.Contains(_name))
 						{
 							// call the constructor with the hashtable as constructor
+							// This allows individual plugins to parse out the components they need,
+							// and the main application doesn't need to know how each needs to be called
 							object plugin = (object)type.GetConstructor(new[] { typeof(object) }).Invoke(new object[] { _config });
 							switch (_type)
 							{
 								case "input":
 									// Input plugins should spin out a timer
 									InputPlugin ip = (InputPlugin)plugin;
-									TimeSpan timespan = new TimeSpan(0, ip.TimerInterval, 0);
-									m_timers.Add(new Timer(ip.TimerCallback, m_inputAvailable, timespan, timespan));
+									TimeSpan timespan = new TimeSpan(0, 0/*ip.TimerInterval*/, 10);
+									m_pluginScheduler.AddTask(new PluginEventHandler(ip.TimerCallback), m_inputAvailable, timespan, timespan, true);									
 									m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
 									break;
 								case "output":
@@ -237,52 +252,25 @@ namespace Controller
 									// Control Plugins contain a command set that is parsed out into individual timers
 									// They also register a Web Response Handler to allow the web front end to call ExecuteControl
 									ControlPlugin cp = (ControlPlugin)plugin;
-									foreach (DictionaryEntry item in cp.Commands())									
-										m_timers.Add(new Timer(cp.ExecuteControl, item.Value, (TimeSpan)item.Key, new TimeSpan(24, 0, 0)));
+									foreach (DictionaryEntry item in cp.Commands())
+										m_pluginScheduler.AddTask(new PluginEventHandler(cp.ExecuteControl),
+											item.Value,
+											(TimeSpan)item.Key,
+											new TimeSpan(24, 0, 0),		// assuming controls should repeat every 24 hours
+											true);									
 
 									m_htmlBuilder.AddPlugin(_name, PluginType.Control, false);
-									m_webResponseHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
+									m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
 									break;
 								default:
 									break;
 							}
 						}
 					}
-
 				}
 			}
 			catch (IOException) { throw; }
 			return;
-		}		
-	}	
-
-	public sealed class OutputPluginControl
-	{
-		// Holds all the output delegates
-		private OutputPluginEventHandler m_eventHandler;
-
-		public void ProcessInputData(IPluginData _data)
-		{
-			OutputPluginEventHandler ope = m_eventHandler;
-
-			// walk through all available output plugins
-			if (ope != null) ope(this, _data);
-		}
-
-		public event OutputPluginEventHandler DataEvent
-		{
-			[MethodImpl(MethodImplOptions.Synchronized)]
-			add
-			{
-				
-				m_eventHandler = (OutputPluginEventHandler)WeakDelegate.Combine(m_eventHandler, value);
-			}
-
-			[MethodImpl(MethodImplOptions.Synchronized)]
-			remove
-			{
-				m_eventHandler = (OutputPluginEventHandler)WeakDelegate.Remove(m_eventHandler, value);
-			}
 		}
 	}
 }

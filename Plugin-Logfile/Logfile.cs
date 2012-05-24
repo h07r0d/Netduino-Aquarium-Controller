@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using Controller;
 using Microsoft.SPOT;
+using System.Text;
 
 namespace Plugins
 {
@@ -16,25 +17,30 @@ namespace Plugins
 		public Logfile(object _config)
 		{			
 			Hashtable config = (Hashtable)_config;			
-			m_logFile = config["filename"].ToString();			
+			m_logFile = config["filename"].ToString();
+			config = null;
 		}
 
 		public override void EventHandler(Object sender, IPluginData data)
-		{
-			Debug.Print(data.GetValue().ToString());
+		{			
+			StringBuilder sb = new StringBuilder();
 
 			// Format string for output
-			string output = DateTime.Now.ToString() +",";
-			output += "," + data.DataType().ToString() + ",";
-			output += data.GetValue().ToString("F") + ",";
-			output += data.DataUnits();
+			sb.Append(DateTime.Now.ToString("s"));
+			sb.Append(",");
+			sb.Append(data.GetValue().ToString("F"));
+			sb.Append(data.DataUnits());
+			sb.Append("\n");
 
 			// take data and write it out to text
-			using (StreamWriter sw = new StreamWriter(m_logFile,true))
+			using (FileStream fs = new FileStream(m_logFile, FileMode.Append))
 			{
-				sw.WriteLine(output);
-				sw.Flush();
+				var buf = Encoding.UTF8.GetBytes(sb.ToString());
+				fs.Write(buf, 0, buf.Length);
+				fs.Flush();
 			}
+
+			Debug.Print("Written " + sb.ToString());
 		}
 	}
 }

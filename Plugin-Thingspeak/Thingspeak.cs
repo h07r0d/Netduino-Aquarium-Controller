@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using Controller;
-using System.Collections;
+using Microsoft.SPOT;
 
 namespace Plugins
 {
@@ -17,13 +19,10 @@ namespace Plugins
 
 		public Thingspeak(object _config)
 		{
-			Hashtable config = (Hashtable)_config;			
-			m_httpPost = "POST /update HTTP/1.1\n";
-			m_httpPost += "Host: api.thingspeak.com\n";
-			m_httpPost += "Connection: close\n";
-			m_httpPost += "X-THINGSPEAKAPIKEY: " + config["writeapi"].ToString() + "\n";
-			m_httpPost += "Content-Type: application/x-www-form-urlencoded\n";
-			m_httpPost += "Content-Length: ";			
+			Hashtable config = (Hashtable)_config;
+			m_httpPost = "POST /update HTTP/1.1\nHost: api.thingspeak.com\nConnection: close\nX-THINGSPEAKAPIKEY: ";
+			m_httpPost += config["writeapi"].ToString() + "\n";
+			m_httpPost += "Content-Type: application/x-www-form-urlencoded\nContent-Length: ";			
 		}
 
 		private static Socket ConnectSocket(String server, Int32 port)
@@ -50,11 +49,11 @@ namespace Plugins
 			
 			using (Socket thingSpeakSocket = ConnectSocket(m_thingSpeakIP, 80))
 			{				
-				Byte[] sendBytes = System.Text.Encoding.UTF8.GetBytes(postString);
+				Byte[] sendBytes = Encoding.UTF8.GetBytes(postString);
 				thingSpeakSocket.Send(sendBytes, sendBytes.Length, 0);
 				
 				// wait for a response to see what happened
-				Byte[] buffer = new Byte[1024];
+				Byte[] buffer = new Byte[256];
 				String page = String.Empty;
 
 				// Poll for data until 30-second timeout.  Returns true for data and connection closed.
@@ -69,8 +68,10 @@ namespace Plugins
 					// Read a buffer-sized HTML chunk.
 					Int32 bytesRead = thingSpeakSocket.Receive(buffer);
 					// Append the chunk to the string.
-					page = page + new String(System.Text.Encoding.UTF8.GetChars(buffer));
-				}							
+					page = page + new String(Encoding.UTF8.GetChars(buffer));
+				}
+
+				Debug.Print(page);
 			}			
 		}
 	}

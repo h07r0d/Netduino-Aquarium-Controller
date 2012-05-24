@@ -49,13 +49,13 @@ namespace Plugins
 		/// <summary>
 		/// Execute RelayCommand given in state object
 		/// </summary>
-		/// <param name="state">RelayCommand object to process on execution</param>
+		/// <param name="state">DictionaryEntry object to process on execution</param>
 		public override void ExecuteControl(object state)
 		{
 			// Callback received a RelayCommand struct to execute			
-			var command = (RelayCommand)state;
-			Debug.Print(command.relay + "=" + command.status);
-			m_relayPins[command.relay].Write(command.status);			
+			var command = (DictionaryEntry)state;
+			Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
+			m_relayPins[(int)command.Key].Write((bool)command.Value);			
 		}
 
 		/// <summary>
@@ -67,15 +67,17 @@ namespace Plugins
 			foreach (Hashtable command in _commands)
 			{
 				// parse out details from config
-				short relayID = Convert.ToInt16(command["id"].ToString());							
+				Debug.Print(command["id"].ToString());
+				int relayID = Int32.Parse(command["id"].ToString());
+				Debug.Print(relayID.ToString());
 				TimeSpan timeOn = GetTimeSpan(command["on"].ToString());				
-				RelayCommand relayOn = new RelayCommand(relayID, true);
+				DictionaryEntry relayOn = new DictionaryEntry(relayID, true);
 				m_commands.Add(timeOn, relayOn);
 				if (m_missedExecute)
 					ExecuteControl(relayOn);
 				
 				TimeSpan timeOff = GetTimeSpan(command["off"].ToString());
-				RelayCommand relayOff = new RelayCommand(relayID, false);
+				DictionaryEntry relayOff = new DictionaryEntry(relayID, false);
 				m_commands.Add(timeOff, relayOff);
 				if (m_missedExecute)
 					ExecuteControl(relayOff);

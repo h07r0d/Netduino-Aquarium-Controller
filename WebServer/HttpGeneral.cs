@@ -1,10 +1,10 @@
 using System;
 using System.Text;
 using Microsoft.SPOT;
+using System.Collections;
 
 public class HttpGeneral
 {
-
     //HTTP/1.1 200 OK
     //Date: Sun, 07 Aug 2011 06:01:05 GMT
     //Server: Apache/2
@@ -48,7 +48,54 @@ public class HttpGeneral
     }
 
 
-    public static string UriDecode(string s)// todo is this efficient?
+	public static Hashtable ParseQuerystring(string _uri, out string _baseUri)
+	{
+		_baseUri = _uri;
+		Hashtable result = new Hashtable();
+		if (_uri != null)
+		{
+			string[] split = _uri.Split('?');
+			if (split.Length > 1)
+			{
+				_baseUri = split[0];
+				string partQueryString = split[1];
+				result = GetEncodedVariables(partQueryString);
+			}
+		}
+		return result;
+	}
+
+	private static Hashtable GetEncodedVariables(string variableString)
+	{
+		Hashtable result = new Hashtable();
+		if (variableString != null)
+		{
+			string[] split = variableString.Split('&');
+			if (split.Length > 0)
+			{// remove querystring ?
+				split[0] = split[0].TrimStart(new char[] { '?', ' ' });
+			}
+			for (int i = 0; i < split.Length; i++)
+			{
+				string[] parameterArray = split[i].Split('=');
+
+				string value = "";
+				if (parameterArray.Length > 1)
+				{
+					value = parameterArray[1].Trim();
+					value = UriDecode(value);
+				}
+				string key = parameterArray[0].Trim();
+				if (!result.Contains(key))
+				{
+					result.Add(key, value);
+				}
+			}
+		}
+		return result;
+	}
+
+    private static string UriDecode(string s)
     {
         if (s == null) return null;
         if (s.Length < 1) return s;

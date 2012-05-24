@@ -1,25 +1,21 @@
 using System;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Net.NetworkInformation;
-using System.Collections;
 
 
 namespace WebServer
 {
     enum SupportedErrors { FileNotFound = 404, ServerError = 500 };
     public class WebServer : IDisposable
-    {
-        const int Max_Threads = 6;
+    {        
         private Thread serverThread = null;        
         private WebResponseThreadList _ProcessRequestWorkerList = new WebResponseThreadList();
         private int _Port = -1;
         int _ListeningID = -1;// -1 signifies not listening
-        bool _Stopping = false;
-        static uint _PageRequestCount = 0;
+        bool _Stopping = false;        
 
         #region Constructors
 
@@ -97,7 +93,7 @@ namespace WebServer
                                 Thread.Sleep(50);
                             }
                             currentProcessRequest.Start(nonBlockingSocket);
-                            _PageRequestCount++;
+                            
                         }
                         catch (Exception ex)
                         {// probably lost connection
@@ -131,10 +127,10 @@ namespace WebServer
             _ListeningID = -1;
         }
 
-        private string DoResponseHandler(BaseRequest request)
-        {
-            return ResponseHandler(request);
-        }
+        //private string DoResponseHandler(BaseRequest request)
+        //{
+        //    return ResponseHandler(request);
+        //}
 
 
         public string ListInterfaces()
@@ -149,12 +145,7 @@ namespace WebServer
             return s;
         }
         #endregion
-
-        static public uint PageRequestCount
-        {
-            get { return _PageRequestCount; }
-        }
-
+       
         /// <summary>
         /// implement IDisposable
         /// </summary>
