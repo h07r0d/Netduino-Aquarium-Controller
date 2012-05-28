@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Relays", "Plugin-Rel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WebServer\WebServer.csproj", "{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-pH", "Plugin-pH\Plugin-pH.csproj", "{428E9964-527F-48D8-B88A-8A22435F481B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,12 @@ Global
 		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Emulator|Any CPU.Build.0 = Release|Any CPU
 		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Emulator|Any CPU.ActiveCfg = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Emulator|Any CPU.Build.0 = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
