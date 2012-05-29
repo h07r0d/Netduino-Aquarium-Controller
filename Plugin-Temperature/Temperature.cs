@@ -33,6 +33,12 @@ namespace Plugins
 		public override int TimerInterval { get { return 2; } }		
 		public IPluginData GetData() { return null; }
 
+		// Temperature doesn't need the Output Handler
+		public override void EventHandler(object sender, IPluginData data)
+		{
+			throw new System.NotImplementedException();
+		}
+
 		public override void TimerCallback(object state)
 		{
 			Debug.Print("Temperature Callback");

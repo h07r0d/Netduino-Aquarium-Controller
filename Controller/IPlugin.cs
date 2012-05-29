@@ -16,6 +16,7 @@ namespace Controller
 	{
 		public abstract int TimerInterval { get; }
 		public abstract void TimerCallback(Object state);
+		public abstract void EventHandler(Object sender, IPluginData data);
 	}
 
 	public abstract class OutputPlugin : Plugin 

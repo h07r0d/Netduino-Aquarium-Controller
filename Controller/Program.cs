@@ -36,9 +36,15 @@ namespace Controller
 		public const string ConfigFile = @"\SD\config.js";
 
 		/// <summary>
-		/// Control class for holding Output Plugin delegates
+		/// Utility object to build any static html that can be built on boot
+		/// Saves computation time where possible
 		/// </summary>
-		private static OutputPluginControl m_opc = new OutputPluginControl();		
+		private static HtmlBuilder m_htmlBuilder;
+
+		/// <summary>
+		/// Scheduler for Plugin tasks
+		/// </summary>
+		private static PluginScheduler m_pluginScheduler;
 
 		/// <summary>
 		/// Collection of registered event handlers, mostly for dealing with web requests
@@ -61,7 +67,10 @@ namespace Controller
 		{
 			// data should be available in the queue
 			// raise the event to handle it.
-			m_opc.ProcessInputData(_data);			
+			OutputPluginEventHandler ope = (OutputPluginEventHandler)m_eventHandlerList["OutputPlugins"];
+
+			// walk through all available output plugins
+			if (ope != null) ope(ope, _data);						
 		}
 
 		/// <summary>
@@ -109,16 +118,7 @@ namespace Controller
 
 				
 
-		/// <summary>
-		/// Utility object to build any static html that can be built on boot
-		/// Saves computation time where possible
-		/// </summary>
-		private static HtmlBuilder m_htmlBuilder;
-
-		/// <summary>
-		/// Scheduler for Plugin tasks
-		/// </summary>
-		private static PluginScheduler m_pluginScheduler;
+		
 
         public static void Main()
         {
@@ -241,11 +241,19 @@ namespace Controller
 									TimeSpan timespan = new TimeSpan(0, 0/*ip.TimerInterval*/, 10);
 									m_pluginScheduler.AddTask(new PluginEventHandler(ip.TimerCallback), m_inputAvailable, timespan, timespan, true);									
 									m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
+
+									// There is a special case with the pH plugin.  The pH Stamp can receive a temperature
+									// reading to make the pH more accurate. In order to properly update the value, the pH
+									// plugin registers an output event to catch a temperature update.
+									if (_name.Equals("pH"))
+										m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)ip.EventHandler);
+									
 									break;
 								case "output":
 									// Output plugins need to register an event handler
 									OutputPlugin op = (OutputPlugin)plugin;
-									m_opc.DataEvent += op.EventHandler;
+									m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)op.EventHandler);
+									//m_opc.DataEvent += op.EventHandler;
 									m_htmlBuilder.AddPlugin(_name, PluginType.Output, false);
 									break;
 								case "control":

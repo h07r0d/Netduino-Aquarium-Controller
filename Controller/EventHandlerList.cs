@@ -10,17 +10,18 @@ namespace Controller
 	/// </summary>
 	public sealed class EventHandlerList : IDisposable
 	{
-		private Hashtable table;
-		public EventHandlerList() { }
-		public void Dispose() { table = null; }
+		private Hashtable m_table;
+		private Object m_lock;
+		public EventHandlerList() { m_lock = new Object(); }
+		public void Dispose() { m_table = null; }
 
 		public Delegate this[object _key]
 		{
 			get
 			{
-				if (table == null)
+				if (m_table == null)
 					return null;
-				return table[_key] as Delegate;
+				return m_table[_key] as Delegate;
 			}
 			set
 			{
@@ -35,12 +36,15 @@ namespace Controller
 		/// <param name="_value">Delegate to store</param>
 		public void AddHandler(object _key, Delegate _value)
 		{
-			if (table == null)
-				table = new Hashtable();
+			lock (m_lock)
+			{
+				if (m_table == null)
+					m_table = new Hashtable();
 
-			Delegate prev = table[_key] as Delegate;
-			prev = Delegate.Combine(prev, _value);
-			table[_key] = prev;
+				Delegate prev = m_table[_key] as Delegate;
+				prev = Delegate.Combine(prev, _value);
+				m_table[_key] = prev;
+			}
 		}
 
 		/// <summary>
@@ -50,12 +54,14 @@ namespace Controller
 		/// <param name="_value">Delegate to remove from list</param>
 		public void RemoveHandler(object _key, Delegate _value)
 		{
-			if (table == null)
+			if (m_table == null)
 				return;
-
-			Delegate prev = table[_key] as Delegate;
-			prev = Delegate.Remove(prev, _value);
-			table[_key] = prev;
+			lock (m_lock)
+			{
+				Delegate prev = m_table[_key] as Delegate;
+				prev = Delegate.Remove(prev, _value);
+				m_table[_key] = prev;
+			}
 		}
 	}
 }
