@@ -67,9 +67,7 @@ namespace Plugins
 			foreach (Hashtable command in _commands)
 			{
 				// parse out details from config
-				Debug.Print(command["id"].ToString());
 				int relayID = Int32.Parse(command["id"].ToString());
-				Debug.Print(relayID.ToString());
 				TimeSpan timeOn = GetTimeSpan(command["on"].ToString());				
 				DictionaryEntry relayOn = new DictionaryEntry(relayID, true);
 				m_commands.Add(timeOn, relayOn);

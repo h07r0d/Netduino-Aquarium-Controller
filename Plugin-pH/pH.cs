@@ -4,6 +4,7 @@ using Microsoft.SPOT;
 using System.IO.Ports;
 using System.Text;
 using System.Threading;
+using System.Collections;
 
 namespace Plugins
 {
@@ -26,8 +27,9 @@ namespace Plugins
 	/// plugin to update the pH plugin.
 	/// </summary>
 	public class pH : InputPlugin
-	{		
-		public override int TimerInterval { get { return 2; } }
+	{
+		private TimeSpan m_timerInterval;
+		public override TimeSpan TimerInterval { get { return m_timerInterval; } }
 		
 		/// <summary>
 		/// Latest temperature reading passed in from the Temperature Plugin
@@ -35,7 +37,19 @@ namespace Plugins
 		private float m_Temperature;
 
 		public pH() { m_Temperature = 0.0F; }
-		public pH(object _config) : base() { }
+		public pH(object _config) : base() 
+		{
+			Hashtable config = (Hashtable)_config;
+			// The Timer Interval is specified in an Arraylist of numbers
+			ArrayList interval = config["interval"] as ArrayList;
+
+			//TODO: Double casting since for some reason an explicit cast from a Double
+			// to an Int doesn't work.  It's a boxing issue, as interval[i] returns an object.
+			// And JSON.cs returns numbers as doubles
+			int[] times = new int[3];
+			for (int i = 0; i < 3; i++) { times[i] = (int)(double)interval[i]; }
+			m_timerInterval = new TimeSpan(times[0], times[1], times[2]);
+		}
 
 		~pH() { Dispose(); }
 		public override void Dispose() { }

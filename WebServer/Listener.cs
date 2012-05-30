@@ -33,7 +33,7 @@ namespace WebServer
 
 		public void Dispose()
 		{
-			if (m_listeningSocket != null) m_listeningSocket.Close();
+			if (m_listeningSocket != null) m_listeningSocket.Close();			
 		}
 
 		public void Listen()
@@ -43,8 +43,7 @@ namespace WebServer
 				using (Socket clientSocket = m_listeningSocket.Accept())
 				{
 					IPEndPoint clientIP = clientSocket.RemoteEndPoint as IPEndPoint;
-					Debug.Print("Received request from " + clientIP.ToString());
-					var x = clientSocket.RemoteEndPoint;
+					Debug.Print("Received request from " + clientIP.ToString());					
 
 					int availableBytes = clientSocket.Available;
 					Debug.Print(DateTime.Now.ToString() + " " + availableBytes.ToString() + " request bytes available");

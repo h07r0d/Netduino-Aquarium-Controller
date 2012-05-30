@@ -16,7 +16,7 @@ namespace Controller
 	/// <param name="_sender">Who sent up the data</param>
 	/// <param name="_data">Data sent up from Input Plugin</param>
 	public delegate void OutputPluginEventHandler(Object _sender, IPluginData _data);
-	
+
 	/// <summary>
 	/// Delegate for Input Plugins
 	/// </summary>
@@ -28,9 +28,9 @@ namespace Controller
 	/// </summary>
 	/// <param name="_sender">Any necessary data to complete the response</param>
 	public delegate void WebResponseEventHandler(Object _sender);
-	
-    public class Program
-    {
+
+	public class Program
+	{
 		public const string PluginFolder = @"\SD\plugins\";
 		public const string FragmentFolder = @"\SD\fragments\";
 		public const string ConfigFile = @"\SD\config.js";
@@ -70,7 +70,7 @@ namespace Controller
 			OutputPluginEventHandler ope = (OutputPluginEventHandler)m_eventHandlerList["OutputPlugins"];
 
 			// walk through all available output plugins
-			if (ope != null) ope(ope, _data);						
+			if (ope != null) ope(ope, _data);
 		}
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace Controller
 		/// </summary>
 		/// <param name="request">Request item received from WebServer</param>
 		/// <returns>string containing response to serve back to browser</returns>
-		
+
 		/*
 		private static string server_CommandReceived(BaseRequest request)
 		{
@@ -116,12 +116,12 @@ namespace Controller
 		}
 		*/
 
-				
 
-		
 
-        public static void Main()
-        {
+
+
+		public static void Main()
+		{
 			// Initialize required components
 			bootstrap();
 			// All plugins have been spun out and are running
@@ -131,9 +131,12 @@ namespace Controller
 			// Add a handler for commands that are received by the server.
 			//server.ResponseHandler += new WebServer.ResponseHandler(server_CommandReceived);
 			//server.Start();
-			
+
 			// Add handler to save config file received from web front end
 			//m_webResponseHandlerList.AddHandler("SaveConfig", new WebResponseEventHandler(SaveConfig));
+
+			Debug.EnableGCMessages(true);
+			Debug.Print(Debug.GC(true) + " bytes");
 
 			// Blink LED to show we're still responsive
 			OutputPort led = new OutputPort(Pins.ONBOARD_LED, false);
@@ -142,7 +145,7 @@ namespace Controller
 				led.Write(!led.Read());
 				Thread.Sleep(500);
 			}
-        }
+		}
 
 		private static void bootstrap()
 		{
@@ -156,7 +159,7 @@ namespace Controller
 			m_htmlBuilder = new HtmlBuilder();
 			m_eventHandlerList = new EventHandlerList();
 			m_pluginScheduler = new PluginScheduler();
-			
+
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element
 			Hashtable config = ((Hashtable)JSON.JsonDecodeFromFile(ConfigFile))["config"] as Hashtable;
@@ -165,10 +168,13 @@ namespace Controller
 			foreach (string name in config.Keys)
 				ParseConfig(config[name] as Hashtable, name);
 
-			config = null;
+			config = null;			
 			// config parsed, write out html index
 			m_htmlBuilder.GenerateIndex();
 			m_htmlBuilder.Dispose();
+			Debug.GC(true);
+
+			m_pluginScheduler.Start();
 		}
 
 		/// <summary>
@@ -203,11 +209,11 @@ namespace Controller
 				if (_section[name] is Hashtable)
 					ParseConfig((Hashtable)_section[name], _type, name);
 				else
-				{					
+				{
 					// reached bottom of config tree, pass the Hashtable to constructors
 					if (_section["enabled"].ToString() == "true")
 						LoadPlugin(_name, _type, _section);
-						
+
 					return;
 				}
 			}
@@ -238,8 +244,12 @@ namespace Controller
 								case "input":
 									// Input plugins should spin out a timer
 									InputPlugin ip = (InputPlugin)plugin;
-									TimeSpan timespan = new TimeSpan(0, 0/*ip.TimerInterval*/, 10);
-									m_pluginScheduler.AddTask(new PluginEventHandler(ip.TimerCallback), m_inputAvailable, timespan, timespan, true);									
+									m_pluginScheduler.AddTask(
+										new PluginEventHandler(ip.TimerCallback),
+										m_inputAvailable,
+										ip.TimerInterval,
+										ip.TimerInterval,
+										true);
 									m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
 
 									// There is a special case with the pH plugin.  The pH Stamp can receive a temperature
@@ -247,7 +257,7 @@ namespace Controller
 									// plugin registers an output event to catch a temperature update.
 									if (_name.Equals("pH"))
 										m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)ip.EventHandler);
-									
+
 									break;
 								case "output":
 									// Output plugins need to register an event handler
@@ -265,7 +275,7 @@ namespace Controller
 											item.Value,
 											(TimeSpan)item.Key,
 											new TimeSpan(24, 0, 0),		// assuming controls should repeat every 24 hours
-											true);									
+											true);
 
 									m_htmlBuilder.AddPlugin(_name, PluginType.Control, false);
 									m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));

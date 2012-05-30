@@ -67,8 +67,7 @@ namespace Controller
 		/// </summary>
 		public PluginScheduler()
 		{
-			m_Poller = new Timer(PollTasks, null, -1, -1);
-			this.Start();
+			m_Poller = new Timer(PollTasks, null, -1, -1);			
 			m_Tasks = new ArrayList();
 		}
 

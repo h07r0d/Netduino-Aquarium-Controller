@@ -14,7 +14,8 @@ namespace Controller
 
 	public abstract class InputPlugin : Plugin
 	{
-		public abstract int TimerInterval { get; }
+		// Timer Intervals specified in config file
+		public abstract TimeSpan TimerInterval { get; }
 		public abstract void TimerCallback(Object state);
 		public abstract void EventHandler(Object sender, IPluginData data);
 	}

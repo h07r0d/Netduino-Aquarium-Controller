@@ -18,8 +18,8 @@ namespace Controller
 
 		private byte[] m_closeDiv;
 		private readonly string m_hostUrl = @"http://fishfornerds.com/files/";
-		private StringBuilder m_headerScripts;
-		private StringBuilder m_scriptCalls;
+		private readonly string m_headerScriptFileName = "headerScripts.tmp";
+		private readonly string m_scriptCallFileName = "scriptCall.tmp";
 		private ArrayList m_controlPlugins;
 		private ArrayList m_inputPlugins;
 		private ArrayList m_outputPlugins;
@@ -27,8 +27,6 @@ namespace Controller
 
 		public HtmlBuilder()
 		{
-			m_headerScripts = new StringBuilder();
-			m_scriptCalls = new StringBuilder();
 			m_controlPlugins = new ArrayList();
 			m_inputPlugins = new ArrayList();
 			m_outputPlugins = new ArrayList();
@@ -44,12 +42,24 @@ namespace Controller
 				script.Append(m_hostUrl);
 			script.Append(_scriptName);
 			script.Append(".min.js\" type=\"text/javascript\"></script>");
-			m_headerScripts.Append(script);
+			using (FileStream fs = new FileStream(Program.FragmentFolder + m_headerScriptFileName, FileMode.Append))
+			{
+				byte[] text = script.ToBytes();
+				fs.Write(text, 0, text.Length);
+				fs.Flush();				
+			}			
 
 			// Add footer JS Calls
-			m_scriptCalls.Append("$(");
-			m_scriptCalls.Append(_scriptName);
-			m_scriptCalls.Append("Init);");
+			script = new StringBuilder();
+			script.Append("$(");
+			script.Append(_scriptName);
+			script.Append("Init);");
+			using (FileStream fs = new FileStream(Program.FragmentFolder + m_scriptCallFileName, FileMode.Append))
+			{
+				byte[] text = script.ToBytes();
+				fs.Write(text, 0, text.Length);
+				fs.Flush();
+			}
 
 			// keep plugin name to pull html fragment later
 			switch (_type)
@@ -70,7 +80,8 @@ namespace Controller
 		}
 
 		public void GenerateIndex()
-		{			
+		{
+			byte[] stringBytes;
 			FileStream index = new FileStream(@"\SD\index.html", FileMode.Create);
 			
 			FileStream fragment = new FileStream(Program.FragmentFolder+"header.htm", FileMode.Open);
@@ -79,9 +90,11 @@ namespace Controller
 			index.Flush();
 
 			// Header written, add JS Script links
-			byte[] stringBytes = m_headerScripts.ToBytes();
-			index.Write(stringBytes, 0, stringBytes.Length);
-
+			fragment = new FileStream(Program.FragmentFolder + m_headerScriptFileName, FileMode.Open);
+			fragment.CopyTo(index);
+			fragment.Close();
+			index.Flush();
+			
 			fragment = new FileStream(Program.FragmentFolder+"body-start.htm", FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();
@@ -111,8 +124,9 @@ namespace Controller
 			fragment.Close();
 				
 			// add JS calls to initiate front end
-			stringBytes = m_scriptCalls.ToBytes();
-			index.Write(stringBytes, 0, stringBytes.Length);
+			fragment = new FileStream(Program.FragmentFolder + m_scriptCallFileName, FileMode.Open);
+			fragment.CopyTo(index);
+			fragment.Close();			
 
 			// close document
 			fragment = new FileStream(Program.FragmentFolder+"footer.htm", FileMode.Open);
@@ -122,6 +136,11 @@ namespace Controller
 			// finished building index
 			index.Flush();
 			index.Close();					
+
+			// delete temp files used in building index
+			File.Delete(Program.FragmentFolder + m_headerScriptFileName);
+			File.Delete(Program.FragmentFolder + m_scriptCallFileName);
+
 		}
 
 		private bool WritePlugins(ref FileStream _index, PluginType _type)

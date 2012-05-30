@@ -1,7 +1,12 @@
 ﻿{"config": {
 	"input": {
 		"Temperature": {
-			"enabled":"true"
+			"enabled":"true",
+			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
+		},
+		"pH": {
+			"enabled":"true",
+			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
 		}
 	},
 	"output": {

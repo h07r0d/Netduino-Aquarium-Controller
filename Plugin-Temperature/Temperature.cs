@@ -2,6 +2,8 @@
 using Microsoft.SPOT;
 using SecretLabs.NETMF.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using System.Collections;
+using System;
 
 
 namespace Plugins
@@ -24,13 +26,27 @@ namespace Plugins
 		private const int ThermistorNominal = 10000;
 		private const int TemperatureNominal = 25;
 		private const int BetaCoefficient = 3950;
+		private TimeSpan m_timerInterval;
 
-		public Temperature() { }
-		public Temperature(object _config) : base() { }
+		public Temperature() { }		
+		public Temperature(object _config) : base()
+		{
+			Hashtable config = (Hashtable)_config;
+			// The Timer Interval is specified in an Arraylist of numbers
+			ArrayList interval = config["interval"] as ArrayList;			
+		
+			//TODO: Double casting since for some reason an explicit cast from a Double
+			// to an Int doesn't work.  It's a boxing issue, as interval[i] returns an object.
+			// And JSON.cs returns numbers as doubles
+			int[] times = new int[3];
+			for (int i = 0; i < 3; i++) { times[i] = (int)(double)interval[i]; }
+			m_timerInterval = new TimeSpan(times[0], times[1], times[2]);			
+		}
+
 		~Temperature() { Dispose(); }
 		public override void Dispose() { }
 
-		public override int TimerInterval { get { return 2; } }		
+		public override TimeSpan TimerInterval { get { return m_timerInterval; } }		
 		public IPluginData GetData() { return null; }
 
 		// Temperature doesn't need the Output Handler
