@@ -6,6 +6,7 @@ using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using WebServer;
 
 
 namespace Controller
@@ -74,47 +75,45 @@ namespace Controller
 		}
 
 		/// <summary>
-		/// Method to handle Web Requests
+		/// Delegate to process web requests
 		/// </summary>
-		/// <param name="request">Request item received from WebServer</param>
-		/// <returns>string containing response to serve back to browser</returns>
-
-		/*
-		private static string server_CommandReceived(BaseRequest request)
-		{
-			string result = "";
+		/// <param name="request">Request item received from Listener</param>		
+		private static void WebCommandReceived(Request _request)
+		{			
 			try
 			{
-				string requestString = request.BaseUri.Substring(1);	// skip leading slash
+				string requestString = _request.BaseUri.Substring(1);	// skip leading slash
 
 				// check ResponseHandlerList for matching response
-				WebResponseEventHandler handler = (WebResponseEventHandler)m_webResponseHandlerList[requestString];
+				WebResponseEventHandler handler = (WebResponseEventHandler)m_eventHandlerList[requestString];
 				if (handler != null)
 				{
-					handler(new DictionaryEntry(request.QuerystringVariables["relay"].ToString(),
-						request.QuerystringVariables["status"].ToString()));
+					handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
+						_request.Querystring["status"].ToString()));
 				}
 				else
 				{
 					throw new NullReferenceException("No matching Response Handler found");
 				}
-
+				/*
 				string content = HtmlGeneral.HtmlStart + "<h1>Success</h1>" + HtmlGeneral.HtmlEnd;
 				string header = HttpGeneral.GetHttpHeader(content.Length, "text/html", 10);
 				result = header + content;
 				Debug.Print("\t\trequest.URI="+request.Uri);				
+				 * */
 			}
 			catch (Exception ex)
 			{
+				Debug.Print(ex.StackTrace);
+				/*
 				string content = HtmlGeneral.HtmlStart + "<h1>500 server error.</h1>" + "<h3>Uri: " + request.Uri + "</h3>";
 				content += "<p>Error: " + ex.StackTrace + "</p>" + HtmlGeneral.HtmlEnd;
 				string header = HttpGeneral.Get500Header(content.Length);
 				result = header + content;
-			}		
-			return result;
-
+				 * */
+			}
 		}
-		*/
+
 
 
 
@@ -127,13 +126,8 @@ namespace Controller
 			// All plugins have been spun out and are running
 
 			// Startup Web Frontend
-			//WebServer.WebServer server = new WebServer.WebServer(80);
-			// Add a handler for commands that are received by the server.
-			//server.ResponseHandler += new WebServer.ResponseHandler(server_CommandReceived);
-			//server.Start();
+			Listener webServer = new Listener(WebCommandReceived);
 
-			// Add handler to save config file received from web front end
-			//m_webResponseHandlerList.AddHandler("SaveConfig", new WebResponseEventHandler(SaveConfig));
 
 			Debug.EnableGCMessages(true);
 			Debug.Print(Debug.GC(true) + " bytes");
@@ -168,7 +162,7 @@ namespace Controller
 			foreach (string name in config.Keys)
 				ParseConfig(config[name] as Hashtable, name);
 
-			config = null;			
+			config = null;
 			// config parsed, write out html index
 			m_htmlBuilder.GenerateIndex();
 			m_htmlBuilder.Dispose();
@@ -214,6 +208,22 @@ namespace Controller
 					if (_section["enabled"].ToString() == "true")
 						LoadPlugin(_name, _type, _section);
 
+					// Include all plugins in web front end, regardless of status, to allow web front end
+					// to enable/disable properly
+					switch (_type)
+					{
+						case "input":
+							m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
+							break;
+						case "output":
+							m_htmlBuilder.AddPlugin(_name, PluginType.Output, false);
+							break;
+						case "control":
+							m_htmlBuilder.AddPlugin(_name, PluginType.Control, false);
+							break;
+						default:
+							break;
+					}
 					return;
 				}
 			}
@@ -250,7 +260,6 @@ namespace Controller
 										ip.TimerInterval,
 										ip.TimerInterval,
 										true);
-									m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
 
 									// There is a special case with the pH plugin.  The pH Stamp can receive a temperature
 									// reading to make the pH more accurate. In order to properly update the value, the pH
@@ -263,8 +272,6 @@ namespace Controller
 									// Output plugins need to register an event handler
 									OutputPlugin op = (OutputPlugin)plugin;
 									m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)op.EventHandler);
-									//m_opc.DataEvent += op.EventHandler;
-									m_htmlBuilder.AddPlugin(_name, PluginType.Output, false);
 									break;
 								case "control":
 									// Control Plugins contain a command set that is parsed out into individual timers
@@ -277,7 +284,6 @@ namespace Controller
 											new TimeSpan(24, 0, 0),		// assuming controls should repeat every 24 hours
 											true);
 
-									m_htmlBuilder.AddPlugin(_name, PluginType.Control, false);
 									m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
 									break;
 								default:

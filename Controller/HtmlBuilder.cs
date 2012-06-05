@@ -76,7 +76,7 @@ namespace Controller
 				default:
 					break;
 			}
-			
+			Debug.GC(true);
 		}
 
 		public void GenerateIndex()

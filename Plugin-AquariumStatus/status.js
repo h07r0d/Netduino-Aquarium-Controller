@@ -1,0 +1,1 @@
+{"time":"now","Temperature":"24.56","pH":"3.73"}
