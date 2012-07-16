@@ -31,9 +31,9 @@ namespace Controller
 
 		private const int BUILDER_CAPACITY = 2000;
 
-		public static object JsonDecodeFromFile(string file)
+		public static object JsonDecodeConfig(string configFile)
 		{
-			using (FileStream fs = new FileStream(file, FileMode.Open))
+			using (FileStream fs = new FileStream(configFile, FileMode.Open))
 			{
 				using (StreamReader sr = new StreamReader(fs))
 				{
@@ -42,6 +42,41 @@ namespace Controller
 					// from the string
 					string configString = sr.ReadToEnd();
 					configString = configString.Substring(11, configString.Length - 12);
+					bool success = true;
+					return JsonDecode(configString, ref success);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Decodes a JSON string stored in a text file.  Assumes the string is defined as a JS variable.
+		/// </summary>
+		/// <param name="file">File to open for decoding</param>
+		/// <returns></returns>
+		public static object JsonDecodeFromVar(string file)
+		{
+			using (FileStream fs = new FileStream(file, FileMode.Open))
+			{
+				using (StreamReader sr = new StreamReader(fs))
+				{
+					string varString = sr.ReadToEnd();
+
+					// Find first location of {
+					int startAt = varString.IndexOf('{');
+					varString = varString.Substring(startAt, varString.Length - (startAt-1));
+					bool success = true;
+					return JsonDecode(varString, ref success);
+				}
+			}
+		}
+
+		public static object JsonDecodeFromFile(string file)
+		{
+			using (FileStream fs = new FileStream(file, FileMode.Open))
+			{
+				using (StreamReader sr = new StreamReader(fs))
+				{					
+					string configString = sr.ReadToEnd();					
 					bool success = true;
 					return JsonDecode(configString, ref success);
 				}
@@ -496,12 +531,13 @@ namespace Controller
 				} else if (c == '\t') {
 					builder.Append("\\t");
 				} else {
-					int codepoint = Convert.ToInt32(c.ToString());
-					if ((codepoint >= 32) && (codepoint <= 126)) {
+					if ((int)c >= 32 && (int)c <=126)
+					{
 						builder.Append(c);
 					} else {
+						int codepoint = Convert.ToInt32(c.ToString());
 						builder.Append("\\u" + codepoint.ToString("{0:X}").PadLeft(4, '0'));
-					}
+					}					
 				}
 			}
 

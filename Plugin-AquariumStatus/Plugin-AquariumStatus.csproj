@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Plugin-AquariumStatus</AssemblyName>
+    <AssemblyName>AquariumStatus</AssemblyName>
     <OutputType>Library</OutputType>
     <RootNamespace>Plugins</RootNamespace>
     <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -30,6 +30,7 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="LCDDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="AquariumStatus.htm" />
     <Content Include="AquariumStatus.js" />
@@ -48,7 +49,8 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
+    <PostBuildEvent>copy $(ProjectDir)status.js g:\
+copy $(TargetDir)le\$(TargetName).pe g:\plugins
 copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

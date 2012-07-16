@@ -17,6 +17,9 @@
 		"Logfile": {
 			"enabled":"true",
 			"file-name":"\\SD\\log.txt"
+		},
+		"AquariumStatus": {
+			"enabled":"true"
 		}
 	},
 	"control": {

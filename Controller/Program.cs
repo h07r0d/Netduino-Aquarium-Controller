@@ -156,7 +156,7 @@ namespace Controller
 
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element
-			Hashtable config = ((Hashtable)JSON.JsonDecodeFromFile(ConfigFile))["config"] as Hashtable;
+			Hashtable config = ((Hashtable)JSON.JsonDecodeConfig(ConfigFile))["config"] as Hashtable;
 
 			// parse each plugin type
 			foreach (string name in config.Keys)
