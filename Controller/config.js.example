@@ -1,0 +1,36 @@
+﻿{"config": {
+	"input": {
+		"Temperature": {
+			"enabled":"true",
+			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
+		},
+		"pH": {
+			"enabled":"true",
+			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
+		}
+	},
+	"output": {
+		"Thingspeak": {
+			"enabled":"true",
+			"write-api":"Thingspeak API Key"
+		},
+		"Logfile": {
+			"enabled":"true",
+			"file-name":"\\SD\\log.txt"
+		},
+		"AquariumStatus": {
+			"enabled":"true"
+		}
+	},
+	"control": {
+		"Relays": {
+			"enabled":"true",
+			"relays": [
+				{"id":0, "on":"07:30", "off":"17:00"},
+				{"id":1, "on":"07:30", "off":"17:00"},
+				{"id":2, "on":"01:00", "off":"02:00"},
+				{"id":3, "on":"10:00", "off":"10:10"}
+			]
+		}
+	}
+}}

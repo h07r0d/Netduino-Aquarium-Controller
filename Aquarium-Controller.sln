@@ -9,30 +9,72 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Temperature", "Plugi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Thingspeak", "Plugin-Thingspeak\Plugin-Thingspeak.csproj", "{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-Relays", "Plugin-Relays\Plugin-Relays.csproj", "{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "WebServer\WebServer.csproj", "{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-pH", "Plugin-pH\Plugin-pH.csproj", "{428E9964-527F-48D8-B88A-8A22435F481B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-AquariumStatus", "Plugin-AquariumStatus\Plugin-AquariumStatus.csproj", "{F0F2B76C-B9A5-4BA8-B551-5217295EF377}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Emulator|Any CPU = Emulator|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
+		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Emulator|Any CPU.Deploy.0 = Emulator|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Build.0 = Release|Any CPU
 		{117848BD-213C-4AE4-8F58-D27F14DAA534}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65B2EAC1-B841-4134-9229-B24583B46FFB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79EFAD9E-C3E1-4D3F-993E-7CFF382A1C29}.Release|Any CPU.Build.0 = Release|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94EB2D77-53BC-4086-BD6F-9F400C1FD13F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9EB4D78-EEC4-4A40-9DE4-CB1EEA20977B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Emulator|Any CPU.ActiveCfg = Release|Any CPU
+		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Emulator|Any CPU.Build.0 = Release|Any CPU
+		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Emulator|Any CPU.ActiveCfg = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Emulator|Any CPU.Build.0 = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{428E9964-527F-48D8-B88A-8A22435F481B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0F2B76C-B9A5-4BA8-B551-5217295EF377}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0F2B76C-B9A5-4BA8-B551-5217295EF377}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0F2B76C-B9A5-4BA8-B551-5217295EF377}.Emulator|Any CPU.ActiveCfg = Release|Any CPU
+		{F0F2B76C-B9A5-4BA8-B551-5217295EF377}.Emulator|Any CPU.Build.0 = Release|Any CPU
+		{F0F2B76C-B9A5-4BA8-B551-5217295EF377}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0F2B76C-B9A5-4BA8-B551-5217295EF377}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,6 @@
 Code for a Netduino based Aquarium Controller.
-Features will be added as built.
-Ideally this code will handle as many monitors as possible, however to start
-it will be temperature and hopefully pH.
+
+Plugin style architecture allows for three types of plugins to be added on the fly.
+1) Input - Handles input sensors such as Temperature and pH
+2) Output - Store data provided by Input plugins to various locations/services such as text file or online services (Thingspeak)
+3) Control - Manages devices that require automation or interaction, such as Lighting and Solenoids.
