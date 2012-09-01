@@ -7,8 +7,17 @@ using Microsoft.SPOT.Hardware;
 
 namespace Controller
 {
+	/// <summary>
+	/// Extensions for String Class
+	/// </summary>
 	public static class StringExtensions
 	{
+		/// <summary>
+		/// Does the string contain the text being searched for?
+		/// </summary>
+		/// <param name="_src">string to search for text in</param>
+		/// <param name="_search">text to find</param>
+		/// <returns>true if _search is found in _src</returns>
 		public static bool Contains(this String _src, string _search)
 		{
 			for (int i = _src.Length-1; i >= 0; --i)
@@ -18,6 +27,12 @@ namespace Controller
 			return false;
 		}
 
+		/// <summary>
+		/// Does the string contain the character being searched for?
+		/// </summary>
+		/// <param name="_src">string to search</param>
+		/// <param name="_search">character to find</param>
+		/// <returns>true if _search is found in _src</returns>
 		public static bool Contains(this String _src, char _search)
 		{
 			for (int i = _src.Length-1; i >= 0; --i)
@@ -27,6 +42,13 @@ namespace Controller
 			return false;
 		}
 
+		/// <summary>
+		/// Pad the left side of the string with a given number of a specific character
+		/// </summary>
+		/// <param name="_src">string to pad</param>
+		/// <param name="_count">number of characters to add</param>
+		/// <param name="_pad">character to use as padding</param>
+		/// <returns>new string with padding added</returns>
 		public static string PadLeft(this String _src, int _count, char _pad)
 		{
 			if (_src.Length >= _count)
@@ -44,6 +66,11 @@ namespace Controller
 
 	public static class StringBuilderExtensions
 	{
+		/// <summary>
+		/// Get byte array directly from a StringBuilder
+		/// </summary>
+		/// <param name="_sb">StringBuilder to encode</param>
+		/// <returns>UTF8 Encoded byte array</returns>
 		public static byte[] ToBytes(this StringBuilder _sb)
 		{
 			return Encoding.UTF8.GetBytes(_sb.ToString());

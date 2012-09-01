@@ -38,7 +38,7 @@ namespace Controller
 		private Timer m_Poller;
 
 		/// <summary>
-		/// Interval at which to check
+		/// Interval to poll plugin list for execution
 		/// </summary>
 		private TimeSpan m_pollInterval = new TimeSpan(0, 0, 10);
 

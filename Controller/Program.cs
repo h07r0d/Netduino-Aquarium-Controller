@@ -77,7 +77,8 @@ namespace Controller
 		/// <summary>
 		/// Delegate to process web requests
 		/// </summary>
-		/// <param name="request">Request item received from Listener</param>		
+		/// <param name="request">Request item received from Listener</param>
+		/// <remarks>Very much WIP</remarks>
 		private static void WebCommandReceived(Request _request)
 		{			
 			try
@@ -88,8 +89,11 @@ namespace Controller
 				WebResponseEventHandler handler = (WebResponseEventHandler)m_eventHandlerList[requestString];
 				if (handler != null)
 				{
-					handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
-						_request.Querystring["status"].ToString()));
+					// Call the matched handler with the Request object.
+					// <WIP>
+					/*handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
+						_request.Querystring["status"].ToString()));*/
+					// </WIP>
 				}
 				else
 				{
@@ -115,19 +119,17 @@ namespace Controller
 		}
 
 
-
-
-
-
 		public static void Main()
 		{
 			// Initialize required components
 			bootstrap();
 			// All plugins have been spun out and are running
 
+			// <WIP>
+			// All web server components are still very WIP, not functional
 			// Startup Web Frontend
-			Listener webServer = new Listener(WebCommandReceived);
-
+			// Listener webServer = new Listener(WebCommandReceived);
+			// </WIP>
 
 			Debug.EnableGCMessages(true);
 			Debug.Print(Debug.GC(true) + " bytes");
@@ -143,6 +145,11 @@ namespace Controller
 
 		private static void bootstrap()
 		{
+			/*
+			 * Unfortunately, the DS1307 seems to be causing trouble with any AnalogInputs
+			 * when being read from in I2C.  Not sure why....using an NST server instead
+			 */
+
 			// Set system time
 			//DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
 			//DS1307 clock = new DS1307();
@@ -155,12 +162,12 @@ namespace Controller
 			m_pluginScheduler = new PluginScheduler();
 
 			// Each key in 'config' is a collection of plugin types (input, output, control),
-			// so pull out of the root element
+			// so pull out of the root element.
 			Hashtable config = ((Hashtable)JSON.JsonDecodeConfig(ConfigFile))["config"] as Hashtable;
 
 			// parse each plugin type
-			foreach (string name in config.Keys)
-				ParseConfig(config[name] as Hashtable, name);
+			foreach (string pluginType in config.Keys)
+				ParseConfig(config[pluginType] as Hashtable, pluginType);
 
 			config = null;
 			// config parsed, write out html index
@@ -176,6 +183,8 @@ namespace Controller
 		/// Extract string from Request and overwrite config file with new values
 		/// </summary>
 		/// <param name="_request">PostRequest received from ResponseHandler</param>
+		/// <remarks>Very WIP</remarks>
+		
 		/*
 		private static void SaveConfig(object _request)
 		{
@@ -229,6 +238,13 @@ namespace Controller
 			}
 		}
 
+		/// <summary>
+		/// Load the assembly dynamically from the SD Card, attach any necessary handlers, and update the web front end
+		/// to provide config options 
+		/// </summary>
+		/// <param name="_name">Name of the Plugin</param>
+		/// <param name="_type">Class of plugin</param>
+		/// <param name="_config"></param>
 		private static void LoadPlugin(string _name, string _type, Hashtable _config)
 		{
 			try

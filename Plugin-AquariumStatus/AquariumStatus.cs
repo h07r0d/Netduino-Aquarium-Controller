@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections;
+using System.IO;
+using System.Text;
 using Controller;
 using Microsoft.SPOT;
-using System.IO;
-using System.Collections;
-using System.Text;
 
 namespace Plugins
 {
+	/// <summary>
+	/// Output plugin that provides current tank conditions to the web front end via JS
+	/// </summary>
+	/// <remarks>Will eventually write out to attached LCD, but that's still VERY WIP</remarks>
 	public class AquariumStatus : OutputPlugin
 	{
 		~AquariumStatus() { Dispose(); }

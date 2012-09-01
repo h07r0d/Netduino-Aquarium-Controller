@@ -10,6 +10,7 @@ namespace Plugins
 	/// </summary>
 	/// <remarks>Using a combination of code from MicroLiquidCrystal Library http://microliquidcrystal.codeplex.com
 	/// and a nice blog post from http://highfieldtales.wordpress.com/2011/12/04/very-fast-spi-to-parallel-interface-for-netduino/
+	/// Obviously, this isn't being used yet.....
 	/// </remarks>
 	class LCDDriver
 	{

@@ -32,7 +32,12 @@ namespace Controller
 			m_outputPlugins = new ArrayList();
 			m_closeDiv = Encoding.UTF8.GetBytes("</div>");
 		}
-
+		/// <summary>
+		/// Add required js and html for a specific plugin to the index generator
+		/// </summary>
+		/// <param name="_scriptName">string containing the name of the plugins javascript files</param>
+		/// <param name="_type">class of plugin.  Different classes require different placement in the homepage</param>
+		/// <param name="_local">are all the resources for this plugin hosted on the Netduino, or off site?</param>
 		public void AddPlugin(string _scriptName, PluginType _type, bool _local)
 		{
 			// Add header js block
@@ -79,6 +84,9 @@ namespace Controller
 			Debug.GC(true);
 		}
 
+		/// <summary>
+		/// Write out the index.html file to be served
+		/// </summary>
 		public void GenerateIndex()
 		{
 			byte[] stringBytes;
@@ -143,6 +151,12 @@ namespace Controller
 
 		}
 
+		/// <summary>
+		/// Write out the html for all of the plugins from their respective fragments
+		/// </summary>
+		/// <param name="_index">FileStream that contains index.html</param>
+		/// <param name="_type">Class of Plugin</param>
+		/// <returns>Success/Fail on writing all plugin html out to the index</returns>
 		private bool WritePlugins(ref FileStream _index, PluginType _type)
 		{
 			IList currArray;
