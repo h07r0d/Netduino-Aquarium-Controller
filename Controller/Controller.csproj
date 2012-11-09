@@ -73,7 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebServer\WebServer.csproj">
-      <Project>{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}</Project>
+      <Project>{71B2DDB7-063C-4866-BD82-83D06E22E225}</Project>
       <Name>WebServer</Name>
     </ProjectReference>
   </ItemGroup>
