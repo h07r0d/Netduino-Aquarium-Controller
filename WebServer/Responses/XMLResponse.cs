@@ -74,7 +74,7 @@ namespace Webserver.Responses
 
             xml += "<Response>";
 
-            xml += XMLConverter.ConvertHashtableToXMLString(_Pairs);
+            //xml += XMLConverter.ConvertHashtableToXMLString(_Pairs);
 
             xml += "</Response>";
 

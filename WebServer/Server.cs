@@ -207,14 +207,14 @@ namespace Webserver
         {
             AddResponse(new FileResponse());
             AddResponse(new XMLResponse("echo", new XMLResponseMethod(Echo)));
-            AddResponse(new XMLResponse("switchDigitalPin", new XMLResponseMethod(SwitchDigitalPin)));
-            AddResponse(new XMLResponse("setDigitalPin", new XMLResponseMethod(SetDigitalPin)));
+            //AddResponse(new XMLResponse("switchDigitalPin", new XMLResponseMethod(SwitchDigitalPin)));
+            //AddResponse(new XMLResponse("setDigitalPin", new XMLResponseMethod(SetDigitalPin)));
             AddResponse(new XMLResponse("xmlResponselist", new XMLResponseMethod(ResponseListXML)));
             //AddResponse(new JSONResponse("jsonResponselist", new JSONResponseMethod(ResponseListJSON)));
-            AddResponse(new XMLResponse("pwm", new XMLResponseMethod(SetPWM)));
-            AddResponse(new XMLResponse("getAnalogPinValue", new XMLResponseMethod(GetAnalogPinValue)));
-            AddResponse(new XMLResponse("getDigitalPinState", new XMLResponseMethod(GetDigitalPinState)));
-            AddResponse(new XMLResponse("multixml", new XMLResponseMethod(MultipleXML)));
+            //AddResponse(new XMLResponse("pwm", new XMLResponseMethod(SetPWM)));
+            //AddResponse(new XMLResponse("getAnalogPinValue", new XMLResponseMethod(GetAnalogPinValue)));
+            //AddResponse(new XMLResponse("getDigitalPinState", new XMLResponseMethod(GetDigitalPinState)));
+            //AddResponse(new XMLResponse("multixml", new XMLResponseMethod(MultipleXML)));
             //AddResponse(new IndexResponse());
         }
 
@@ -245,7 +245,7 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        private static void SwitchDigitalPin(RequestReceivedEventArgs e, Hashtable h)
+       /* private static void SwitchDigitalPin(RequestReceivedEventArgs e, Hashtable h)
         {
             if (e.Request.GetArguments.Contains("pin"))
                 try
@@ -263,7 +263,7 @@ namespace Webserver
                 }
             else
                 h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }
+        }*/
 
         /// <summary>
         /// Submit a 'pin' (0-13) and a 'state' (true/false) GET parameter to turn on/off OutputPort
@@ -271,7 +271,7 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        private static void SetDigitalPin(RequestReceivedEventArgs e, Hashtable h)
+       /* private static void SetDigitalPin(RequestReceivedEventArgs e, Hashtable h)
         {
             if (e.Request.GetArguments.Contains("pin"))
                 if (e.Request.GetArguments.Contains("state"))
@@ -302,7 +302,7 @@ namespace Webserver
                     h = XMLResponse.GenerateErrorHashtable("state", ResponseErrorType.ParameterMissing);
             else
                 h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }
+        }*/
 
         /// <summary>
         /// Returns the responses added to the webserver
@@ -351,7 +351,7 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        private void SetPWM(RequestReceivedEventArgs e, Hashtable h)
+        /*private void SetPWM(RequestReceivedEventArgs e, Hashtable h)
         {
             if (e.Request.GetArguments.Contains("pin"))
             {
@@ -399,7 +399,7 @@ namespace Webserver
             }
             else
                 h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }
+        }*/
 
         /// <summary>
         /// Submit a 'pin' (0-13) GET parameter. Returns true or false
@@ -407,7 +407,7 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        private void GetDigitalPinState(RequestReceivedEventArgs e, Hashtable h)
+        /*private void GetDigitalPinState(RequestReceivedEventArgs e, Hashtable h)
         {
             if (e.Request.GetArguments.Contains("pin"))
             {
@@ -424,7 +424,7 @@ namespace Webserver
             }
             else
                 h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }
+        }*/
 
         /// <summary>
         /// Submit a 'pin' (0-5) GET parameter. Returns true or false
@@ -432,7 +432,7 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        private void GetAnalogPinValue(RequestReceivedEventArgs e, Hashtable h)
+        /*private void GetAnalogPinValue(RequestReceivedEventArgs e, Hashtable h)
         {
             if (e.Request.GetArguments.Contains("pin"))
             {
@@ -449,7 +449,7 @@ namespace Webserver
             }
             else
                 h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }
+        }*/
 
         /// <summary>
         /// Example for the useage of the new XML library
@@ -460,7 +460,7 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        private void MultipleXML(RequestReceivedEventArgs e, Hashtable returnHashtable)
+        /*private void MultipleXML(RequestReceivedEventArgs e, Hashtable returnHashtable)
         {
             returnHashtable.Add("UseTheHashtable", "If you don't need nested XML");
 
@@ -479,6 +479,6 @@ namespace Webserver
             Phones[1].Value = PhoneAttributes0;
 
             returnHashtable.Add("Phones", Phones);
-        }
+        }*/
     }
 }

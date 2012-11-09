@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Plugin-WebStatus")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("NRCan-RNCan")]
-[assembly: AssemblyProduct("Plugin-WebStatus")]
-[assembly: AssemblyCopyright("Copyright © NRCan-RNCan 2012")]
+[assembly: AssemblyCompany("Fishfornerds.com")]
+[assembly: AssemblyProduct("Aquarium Controller")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
