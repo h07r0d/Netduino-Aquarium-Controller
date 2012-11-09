@@ -59,7 +59,7 @@
     <Reference Include="Microsoft.SPOT.Native" />
     <Reference Include="SecretLabs.NETMF.Diagnostics, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="SecretLabs.NETMF.Hardware, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.1, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Temperature.htm" />

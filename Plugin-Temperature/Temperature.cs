@@ -1,9 +1,9 @@
 ﻿using Controller;
 using Microsoft.SPOT;
-using SecretLabs.NETMF.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
 using System.Collections;
 using System;
+using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using Microsoft.SPOT.Hardware;
 
 
 namespace Plugins
@@ -79,11 +79,12 @@ namespace Plugins
 		/// Using code tutorial from adafruit http://www.ladyada.net/learn/sensors/thermistor.html </remarks>
 		private float CalculateTemperature()
 		{
-			AnalogInput ain = new AnalogInput(Pins.GPIO_PIN_A0);			
+			
+			AnalogInput ain = new AnalogInput(AnalogChannels.ANALOG_PIN_A0);
 
 			// take 10 readings to even out the noise
 			float average = 0.0F;
-			for (int i = 0; i < 10; i++) { average += ain.Read(); }
+			for (int i = 0; i < 10; i++) { average += (int)ain.Read(); }
 			average /= 10;
 			
 			// convert to a resistance
