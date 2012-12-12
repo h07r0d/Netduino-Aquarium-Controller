@@ -79,7 +79,7 @@ namespace Controller
 		/// </summary>
 		/// <param name="request">Request item received from Listener</param>
 		/// <remarks>Very much WIP</remarks>
-		private static void WebCommandReceived(Request _request)
+		/*private static void WebCommandReceived(Request _request)
 		{			
 			try
 			{
@@ -92,7 +92,7 @@ namespace Controller
 					// Call the matched handler with the Request object.
 					// <WIP>
 					/*handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
-						_request.Querystring["status"].ToString()));*/
+						_request.Querystring["status"].ToString()));
 					// </WIP>
 				}
 				else
@@ -104,7 +104,7 @@ namespace Controller
 				string header = HttpGeneral.GetHttpHeader(content.Length, "text/html", 10);
 				result = header + content;
 				Debug.Print("\t\trequest.URI="+request.Uri);				
-				 * */
+				 * 
 			}
 			catch (Exception ex)
 			{
@@ -114,9 +114,9 @@ namespace Controller
 				content += "<p>Error: " + ex.StackTrace + "</p>" + HtmlGeneral.HtmlEnd;
 				string header = HttpGeneral.Get500Header(content.Length);
 				result = header + content;
-				 * */
+				 * 
 			}
-		}
+		}*/
 
 
 		public static void Main()
