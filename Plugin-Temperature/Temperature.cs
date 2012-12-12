@@ -1,9 +1,9 @@
 ﻿using Controller;
 using Microsoft.SPOT;
-using SecretLabs.NETMF.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
 using System.Collections;
 using System;
+using SecretLabs.NETMF.Hardware;
 
 
 namespace Plugins

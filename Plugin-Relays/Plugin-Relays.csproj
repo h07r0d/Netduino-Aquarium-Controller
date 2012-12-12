@@ -50,8 +50,7 @@
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
-    <Reference Include="SecretLabs.NETMF.Diagnostics, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.1, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Controller\Controller.csproj">

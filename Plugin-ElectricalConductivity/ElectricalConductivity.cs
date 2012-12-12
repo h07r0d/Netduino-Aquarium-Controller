@@ -101,8 +101,7 @@ namespace Plugins
             {
                 string command = "";
                 string response = "";
-                char inChar;
-                string ppm = "";
+                char inChar;                
 
                 // Send the temperature reading if available
                 if (m_Temperature > 0)
