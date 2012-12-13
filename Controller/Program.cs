@@ -30,11 +30,12 @@ namespace Controller
 	/// <param name="_sender">Any necessary data to complete the response</param>
 	public delegate void WebResponseEventHandler(Object _sender);
 
-	public class Program
+	public class Controller
 	{
 		public const string PluginFolder = @"\SD\plugins\";
 		public const string FragmentFolder = @"\SD\fragments\";
 		public const string ConfigFile = @"\SD\config.js";
+		public const string IndexFile = @"\SD\index.html";
 
 		/// <summary>
 		/// Utility object to build any static html that can be built on boot
@@ -128,7 +129,7 @@ namespace Controller
 			// <WIP>
 			// All web server components are still very WIP, not functional
 			// Startup Web Frontend
-			// Listener webServer = new Listener(WebCommandReceived);
+			Server WebServer = new Server();
 			// </WIP>
 
 			Debug.EnableGCMessages(true);

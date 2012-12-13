@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Controller
 {
-	public enum ThingSpeakFields : uint { Temperature = 1, pH = 2 }
+	public enum ThingSpeakFields : uint { Temperature = 1, pH = 2, PPM = 3 }
 	public enum PluginType { Input, Output, Control }
 
 	public abstract class Plugin : IDisposable
