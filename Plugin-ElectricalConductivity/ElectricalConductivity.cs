@@ -11,11 +11,9 @@ namespace Plugins
 
     public class ElectricalConductivityData : IPluginData
 	{
-		private float m_value;
-		public float GetValue() { return m_value; }
-		public void SetValue(float _value) { m_value = _value; }
-		public string DataUnits() { return "ppm"; }
-		public ThingSpeakFields DataType() { return ThingSpeakFields.PPM; }
+        private PluginData[] _PluginData;
+        public PluginData[] GetData() { return _PluginData; }
+        public void SetData(PluginData[] _value) { _PluginData = _value; }
 	}
 
 	/// <summary>
@@ -62,10 +60,13 @@ namespace Plugins
         /// <param name="_data">Last reading</param>
         public override void EventHandler(object _sender, IPluginData _data)
         {
-            // Only worry about Temperature data, so check data units.
-            // If it's 'C' then assume it's the one we want.
+            // Only worry about Temperature data, so check data units and name.
+            // If it's 'C' and 'Temperature' then assume it's the one we want.
             Debug.Print("Got Temperature Value");
-            if (_data.DataUnits().Equals("C")) m_Temperature = _data.GetValue();
+            foreach (PluginData _pd in _data.GetData())
+            {
+                if (_pd.Name.Equals("Temperature") & _pd.UnitOFMeasurment.Equals("C")) m_Temperature = (float)_pd.Value;
+            }
         }
 
 		public override void TimerCallback(object state)
@@ -74,8 +75,8 @@ namespace Plugins
             ElectricalConductivityData ECData = new ElectricalConductivityData();
 
 			// get current ElectricalConductivity Value			
-            ECData.SetValue(GetPPM());
-            Debug.Print("ElectricalConductivity = " + ECData.GetValue().ToString("F"));			
+            ECData.SetData(GetDataFromSensor());
+            Debug.Print("ElectricalConductivity = " + ((float)ECData.GetData()[1].Value));			
 
 			//Timer Callbacks receive a Delegate in the state object
 			InputDataAvailable ida = (InputDataAvailable)state;
@@ -84,16 +85,16 @@ namespace Plugins
 			// TODO: Currently there is a glitch with SerialPort and
 			// sometimes data doesn't come back from the Stamp.
 			// Discard bad readings, and report any meaningful ones
-            if (ECData.GetValue() > 0.0F) ida(ECData);
+            if (((float)ECData.GetData()[0].Value) > 0.0F) ida(ECData);
 		}
 
 		/// <summary>
 		/// Takes reading from Atlas Scientific ElectricalConductivity Stamp
 		/// </summary>
 		/// <returns></returns>
-		private float GetPPM()
+		private PluginData[] GetDataFromSensor()
 		{
-			float PPM = 0.0F;
+            PluginData[] _Data = new PluginData[2];
 			SerialPort sp = new SerialPort(Serial.COM2, 38400, Parity.None, 8, StopBits.One);
 			sp.ReadTimeout = 1000;
 
@@ -102,30 +103,41 @@ namespace Plugins
                 string command = "";
                 string response = "";
                 char inChar;
-                string ppm = "";
-
+                
                 // Send the temperature reading if available
                 if (m_Temperature > 0)
-                    command = m_Temperature.ToString("F") + "\rR\r";
+                    command = m_Temperature.ToString("F") + "\r";
                 else
                     command = "R\r";
 
-                Debug.Print(command);
                 byte[] message = Encoding.UTF8.GetBytes(command);
 
 				sp.Open();
 				sp.Write(message, 0, message.Length);
 				sp.Flush();
-				Debug.Print("sending message");
+				Debug.Print("Sending \"" + command + "\" to the EC stamp");
 
 				// Now collect response
 				while ((inChar = (char)sp.ReadByte()) != '\r') { response += inChar; }
 
-                response = response.Split(',')[1];
+                string[] _split;
+                _split = response.Split(',');
+
+                //Assign the response to a PluginData Variable
+                _Data[0].Name = "Microsiemens";
+                _Data[0].UnitOFMeasurment = "µs";
+                _Data[0].Value = _split[0];
+                _Data[0].ThingSpeakFieldID = 4;
                 
-				// Stamp can return text if reading was not successful, so test before returning
-				double ppmReading;
-                if (Double.TryParse(response, out ppmReading)) PPM = (float)ppmReading;
+                _Data[1].Name = "TDS";
+                _Data[1].UnitOFMeasurment = "PPM";
+                _Data[1].Value = _split[1];
+                _Data[1].ThingSpeakFieldID = 5;
+
+                _Data[2].Name = "Salinity(PSS-78)";
+                _Data[2].UnitOFMeasurment = "Salinity";
+                _Data[2].Value = _split[2];
+                _Data[1].ThingSpeakFieldID = 6;
 			}
 			catch (Exception e)
 			{
@@ -136,7 +148,7 @@ namespace Plugins
 				sp.Close();
 				sp.Dispose();
 			}
-			return PPM;
+            return _Data;
 		}
 	}
 }

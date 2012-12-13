@@ -1,20 +1,18 @@
 ﻿using Controller;
 using Microsoft.SPOT;
-using SecretLabs.NETMF.Hardware;
 using SecretLabs.NETMF.Hardware.NetduinoPlus;
 using System.Collections;
 using System;
+using SecretLabs.NETMF.Hardware;
 
 
 namespace Plugins
 {	
 	public class TempData : IPluginData
 	{
-		private float m_value;
-		public float GetValue() { return m_value; }
-		public void SetValue(float _value) { m_value = _value; }
-		public string DataUnits() { return "C"; }
-		public ThingSpeakFields DataType() { return ThingSpeakFields.Temperature; }
+        private PluginData[] _PluginData;
+        public PluginData[] GetData() { return _PluginData; }
+        public void SetData(PluginData[] _value) { _PluginData = _value; }
 	}
 
 	/// <summary>
@@ -60,9 +58,9 @@ namespace Plugins
 			Debug.Print("Temperature Callback");
 			TempData tempData = new TempData();
 			// get current temperature
-			tempData.SetValue(CalculateTemperature());
+			tempData.SetData(CalculateTemperature());
 
-			Debug.Print("Temperature = "+tempData.GetValue().ToString());
+			Debug.Print("Temperature = "+tempData.GetData()[0].Value.ToString());
 			//Timer Callbacks receive a Delegate in the state object
 			InputDataAvailable ida = (InputDataAvailable)state;
 
@@ -77,8 +75,9 @@ namespace Plugins
 		/// <remarks>Assuming AREF of 3.3v, the default for Rev. B Netduino Plus boards.
 		/// It's an internal value, no feed to AREF required.
 		/// Using code tutorial from adafruit http://www.ladyada.net/learn/sensors/thermistor.html </remarks>
-		private float CalculateTemperature()
+		private PluginData[] CalculateTemperature()
 		{
+            PluginData[] _PluginData = new PluginData[0];
 			AnalogInput ain = new AnalogInput(Pins.GPIO_PIN_A0);			
 
 			// take 10 readings to even out the noise
@@ -97,9 +96,14 @@ namespace Plugins
 			tempValue += 1.0F / (TemperatureNominal + 273.15F);
 			tempValue = 1.0F / tempValue;
 			tempValue -= 273.15F;
-			
+
+            _PluginData[0].Name = "Temperature";
+            _PluginData[0].UnitOFMeasurment = "C";
+            _PluginData[0].Value = tempValue;
+            _PluginData[0].ThingSpeakFieldID = 1;
+
 			ain.Dispose();
-			return tempValue;
+            return _PluginData;
 		}
 	}
 }

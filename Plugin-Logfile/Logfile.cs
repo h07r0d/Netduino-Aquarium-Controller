@@ -26,11 +26,21 @@ namespace Plugins
 			StringBuilder sb = new StringBuilder();
 
 			// Format string for output
+            sb.Append("");
 			sb.Append(DateTime.Now.ToString("s"));
-			sb.Append(",");
-			sb.Append(data.GetValue().ToString("F"));
-			sb.Append(data.DataUnits());
-			sb.Append("\n");
+            sb.Append("");
+            foreach (PluginData _PluginData in data.GetData())
+            {
+                sb.Append("," + "");
+                sb.Append(_PluginData.Name);
+                sb.Append("" + "," + "");
+                sb.Append(_PluginData.Value);
+                sb.Append("" + "," + "");
+                sb.Append(_PluginData.UnitOFMeasurment);
+                sb.Append("");
+                sb.Append("\n");
+            }
+            
 
 			// take data and write it out to text
 			using (FileStream fs = new FileStream(m_logFile, FileMode.Append))

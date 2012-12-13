@@ -151,7 +151,7 @@ namespace Controller
 			 */
 
 			// Set system time
-			//DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
+			DateTime.Now.SetFromNetwork(new TimeSpan(-5, 0, 0));
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
@@ -167,7 +167,7 @@ namespace Controller
 
 			// parse each plugin type
 			foreach (string pluginType in config.Keys)
-				ParseConfig(config[pluginType] as Hashtable, pluginType);
+				ParseConfig(config[pluginType] as Hashtable,pluginType);
 
 			config = null;
 			// config parsed, write out html index
@@ -280,7 +280,7 @@ namespace Controller
 									// There is a special case with the pH plugin.  The pH Stamp can receive a temperature
 									// reading to make the pH more accurate. In order to properly update the value, the pH
 									// plugin registers an output event to catch a temperature update.
-									if (_name.Equals("pH"))
+									if (_name.Equals("pH") || _name.Equals("ElectricalConductivity"))
 										m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)ip.EventHandler);
 
 									break;

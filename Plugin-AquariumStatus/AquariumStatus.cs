@@ -25,17 +25,10 @@ namespace Plugins
 		{
 			// Load status.js and update necessary variables			
 			Hashtable status = (Hashtable)JSON.JsonDecodeFromFile(m_statusFileName);
-			switch (_data.DataType())
-			{
-				case ThingSpeakFields.pH:
-					status["pH"] = _data.GetValue().ToString("F");
-					break;
-				case ThingSpeakFields.Temperature:
-					status["Temperature"] = _data.GetValue().ToString("F");
-					break;
-				default:
-					break;
-			}
+            foreach (PluginData _PluginData in _data.GetData())
+            {
+                status[_PluginData.Name] = (float)_PluginData.Value;
+            }
 			status["time"] = DateTime.Now.ToString("s");
 
 			foreach (DictionaryEntry item in status)

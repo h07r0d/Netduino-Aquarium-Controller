@@ -7,6 +7,10 @@
 		"pH": {
 			"enabled":"true",
 			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
+		},
+		"ElectricalConductivity": {
+			"enabled":"true",
+			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
 		}
 	},
 	"output": {

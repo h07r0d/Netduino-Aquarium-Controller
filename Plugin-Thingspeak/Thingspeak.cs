@@ -38,41 +38,45 @@ namespace Plugins
 
 		public override void EventHandler(object _sender, IPluginData _data)
 		{
-			// build field string from _data and append to the post string
-			string fieldData = "field"+(uint)_data.DataType()+"="+_data.GetValue().ToString("F");
+            foreach (PluginData _pd in _data.GetData())
+            {
 
-			// add content length to post string, then data
-			string postString = m_httpPost + fieldData.Length + "\n\n" + fieldData;
+                // build field string from _data and append to the post string
+                string fieldData = "field" + (uint)_pd.ThingSpeakFieldID + "=" + (string)_pd.Value;
 
-			//Open the Socket and post the data
-			// create required networking parameters
-			
-			using (Socket thingSpeakSocket = ConnectSocket(m_thingSpeakIP, 80))
-			{				
-				Byte[] sendBytes = Encoding.UTF8.GetBytes(postString);
-				thingSpeakSocket.Send(sendBytes, sendBytes.Length, 0);
-				
-				// wait for a response to see what happened
-				Byte[] buffer = new Byte[256];
-				String page = String.Empty;
+                // add content length to post string, then data
+                string postString = m_httpPost + fieldData.Length + "\n\n" + fieldData;
 
-				// Poll for data until 30-second timeout.  Returns true for data and connection closed.
-				while (thingSpeakSocket.Poll(20 * 1000000, SelectMode.SelectRead))
-				{
-					// If there are 0 bytes in the buffer, then the connection is closed, or we have timed out.
-					if (thingSpeakSocket.Available == 0) break;
+                //Open the Socket and post the data
+                // create required networking parameters
 
-					// Zero all bytes in the re-usable buffer.
-					Array.Clear(buffer, 0, buffer.Length);
+                using (Socket thingSpeakSocket = ConnectSocket(m_thingSpeakIP, 80))
+                {
+                    Byte[] sendBytes = Encoding.UTF8.GetBytes(postString);
+                    thingSpeakSocket.Send(sendBytes, sendBytes.Length, 0);
 
-					// Read a buffer-sized HTML chunk.
-					Int32 bytesRead = thingSpeakSocket.Receive(buffer);
-					// Append the chunk to the string.
-					page = page + new String(Encoding.UTF8.GetChars(buffer));
-				}
+                    // wait for a response to see what happened
+                    Byte[] buffer = new Byte[256];
+                    String page = String.Empty;
 
-				Debug.Print(page);
-			}			
+                    // Poll for data until 30-second timeout.  Returns true for data and connection closed.
+                    while (thingSpeakSocket.Poll(20 * 1000000, SelectMode.SelectRead))
+                    {
+                        // If there are 0 bytes in the buffer, then the connection is closed, or we have timed out.
+                        if (thingSpeakSocket.Available == 0) break;
+
+                        // Zero all bytes in the re-usable buffer.
+                        Array.Clear(buffer, 0, buffer.Length);
+
+                        // Read a buffer-sized HTML chunk.
+                        Int32 bytesRead = thingSpeakSocket.Receive(buffer);
+                        // Append the chunk to the string.
+                        page = page + new String(Encoding.UTF8.GetChars(buffer));
+                    }
+
+                    Debug.Print(page);
+                }
+            }
 		}
 	}
 }

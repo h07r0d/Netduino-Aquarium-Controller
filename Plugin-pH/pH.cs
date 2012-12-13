@@ -11,11 +11,9 @@ namespace Plugins
 
 	public class AlkalinityData : IPluginData
 	{
-		private float m_value;
-		public float GetValue() { return m_value; }
-		public void SetValue(float _value) { m_value = _value; }
-		public string DataUnits() { return "pH"; }
-		public ThingSpeakFields DataType() { return ThingSpeakFields.pH; }
+        private PluginData[] _PluginData;
+        public PluginData[] GetData() { return _PluginData; }
+        public void SetData(PluginData[] _value) { _PluginData = _value; }
 	}
 
 	/// <summary>
@@ -59,12 +57,15 @@ namespace Plugins
 		/// </summary>
 		/// <param name="_sender">Object that raised the callback</param>
 		/// <param name="_data">Last reading</param>
-		public override void EventHandler(object _sender, IPluginData _data)
+		public override void EventHandler(object _sender, PluginData[] _data)
 		{
 			// Only worry about Temperature data, so check data units.
-			// If it's 'C' then assume it's the one we want.
+            // If it's 'C' and the Name = 'Temperature' then assume it's the one we want.
 			Debug.Print("Got Temperature Value");
-			if (_data.DataUnits().Equals("C")) m_Temperature = _data.GetValue();
+            foreach (PluginData _pd in _data)
+            {
+                if (_pd.Name.Equals("Temperature") & _pd.UnitOFMeasurment.Equals("C")) m_Temperature = (float)_pd.Value;
+            }
 		}
 
 		public override void TimerCallback(object state)
@@ -73,8 +74,8 @@ namespace Plugins
 			AlkalinityData phData = new AlkalinityData();
 
 			// get current pH Value			
-			phData.SetValue(CalculatePH());
-			Debug.Print("pH = " + phData.GetValue().ToString("F"));			
+			phData.SetData(CalculatePH());
+			Debug.Print("pH = " + (float)phData.GetData()[0].Value);			
 
 			//Timer Callbacks receive a Delegate in the state object
 			InputDataAvailable ida = (InputDataAvailable)state;
@@ -83,16 +84,17 @@ namespace Plugins
 			// TODO: Currently there is a glitch with SerialPort and
 			// sometimes data doesn't come back from the Stamp.
 			// Discard bad readings, and report any meaningful ones
-			if (phData.GetValue() > 0.0F) ida(phData);
+			if ((float)phData.GetData()[0].Value > 0.0F) ida(phData);
 		}
 
 		/// <summary>
 		/// Takes reading from Atlas Scientific pH Stamp
 		/// </summary>
 		/// <returns></returns>
-		private float CalculatePH()
+		private PluginData[] CalculatePH()
 		{
 			float ph = 0.0F;
+            PluginData[] _PluginData = new PluginData[0];
 			SerialPort sp = new SerialPort(Serial.COM1, 38400, Parity.None, 8, StopBits.One);
 			sp.ReadTimeout = 1000;
 
@@ -122,6 +124,13 @@ namespace Plugins
 				// Stamp can return text if reading was not successful, so test before returning
 				double phReading;
 				if (Double.TryParse(response, out phReading)) ph = (float)phReading;
+
+                PluginData[] _Data = new PluginData[2];
+
+                _PluginData[0].Name = "Alkalinity";
+                _PluginData[0].UnitOFMeasurment = "pH";
+                _PluginData[0].Value = ph;
+                _PluginData[0].ThingSpeakFieldID = 2;
 			}
 			catch (Exception e)
 			{
@@ -132,7 +141,7 @@ namespace Plugins
 				sp.Close();
 				sp.Dispose();
 			}
-			return ph;
+            return _PluginData;
 		}
 	}
 }
