@@ -2,7 +2,7 @@
 using Microsoft.SPOT;
 using System.Collections;
 using System;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using SecretLabs.NETMF.Hardware.Netduino;
 using Microsoft.SPOT.Hardware;
 
 

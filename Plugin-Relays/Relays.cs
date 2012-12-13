@@ -3,7 +3,7 @@ using System.Collections;
 using Controller;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using SecretLabs.NETMF.Hardware.Netduino;
 
 namespace Plugins
 {
@@ -30,13 +30,14 @@ namespace Plugins
 		private OutputPort[] m_relayPins;
 		public Relays(object _config)
 		{
+			Debug.Print("Relays Constructor");
 			// Initialize Relay Pin controls
 			m_relayPins = new OutputPort[4];
 			m_relayPins[0] = new OutputPort(Pins.GPIO_PIN_D7, false);
 			m_relayPins[1] = new OutputPort(Pins.GPIO_PIN_D6, false);
 			m_relayPins[2] = new OutputPort(Pins.GPIO_PIN_D5, false);
 			m_relayPins[3] = new OutputPort(Pins.GPIO_PIN_D4, false);
-
+			Debug.Print("Relay Pins created");
 			// parse config Hashtable and store array list of commands
 			// the individual relays are stored in an Array List
 			m_commands = new Hashtable();
@@ -62,7 +63,8 @@ namespace Plugins
 		/// </summary>
 		/// <param name="_commands">JSON formatted list of objects</param>
 		private void ParseCommands(ArrayList _commands)
-		{			
+		{
+			Debug.Print("Parsing Commands");
 			foreach (Hashtable command in _commands)
 			{
 				// parse out details from config
