@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-AquariumStatus", "Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-ElectricalConductivity", "Plugin-ElectricalConductivity\Plugin-ElectricalConductivity.csproj", "{81D8D4B0-E62D-4F66-8E66-BC26616BDC9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin-DHTSensor", "Plugin-DHTSensor\Plugin-DHTSensor.csproj", "{D02941EE-C27E-4422-AD5E-FE99C4B822CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,12 @@ Global
 		{81D8D4B0-E62D-4F66-8E66-BC26616BDC9C}.Emulator|Any CPU.Build.0 = Release|Any CPU
 		{81D8D4B0-E62D-4F66-8E66-BC26616BDC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81D8D4B0-E62D-4F66-8E66-BC26616BDC9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D02941EE-C27E-4422-AD5E-FE99C4B822CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D02941EE-C27E-4422-AD5E-FE99C4B822CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D02941EE-C27E-4422-AD5E-FE99C4B822CA}.Emulator|Any CPU.ActiveCfg = Emulator|Any CPU
+		{D02941EE-C27E-4422-AD5E-FE99C4B822CA}.Emulator|Any CPU.Build.0 = Emulator|Any CPU
+		{D02941EE-C27E-4422-AD5E-FE99C4B822CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D02941EE-C27E-4422-AD5E-FE99C4B822CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
