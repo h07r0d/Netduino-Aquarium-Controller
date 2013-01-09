@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using Extensions;
 
 namespace Controller {
 	/// <summary>

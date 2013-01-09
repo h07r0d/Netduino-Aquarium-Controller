@@ -3,6 +3,7 @@ using Microsoft.SPOT;
 using System.Text;
 using System.Collections;
 using System.IO;
+using Extensions;
 
 namespace Controller
 {
@@ -40,8 +41,16 @@ namespace Controller
 			m_closeDiv = Encoding.UTF8.GetBytes("</div>");
 
 			// just delete it, don't check for exist, as no exception will be thrown on missing file
-			File.Delete(Controller.FragmentFolder + m_headerScriptFileName);
-			File.Delete(Controller.FragmentFolder + m_scriptCallFileName);
+			try
+			{
+				File.Delete(Controller.FragmentFolder + m_headerScriptFileName);
+				File.Delete(Controller.FragmentFolder + m_scriptCallFileName);
+			}
+			catch (IOException)
+			{
+				Debug.Print("Couldn't access SD Card");
+			}
+
 		}
 
 		/// <summary>
@@ -57,8 +66,12 @@ namespace Controller
 			script.Append("<script src=\"");
 			if (!_local)
 				script.Append(m_hostUrl);
+			else
+				script.Append("plugins\\");
 			script.Append(_scriptName);
-			script.Append(".min.js\" type=\"text/javascript\"></script>");
+			if (!_local)
+				script.Append(".min");
+			script.Append(".js\" type=\"text/javascript\"></script>");
 			using (FileStream fs = new FileStream(Controller.FragmentFolder + m_headerScriptFileName, FileMode.Append))
 			{
 				byte[] text = script.ToBytes();

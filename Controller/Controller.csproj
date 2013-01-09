@@ -46,7 +46,6 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="EventHandlerList.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="HtmlBuilder.cs" />
     <Compile Include="IcDS1307.cs" />
     <Compile Include="IPlugin.cs" />
@@ -72,6 +71,10 @@
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{C4E8D63B-A08E-48CD-AD72-9EBB2AB94F07}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebServer\WebServer.csproj">
       <Project>{71B2DDB7-063C-4866-BD82-83D06E22E225}</Project>
       <Name>WebServer</Name>

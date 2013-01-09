@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
-using System.Text;
 using System.IO;
+using System.Text;
+using Extensions;
 
 namespace Controller
 {
@@ -63,7 +64,7 @@ namespace Controller
 
 					// Find first location of {
 					int startAt = varString.IndexOf('{');
-					varString = varString.Substring(startAt, varString.Length - (startAt-1));
+					varString = varString.Substring(startAt-1, varString.Length-startAt);
 					bool success = true;
 					return JsonDecode(varString, ref success);
 				}

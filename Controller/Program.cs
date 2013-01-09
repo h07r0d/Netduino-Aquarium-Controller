@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using Extensions;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.Netduino;
@@ -152,11 +153,12 @@ namespace Controller
 			 */
 
 			// Set system time
-			//DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
+			DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
 			//clock.Dispose();
+			Debug.Print(DateTime.Now.ToString());
 
 			m_htmlBuilder = new HtmlBuilder();
 			m_eventHandlerList = new EventHandlerList();
@@ -164,7 +166,7 @@ namespace Controller
 
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element.
-			Hashtable config = ((Hashtable)JSON.JsonDecodeConfig(ConfigFile))["config"] as Hashtable;
+			Hashtable config = ((Hashtable)JSON.JsonDecodeFromVar(ConfigFile))["config"] as Hashtable;
 
 			// parse each plugin type
 			foreach (string pluginType in config.Keys)
@@ -208,6 +210,7 @@ namespace Controller
 		/// <param name="_name">Name of Plugin being searched for</param>
 		private static void ParseConfig(Hashtable _section, string _type = null, string _name = null)
 		{
+			bool localHtmlResources = true;
 			foreach (string name in _section.Keys)
 			{
 				if (_section[name] is Hashtable)
@@ -223,13 +226,13 @@ namespace Controller
 					switch (_type)
 					{
 						case "input":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Input, localHtmlResources);
 							break;
 						case "output":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Output, false);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Output, localHtmlResources);
 							break;
 						case "control":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Control, false);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Control, localHtmlResources);
 							break;
 						default:
 							break;

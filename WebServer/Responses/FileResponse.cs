@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using Webserver.EventArgs;
 using Microsoft.SPOT;
+using Extensions;
 
 namespace Webserver.Responses
 {
@@ -24,6 +25,10 @@ namespace Webserver.Responses
         public override bool SendResponse(RequestReceivedEventArgs RequestArguments)
         {
             string filePath = Settings.ROOT_PATH + RequestArguments.Request.URL;
+
+			// replace any URL paths with file paths.
+			filePath.Replace("/", "\\");
+			Debug.Print(filePath);
 
             //File found check
             try

@@ -51,6 +51,7 @@
   <PropertyGroup>
     <PostBuildEvent>copy $(ProjectDir)status.js g:\
 copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins
+copy $(ProjectDir)$(TargetName).js g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

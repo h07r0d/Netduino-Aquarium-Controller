@@ -24,7 +24,7 @@ namespace Plugins
 		public override void EventHandler(object _sender, IPluginData _data)
 		{
 			// Load status.js and update necessary variables			
-			Hashtable status = (Hashtable)JSON.JsonDecodeFromFile(m_statusFileName);
+			Hashtable status = (Hashtable)JSON.JsonDecodeFromVar(m_statusFileName);
 			switch (_data.DataType())
 			{
 				case ThingSpeakFields.pH:

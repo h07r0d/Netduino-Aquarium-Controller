@@ -51,4 +51,10 @@
     <Reference Include="System" />
     <Reference Include="System.IO" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{C4E8D63B-A08E-48CD-AD72-9EBB2AB94F07}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

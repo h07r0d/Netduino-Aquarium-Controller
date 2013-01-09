@@ -13,7 +13,7 @@ using Webserver.Responses;
 namespace Webserver
 {
     /// <summary>
-    /// XML Expansion methods have to be in this form
+    /// Expansion methods have to be in this form
     /// </summary>
     /// <param name="e">Access to GET or POST arguments,...</param>
     /// <param name="results">This hashtable gets converted into xml on response</param>       
@@ -38,7 +38,7 @@ namespace Webserver
             if (DhcpEnable)
             {
                 interf.EnableDhcp();
-                interf.RenewDhcpLease();
+                //interf.RenewDhcpLease();
             }
 
             Debug.Print("Webserver is running on " + interf.IPAddress + " /// DHCP: " + interf.IsDhcpEnabled);
@@ -70,6 +70,8 @@ namespace Webserver
 
                         int availableBytes = 0;
                         int newAvBytes;
+						Debug.Print(clientSocket.LocalEndPoint.ToString());
+						Debug.Print(clientSocket.Available.ToString());
 
                         //if not all incoming bytes were received by the socket
                         do
