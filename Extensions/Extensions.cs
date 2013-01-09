@@ -4,14 +4,49 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Microsoft.SPOT.Hardware;
+using System.Collections;
 
 namespace Extensions
 {
+	public static class Converter
+	{
+		public static Hashtable ToHashtable(string[] lines, string seperator, int startAtLine = 0)
+		{
+			Hashtable toReturn = new Hashtable();
+			string[] line;
+			for (int i = startAtLine; i < lines.Length; i++)
+			{
+				line = lines[i].EasySplit(seperator);
+				if (line.Length > 1)
+					toReturn.Add(line[0], line[1]);
+
+			}
+			return toReturn;
+		}
+	}
+
+
 	/// <summary>
 	/// Extensions for String Class
 	/// </summary>
 	public static class StringExtensions
 	{
+		public static string[] EasySplit(this string s, string seperator)
+		{
+			int pos = s.IndexOf(seperator);
+			if (pos != -1)
+			{
+				return new string[] { 
+					s.Substring(0, pos).Trim(new char[] { ' ', '\n', '\r' }), 
+					s.Substring(pos + seperator.Length, 
+					s.Length - pos - seperator.Length).Trim(new char[] { ' ', '\n', '\r' }) 
+				};
+			}
+			else
+				return new string[] { s.Trim(new char[] { ' ', '\n', '\r' }) };
+		}
+
+
 		/// <summary>
 		/// Replace all occurances of the 'find' string with the 'replace' string.
 		/// </summary>

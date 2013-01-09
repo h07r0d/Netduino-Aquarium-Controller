@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Text;
-using System.IO;
 using System.Net.Sockets;
 using System.Collections;
-using Webserver.EventArgs;
 using Microsoft.SPOT;
 
 namespace Webserver.Responses
 {
+    /// <summary>
+    /// This class knows, HOW to send back the data to the client
+    /// Write your own XMLResponseMethod, create a XMLResponse with XMLResponse(url,XMlResponseMethod), and add this response to your webserver instance
+    /// </summary>
     public class XMLResponse : Response
     {
         public XMLResponse(string url, XMLResponseMethod method)
@@ -20,6 +22,12 @@ namespace Webserver.Responses
         private XMLResponseMethod _ResponseMethod;
         private Hashtable _Pairs;
 
+        /// <summary>
+        /// Unifies the possible error messages
+        /// </summary>
+        /// <param name="parameter">Name of the parameter on which the error took place</param>
+        /// <param name="ret">Error type</param>
+        /// <returns>Hashtable that has to be returned to the client</returns>
         public static Hashtable GenerateErrorHashtable(String parameter, ResponseErrorType ret)
         {
             Hashtable h = new Hashtable();
@@ -38,6 +46,9 @@ namespace Webserver.Responses
                 case ResponseErrorType.ParameterRangeException:
                     h.Add("error","Following parameter was out of range: " + parameter + ".");
                     break;
+                case ResponseErrorType.InternalOperationError:
+                    h.Add("error", "An internal error accured. Following code part threw the error: " + parameter + ". Please check the requested method's source code");
+                    break;
             }
 
             return h;
@@ -46,35 +57,32 @@ namespace Webserver.Responses
         /// <summary>
         /// Execute this to check if SendResponse shoul be executed
         /// </summary>
-        /// <param name="RequestArguments">Event Args</param>
+        /// <param name="e">The request that should be handled</param>
         /// <returns>True if URL refers to this method, otherwise false (false = SendRequest should not be exicuted) </returns>
-        public override bool ConditionsCheckAndDataFill(RequestReceivedEventArgs RequestArguments)
+        public override bool ConditionsCheckAndDataFill(Request e)
         {
             _Pairs.Clear();
-            if (RequestArguments.Request.URL == this.URL)
-                _ResponseMethod(RequestArguments, _Pairs);
+            if (e.URL == this.URL)
+                _ResponseMethod(e, _Pairs);
             else
                 return false;
             return true;
         }
 
-
-        public void SetError()
-        { }
-
         /// <summary>
         /// Sends XML to client
         /// </summary>
-        /// <param name="requestArguments">Could be null</param>
+        /// <param name="e">The request which should be handled</param>
         /// <returns>True if 200_OK was sent, otherwise false</returns>
-        public override bool SendResponse(RequestReceivedEventArgs requestArguments)
+        public override bool SendResponse(Request e)
         {
             String xml = "";
             xml += "<!--XML created by NeonMika Webserver-->";
 
             xml += "<Response>";
 
-            //xml += XMLConverter.ConvertHashtableToXMLString(_Pairs);
+            foreach ( object h in _Pairs.Keys )
+                xml += "<" + h + ">" + _Pairs[h].ToString() + "</" + h + ">";
 
             xml += "</Response>";
 
@@ -84,8 +92,8 @@ namespace Webserver.Responses
 
             try
             {
-                Send200_OK("text/xml", byteCount, requestArguments.Client);
-                requestArguments.Client.Send(bytes, byteCount, SocketFlags.None);
+                Send200_OK("text/xml", byteCount, e.Client);
+                SendData(e.Client, bytes);
             }
             catch (Exception ex)
             {

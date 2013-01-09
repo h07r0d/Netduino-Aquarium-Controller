@@ -5,17 +5,33 @@ using System.Net;
 using System.Diagnostics;
 using System.IO;
 using System.Collections;
+using Extensions;
 
 namespace Webserver
 {
-    //ToDo: Post-Values have to be copied into hashtable "postContent"
-
+    /// <summary>
+    /// Contains information about a request
+    /// </summary>
     public class Request : IDisposable
     {
+        /// <summary>
+        /// Socket that sent the request
+        /// </summary>
+        public Socket Client { get; private set; }
+
         protected string _method;
         protected string _url;
-        protected Hashtable _postArguments = new Hashtable();
         protected Hashtable _getArguments = new Hashtable();
+        protected Hashtable _headers = new Hashtable();
+
+        /// <summary>
+        /// All header lines
+        /// </summary>
+        public Hashtable Headers
+        {
+            get { return _headers; }
+            set { _headers = value; }
+        }
 
         /// <summary>
         /// Hashtable with all GET key-value pa in it
@@ -45,79 +61,88 @@ namespace Webserver
         }
 
         /// <summary>
-        /// ToDo: Post-Values have to be copied into hashtable
-        /// Full POST line is saved to "post"-key
-        /// </summary>
-        public Hashtable PostContent
-        {
-            get { return _postArguments; }
-        }
-
-        /// <summary>
         /// Creates request
         /// </summary>
         /// <param name="Data">Input from network</param>
-        public Request(char[] Data)
+        /// <param name="client">Socket that sent the request</param>
+        public Request(char[] header, Socket client)
         {
-            ProcessRequest(Data);
+            this.Client = client;
+            ProcessHeader(header);
         }
        
         /// <summary>
-        /// Sets up the request
+        /// Fills the Request with the header values
         /// </summary>
         /// <param name="data">Input from network</param>
-        private void ProcessRequest(char[] data)
+        private void ProcessHeader(char[] data)
         {
+            bool replace = false;
+
+            for (int i = 0; i < data.Length-3; i++)
+            {
+                replace = false;
+
+                switch (data[i].ToString()+data[i+1]+data[i+2])
+                {
+                    case "%5C":
+                        data[i] = '\\';
+                        data[i+1] = '\0';
+                        data[i+2] = '\0';
+                        replace = true;
+                        break;
+
+                    case "%2F":
+                        data[i] = '/';
+                        data[i+1] = '\0';
+                        data[i+2] = '\0';
+                        replace = true;
+                        break;                        	
+                }
+
+                if(replace)
+                for (int x = i + 3; x < data.Length; x++)
+                    if (data[x] != '\0')
+                    {
+                        data[x - 2] = data[x];
+                        data[x] = '\0';
+                    }
+            }
+
             string content = new string(data);
-            string htmlHeader1stLine = content.Substring(0, content.IndexOf('\n'));
+            string[] lines = content.Split('\n');
 
             // Parse the first line of the request: "GET /path/ HTTP/1.1"
-            string[] headerParts = htmlHeader1stLine.Split(' ');
-            _method = headerParts[0];
-            string[] UrlAndParameters = headerParts[1].Split('?');
-            _url = UrlAndParameters[0].Substring(1); // Substring to ignore the '/'
+            string[] firstLineSplit = lines[0].Split(' ');
+            _method = firstLineSplit[0];
+            string[] path = firstLineSplit[1].Split('?');
+            _url = path[0].Substring(1); // Substring to ignore the leading '/'
 
-            if (_method.ToUpper() == "GET" && UrlAndParameters.Length > 1)
-            {
-                FillGETHashtable(UrlAndParameters[1]);
-            }
-   
-            if (_method.ToUpper() == "POST") // TODO!
-            {
-                int lastLine = content.LastIndexOf('\n');
-                _postArguments.Clear();
-                _postArguments.Add("post", content.Substring(lastLine + 1, content.Length - lastLine));
-            }
-            else
-                _postArguments = null;
+            _getArguments.Clear();
+            if (path.Length > 1)
+                ProcessGETParameters(path[1]);
 
-            // Could look for any further headers in other lines of the request if required (e.g. User-Agent, Cookie)
+            Headers = Converter.ToHashtable(lines, ": ", 1);
         }
 
         /// <summary>
-        /// builds arguments hash table
+        /// Generated Key-Value-Hashtable for GET-Parameters
         /// </summary>
         /// <param name="value"></param>
-        private void FillGETHashtable(string url)
+        private void ProcessGETParameters(string parameters)
         {
             _getArguments = new Hashtable();
+            string[] urlArguments = parameters.Split('&');
 
-            string[] urlArguments = url.Split('&');
-            string[] keyValuePair;
-
-            for (int i = 0; i < urlArguments.Length; i++)
-            {
-                keyValuePair = urlArguments[i].Split('=');
-                _getArguments.Add(keyValuePair[0], keyValuePair[1]);
-            }
+            _getArguments = Converter.ToHashtable(urlArguments, "=");
         }
 
         #region IDisposable Members
 
         public void Dispose()
         {
-            if(_postArguments != null)
-                _postArguments.Clear();
+            if(_headers != null)
+                _headers.Clear();
             
             if(_getArguments != null)
                 _getArguments.Clear();

@@ -7,119 +7,152 @@ using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.Net.NetworkInformation;
-using Webserver.EventArgs;
 using Webserver.Responses;
+using Webserver.POST;
+using Extensions;
+using System.IO;
 
 namespace Webserver
 {
     /// <summary>
-    /// Expansion methods have to be in this form
+    /// XML Expansion methods have to be in this form
     /// </summary>
     /// <param name="e">Access to GET or POST arguments,...</param>
     /// <param name="results">This hashtable gets converted into xml on response</param>       
-    public delegate void XMLResponseMethod(RequestReceivedEventArgs e, Hashtable results);
+    public delegate void XMLResponseMethod(Request e, Hashtable results);
 
-    
+    /// <summary>
+    /// JSON Expansion methods have to be in this form
+    /// </summary>
+    /// <param name="e">Access to GET or POST arguments,...</param>
+    /// <param name="results">This JsonArray gets converted into JSON on response</param>
+    /// <returns>True if URL refers to this method, otherwise false (false = SendRequest should not be executed) </returns>        
+    //public delegate void JSONResponseMethod(Request e, JsonArray results);
+
+    public delegate void POSTOperationMethod(Request e, PostFileReader access);
+
+    /// <summary>
+    /// Main class of NeonMika.Webserver
+    /// </summary>
     public class Server
     {
         public int _PortNumber { get; private set; }
         private Socket _ListeningSocket = null;
-        private Hashtable _Responses = new Hashtable();        
-
+        private Hashtable _Responses = new Hashtable( );
+        
 
         /// <summary>
-        /// Creates an instance running in a seperate thread
+        /// Creates an NeonMika.Webserver instance running in a seperate thread
         /// </summary>
-        /// <param name="portNumber">The port to listen</param>
-        public Server(int portNumber = 80, bool DhcpEnable = false)
+        /// <param name="portNumber">The port to listen for incoming requests</param>
+        public Server(int portNumber = 80, bool DhcpEnable = true, string ipAddress = "", string subnetMask = "", string gatewayAddress = "")
         {
-            var interf = NetworkInterface.GetAllNetworkInterfaces()[0];
+            var interf = NetworkInterface.GetAllNetworkInterfaces( )[0];
 
-            if (DhcpEnable)
+            if ( DhcpEnable )
             {
-                interf.EnableDhcp();
-                //interf.RenewDhcpLease();
+                //Dynamic IP
+                interf.EnableDhcp( );
+                //interf.RenewDhcpLease( );
+            }
+            else
+            {
+                //Static IP
+                interf.EnableStaticIP(ipAddress, subnetMask, gatewayAddress);
             }
 
             Debug.Print("Webserver is running on " + interf.IPAddress + " /// DHCP: " + interf.IsDhcpEnabled);
 
-            this._PortNumber = portNumber;            
-            ResponseListInitialize();
+            this._PortNumber = portNumber;
+                      
+            ResponseListInitialize( );
 
             _ListeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _ListeningSocket.Bind(new IPEndPoint(IPAddress.Any, portNumber));
             _ListeningSocket.Listen(4);
 
             var webserverThread = new Thread(WaitingForRequest);
-            webserverThread.Start();
+            webserverThread.Start( );
         }
 
         /// <summary>
         /// Waiting for client to connect.
-        /// When bytes were read they get wrapped to a "Reqeust" and packed into a "RequestReceivedEventArgs"
+        /// When bytes were read they get wrapped to a "Reqeust"
         /// </summary>
-        private void WaitingForRequest()
+        private void WaitingForRequest( )
         {
-            while (true)
+            while ( true )
             {
                 try
                 {
-                    using (Socket clientSocket = _ListeningSocket.Accept())
+                    using ( Socket clientSocket = _ListeningSocket.Accept( ) )
                     {
-                        //Debug.Print("Client connected: "+clientSocket.Available.ToString());
-
+						Debug.Print("Client Connected");
                         int availableBytes = 0;
-						int loopCount = 0;
+						int LoopCount = 0;
 						Thread.Sleep(100);
-
-                        //if not all incoming bytes were received by the socket
-                        do
-                        {
+						//if not all incoming bytes were received by the socket
+						do
+						{
 							if (availableBytes < clientSocket.Available)
 							{
 								availableBytes = clientSocket.Available;
-								loopCount = 0;
+								LoopCount = 0;
 							}
 							else
-								loopCount += 1;
-                            Thread.Sleep(1);
-                        } while (availableBytes == 0 || loopCount < 300);
+								LoopCount += 1;
+							Thread.Sleep(1);
+						} while (availableBytes == 0 || LoopCount < 300);
 
-                        Debug.Print("Final byte count: " + availableBytes);
-
-                        //ignore requests that are too big
-                        if (availableBytes < Settings.MAX_REQUESTSIZE)
+                        if ( availableBytes > 0 )
                         {
-                            byte[] buffer = new byte[availableBytes];
-                            int readByteCount = clientSocket.Receive(buffer, availableBytes, SocketFlags.None);
+                            byte[] buffer = new byte[availableBytes > Settings.MAX_REQUESTSIZE ? Settings.MAX_REQUESTSIZE : availableBytes];
+                            byte[] header = new byte[0];
 
-							Debug.Print(readByteCount.ToString());
-                            //reqeust created, checking the response possibilities
-                            using (Request tempRequest = new Request(Encoding.UTF8.GetChars(buffer)))
+                            int readByteCount = clientSocket.Receive(buffer, buffer.Length, SocketFlags.None);
+							Debug.Print(readByteCount + " bytes read");
+
+                            for ( int headerend = 0; headerend < buffer.Length - 3; headerend++ )
                             {
-                                Debug.Print("Request URL=" + tempRequest.URL);
-                                RequestReceivedEventArgs e = new RequestReceivedEventArgs(tempRequest, clientSocket, availableBytes);
-                                HandleRequest(e);
+                                if ( buffer[headerend] == '\r' && buffer[headerend + 1] == '\n' && buffer[headerend + 2] == '\r' && buffer[headerend + 3] == '\n' )
+                                {
+                                    header = new byte[headerend + 4];
+                                    Array.Copy(buffer, 0, header, 0, headerend + 4);
+                                    break;
+                                }
                             }
-                            Debug.Print("Request destroyed");
-                        }
-                        else
-                        {
-                        }
 
-                        Debug.Print("Client loop finished");
+                            //reqeust created, checking the response possibilities
+                            using ( Request tempRequest = new Request(Encoding.UTF8.GetChars(header), clientSocket) )
+                            {
+                                Debug.Print("... Client connected ... URL: " + tempRequest.URL + " ... Final byte count: " + availableBytes);
 
-                        try
-                        {
-                            clientSocket.Close();
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.Print(ex.ToString());
+                                if ( tempRequest.Method == "POST" )
+                                {
+                                    //POST was incoming, it will be saved to SD card at Settings.POST_TEMP_PATH
+                                    PostToSdWriter post = new PostToSdWriter(tempRequest, buffer, header.Length);
+                                    post.Receive( );
+                                }
+
+                                //Let's check if we have to take some action or if it is a file-response 
+                                HandleGETResponses(tempRequest);
+                            }
+
+                            Debug.Print("Client loop finished");
+
+                            try
+                            {
+                                //Close client, otherwise the browser / client won't work properly
+                                clientSocket.Close( );
+                            }
+                            catch ( Exception ex )
+                            {
+                                Debug.Print(ex.ToString( ));
+                            }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch ( Exception ex )
                 {
                     Debug.Print(ex.Message);
                 }
@@ -127,42 +160,31 @@ namespace Webserver
         }
 
         /// <summary>
-        /// Checks an incoming request against the possible responses
+        /// Checks what Response has to be executed.
+        /// It compares the requested page URL with the URL set for the coded responses 
         /// </summary>
         /// <param name="e"></param>
-        private void HandleRequest(RequestReceivedEventArgs e)
+        private void HandleGETResponses(Request e)
         {
-            Debug.Print("Start checking requests");
             Response response = null;
 
-            if (_Responses.Contains(e.Request.URL))
-            {
-                response = (Response)_Responses[e.Request.URL];
-            }
+
+            if ( _Responses.Contains(e.URL) )
+                response = (Response)_Responses[e.URL];
             else
-            {
                 response = (Response)_Responses["FileResponse"];
-            }
 
 
-            if (response != null)
-            {
-                if (response.ConditionsCheckAndDataFill(e))
-                {
-                    if (!response.SendResponse(e))
-                        Debug.Print("Sending response failed");
+            if ( response != null )
+                using ( response )
+                    if ( response.ConditionsCheckAndDataFill(e) )
+                    {
+                        if ( !response.SendResponse(e) )
+                            Debug.Print("Sending response failed");
 
-                    //Thread ledThread = new Thread(new ThreadStart(delegate()
-                    //{
-                    //    for (int i = 0; i < 3; i++)
-                    //    {
-                    //        _OnboardLed.Write(true); Thread.Sleep(5);
-                    //        _OnboardLed.Write(false); Thread.Sleep(20);
-                    //    }
-                    //}));
-                    //ledThread.Start();
-                }
-            }
+                        
+                    }
+
 
             Debug.Print("Request handling finnished");
         }
@@ -180,7 +202,7 @@ namespace Webserver
         /// <param name="response">XMLResponse that has to be added</param>
         public void AddResponse(Response response)
         {
-            if (!_Responses.Contains(response.URL))
+            if ( !_Responses.Contains(response.URL) )
             {
                 _Responses.Add(response.URL, response);
             }
@@ -192,7 +214,7 @@ namespace Webserver
         /// <param name="ResponseName">XMLResponse that has to be deleted</param>
         public void RemoveResponse(String ResponseName)
         {
-            if (_Responses.Contains(ResponseName))
+            if ( _Responses.Contains(ResponseName) )
             {
                 _Responses.Remove(ResponseName);
             }
@@ -205,19 +227,20 @@ namespace Webserver
         /// <summary>
         /// Initialize the basic functionalities of the webserver
         /// </summary>
-        private void ResponseListInitialize()
+        private void ResponseListInitialize( )
         {
             AddResponse(new FileResponse());
-            AddResponse(new XMLResponse("echo", new XMLResponseMethod(Echo)));
+            //AddResponse(new XMLResponse("echo", new XMLResponseMethod(Echo)));
             //AddResponse(new XMLResponse("switchDigitalPin", new XMLResponseMethod(SwitchDigitalPin)));
             //AddResponse(new XMLResponse("setDigitalPin", new XMLResponseMethod(SetDigitalPin)));
-            AddResponse(new XMLResponse("xmlResponselist", new XMLResponseMethod(ResponseListXML)));
+            //AddResponse(new XMLResponse("xmlResponselist", new XMLResponseMethod(ResponseListXML)));
             //AddResponse(new JSONResponse("jsonResponselist", new JSONResponseMethod(ResponseListJSON)));
             //AddResponse(new XMLResponse("pwm", new XMLResponseMethod(SetPWM)));
             //AddResponse(new XMLResponse("getAnalogPinValue", new XMLResponseMethod(GetAnalogPinValue)));
             //AddResponse(new XMLResponse("getDigitalPinState", new XMLResponseMethod(GetDigitalPinState)));
             //AddResponse(new XMLResponse("multixml", new XMLResponseMethod(MultipleXML)));
-            //AddResponse(new IndexResponse());
+            //AddResponse(new IndexResponse(""));
+            AddResponse(new XMLResponse("upload", new XMLResponseMethod(Upload)));
         }
 
         //-------------------------------------------------------------
@@ -233,254 +256,90 @@ namespace Webserver
         /// <param name="e"></param>
         /// <param name="results"></param>
         /// <returns></returns>
-        private void Echo(RequestReceivedEventArgs e, Hashtable results)
+        private void Echo(Request e, Hashtable results)
         {
-            if (e.Request.GetArguments.Contains("value") == true)
-                results.Add("echo", e.Request.GetArguments["value"]);
+            if ( e.GetArguments.Contains("value") == true )
+                results.Add("echo", e.GetArguments["value"]);
             else
                 results.Add("ERROR", "No 'value'-parameter transmitted to server");
         }
 
-        /// <summary>
-        /// Submit a 'pin' GET parameter to switch an OutputPorts state (on/off)
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-       /* private static void SwitchDigitalPin(RequestReceivedEventArgs e, Hashtable h)
-        {
-            if (e.Request.GetArguments.Contains("pin"))
-                try
-                {
-                    int pin = Int32.Parse(e.Request.GetArguments["pin"].ToString());
-                    if (pin >= 0 && pin <= 13)
-                    {
-                        PinManagement.SwitchDigitalPinState(pin);
-                        h.Add("pin" + pin, PinManagement.GetDigitalPinState(pin) ? "1" : "0");
-                    }
-                }
-                catch
-                {
-                    h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterConvertError);
-                }
-            else
-                h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }*/
+        
+
+        
 
         /// <summary>
-        /// Submit a 'pin' (0-13) and a 'state' (true/false) GET parameter to turn on/off OutputPort
+        /// Returns the responses added to the webserver
         /// </summary>
         /// <param name="e"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-       /* private static void SetDigitalPin(RequestReceivedEventArgs e, Hashtable h)
+        private void ResponseListXML(Request e, Hashtable h)
         {
-            if (e.Request.GetArguments.Contains("pin"))
-                if (e.Request.GetArguments.Contains("state"))
+            foreach ( Object k in _Responses.Keys )
+            {
+                if ( _Responses[k] as XMLResponse != null )
+                {
+                    h.Add("methodURL", k.ToString( ));
+                }
+            }
+        }
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        private void Upload(Request e, Hashtable ret)
+        {
+            if ( e.GetArguments.Contains("path") )
+            {
+                try
+                {
+                    string path = e.GetArguments["path"].ToString( );
+                    path.Replace("/", "\\");
+
                     try
                     {
-                        int pin = Int32.Parse(e.Request.GetArguments["pin"].ToString());
-                        if (pin >= 0 && pin <= 13)
-                        {
-                            try
-                            {
-                                bool state = (e.Request.GetArguments["state"].ToString() == "true") ? true : false;
-                                PinManagement.SetDigitalPinState(pin, state);
-                                h.Add("pin" + pin, PinManagement.GetDigitalPinState(pin) ? "1" : "0");
-                            }
-                            catch
-                            {
-                                h = XMLResponse.GenerateErrorHashtable("state", ResponseErrorType.ParameterRangeException);
-                            }
-                        }
-                        else
-                            h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterRangeException);
+                        string dir = path.Substring(0, path.LastIndexOf("\\"));
+                        Directory.CreateDirectory(dir);
                     }
-                    catch
+                    catch ( Exception ex )
                     {
-                        h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterConvertError);
+                        Debug.Print(ex.ToString( ));
                     }
-                else
-                    h = XMLResponse.GenerateErrorHashtable("state", ResponseErrorType.ParameterMissing);
-            else
-                h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }*/
 
-        /// <summary>
-        /// Returns the responses added to the webserver
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        private void ResponseListXML(RequestReceivedEventArgs e, Hashtable h)
-        {
-            foreach (Object k in _Responses.Keys)
-            {
-                if (_Responses[k] as XMLResponse != null)
-                {
-                    h.Add("methodURL", k.ToString());
-                }
-            }
-        }
-
-		/*
-        /// <summary>
-        /// Returns the responses added to the webserver
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        private void ResponseListJSON(RequestReceivedEventArgs e, JsonArray j)
-        {
-            JsonObject o;
-            foreach (Object k in _Responses.Keys)
-            {
-                if (_Responses[k] as JSONResponse != null)
-                {
-                    o = new JsonObject();
-                    o.Add("methodURL", k);
-                    o.Add("methodInternalName", ((Response)_Responses[k]).URL);
-                    j.Add(o);
-                }
-            }
-        }
-		*/
-
-
-        /// <summary>
-        /// Submit a 'pin' (5,6,9,10), a period and a duration (0 for off, period-value for 100% on) GET parameter to control PWM
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        /*private void SetPWM(RequestReceivedEventArgs e, Hashtable h)
-        {
-            if (e.Request.GetArguments.Contains("pin"))
-            {
-                if (e.Request.GetArguments.Contains("period"))
-                {
-                    if (e.Request.GetArguments.Contains("duration"))
+                    try
                     {
-                        try
-                        {
-                            int pin = Int32.Parse(e.Request.GetArguments["pin"].ToString());
-                            try
-                            {
-                                uint duration = UInt32.Parse(e.Request.GetArguments["duration"].ToString());
-                                try
-                                {
-                                    uint period = UInt32.Parse(e.Request.GetArguments["period"].ToString());
-                                    if (PinManagement.SetPWM(pin, period, duration))
-                                        h.Add("success", period + "/" + duration);
-                                    else
-                                        h = XMLResponse.GenerateErrorHashtable("PWM", ResponseErrorType.InternalValueNotSet);
-                                }
-                                catch (Exception ex)
-                                {
-                                    h = XMLResponse.GenerateErrorHashtable("period", ResponseErrorType.ParameterConvertError);
-                                    Debug.Print(ex.ToString());
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                h = XMLResponse.GenerateErrorHashtable("duration", ResponseErrorType.ParameterConvertError);
-                                Debug.Print(ex.ToString());
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterConvertError);
-                            Debug.Print(ex.ToString());
-                        }
+                        FileStream fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write);
+                        Debug.Print(Debug.GC(true).ToString( ));
+                        Debug.Print(Debug.GC(true).ToString( ));
+                        PostFileReader post = new PostFileReader( );
+                        Debug.Print(Debug.GC(true).ToString( ));
+                        Debug.Print(Debug.GC(true).ToString( ));
+                        for ( int i = 0; i < post.Length / Settings.FILE_BUFFERSIZE; i++ )
+                            fs.Write(post.Read(Settings.FILE_BUFFERSIZE), 0, Settings.FILE_BUFFERSIZE);
+                        fs.Write(post.Read((int)( post.Length % Settings.FILE_BUFFERSIZE )), 0, (int)( post.Length % Settings.FILE_BUFFERSIZE ));
+                        fs.Flush( );
+                        fs.Close( );
+                        post.Close( );
                     }
-                    else
-                        h = XMLResponse.GenerateErrorHashtable("duration", ResponseErrorType.ParameterMissing);
+                    catch ( Exception ex )
+                    {
+                        Debug.Print(ex.ToString( ));
+                        ret = XMLResponse.GenerateErrorHashtable("file access", ResponseErrorType.InternalOperationError);
+                    }
+
                 }
-                else
-                    h = XMLResponse.GenerateErrorHashtable("period", ResponseErrorType.ParameterMissing);
+                catch ( Exception ex ) { Debug.Print(ex.ToString( )); }
             }
             else
-                h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }*/
-
-        /// <summary>
-        /// Submit a 'pin' (0-13) GET parameter. Returns true or false
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        /*private void GetDigitalPinState(RequestReceivedEventArgs e, Hashtable h)
-        {
-            if (e.Request.GetArguments.Contains("pin"))
-            {
-                try
-                {
-                    int pin = Int32.Parse(e.Request.GetArguments["pin"].ToString());
-                    h.Add("pin" + pin, PinManagement.GetDigitalPinState(pin) ? "1" : "0");
-                }
-                catch (Exception ex)
-                {
-                    h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterConvertError);
-                    Debug.Print(ex.ToString());
-                }
-            }
-            else
-                h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }*/
-
-        /// <summary>
-        /// Submit a 'pin' (0-5) GET parameter. Returns true or false
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        /*private void GetAnalogPinValue(RequestReceivedEventArgs e, Hashtable h)
-        {
-            if (e.Request.GetArguments.Contains("pin"))
-            {
-                try
-                {
-                    int pin = Int32.Parse(e.Request.GetArguments["pin"].ToString());
-                    h.Add("pin" + pin, PinManagement.GetAnalogPinValue(pin));
-                }
-                catch (Exception ex)
-                {
-                    h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterConvertError);
-                    Debug.Print(ex.ToString());
-                }
-            }
-            else
-                h = XMLResponse.GenerateErrorHashtable("pin", ResponseErrorType.ParameterMissing);
-        }*/
-
-        /// <summary>
-        /// Example for the useage of the new XML library
-        /// Use the hashtable if you don't need nested XML (like the standard xml responses)
-        /// If you need nested XML, use the XMLPair class. The Key-parameter is String.
-        /// As value the following types can be used to achieve nesting: XMLPair, XMLPair[] and Hashtable
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="h"></param>
-        /// <returns></returns>
-        /*private void MultipleXML(RequestReceivedEventArgs e, Hashtable returnHashtable)
-        {
-            returnHashtable.Add("UseTheHashtable", "If you don't need nested XML");
-
-            XMLPair[] Phones = new XMLPair[2];
-            Phones[0] = new XMLPair("Phone");
-            Phones[1] = new XMLPair("Phone");
-
-            XMLPair[] PhoneAttributes0 = new XMLPair[2];
-            PhoneAttributes0[0] = new XMLPair("Type", "Nokia");
-            PhoneAttributes0[1] = new XMLPair("AvailableColours", new XMLPair[] {new XMLPair("Colour","Cyan"), new XMLPair("Colour","Black")});
-            Phones[0].Value = PhoneAttributes0;
-
-            XMLPair[] PhoneAttributes1 = new XMLPair[2];
-            PhoneAttributes1[0] = new XMLPair("Type", "HTC");
-            PhoneAttributes1[1] = new XMLPair("AvailableColours", new XMLPair("Colour", "Grey"));
-            Phones[1].Value = PhoneAttributes0;
-
-            returnHashtable.Add("Phones", Phones);
-        }*/
+                ret = XMLResponse.GenerateErrorHashtable("path", ResponseErrorType.ParameterMissing);
+        }
     }
 }

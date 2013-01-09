@@ -33,7 +33,8 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="EventArgs\RequestReceivedEventArgs.cs" />
+    <Compile Include="POST\PostFileReader.cs" />
+    <Compile Include="POST\PostToSdWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="Responses\FileResponse.cs" />

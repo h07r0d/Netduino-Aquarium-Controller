@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Text;
-using System.Diagnostics;
 using System.Net.Sockets;
-using System.IO;
-using System.Collections;
-using Webserver.EventArgs;
 using Microsoft.SPOT;
 
 namespace Webserver.Responses
 {
+    /// <summary>
+    /// Abstract class for responses
+    /// Contains basic operations for sending data to the client
+    /// </summary>
     abstract public class Response : IDisposable
     {
         private string _url;
@@ -32,7 +32,8 @@ namespace Webserver.Responses
         /// Creates header for 200 OK response
         /// </summary>
         /// <param name="MimeType">MIME type of response</param>
-        /// <param name="ContentLength">Byte count of response body</param>
+        /// <param name="ContentLength">Byte count of response body
+        /// <param name="Client">The Socket connected with the client</param>
         protected void Send200_OK(string MimeType, int ContentLength, Socket Client)
         {
             /*
@@ -47,7 +48,11 @@ namespace Webserver.Responses
             headerBuilder.Append("Connection: close\r\n\r\n");
              * */
 
-            String header = "HTTP/1.0 200 OK\r\n" + "Content-Type: " + MimeType + "; charset=utf-8\r\n" + "Content-Length: " + ContentLength.ToString() + "\r\n" + "Connection: close\r\n\r\n";
+            String header;
+            if(ContentLength>0)
+                header = "HTTP/1.0 200 OK\r\n" + "Content-Type: " + MimeType + "; charset=utf-8\r\n" + "Content-Length: " + ContentLength.ToString() + "\r\n" + "Connection: close\r\n\r\n";
+            else
+                header = "HTTP/1.0 200 OK\r\n" + "Content-Type: " + MimeType + "; charset=utf-8\r\n" + "Connection: close\r\n\r\n";
 
             try
             {
@@ -65,14 +70,47 @@ namespace Webserver.Responses
         /// </summary>
         protected void Send404_NotFound(Socket Client)
         {
-            string header = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\nWebserver is sorry, but:\nPage not found";
+            string header = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n<html><body><head><title>NeonMika.Webserver is sorry</title></head><h1>NeonMika.Webserver is sorry!</h1><h2>Page not found</h2></body></html>";
             if (Client != null)
                 Client.Send(Encoding.UTF8.GetBytes(header), header.Length, SocketFlags.None);
             Debug.Print("Sent 404 Not Found");
         }
 
         /// <summary>
-        /// 
+        /// Sends data to the client
+        /// </summary>
+        /// <param name="client">Socket connected with the client</param>
+        /// <param name="data">Byte-array to be transmitted</param>
+        /// <returns>Bytes that were sent</returns>
+        protected int SendData(Socket client, byte[] data)
+        {
+            int ret = 0;
+            try
+            {
+                if (SocketConnected(client))
+                    ret = client.Send(data, data.Length, SocketFlags.None);
+                else
+                {
+                    client.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Print("Error on sending data to client / Closing Client");
+                try
+                {
+                    client.Close();
+                }
+                catch (Exception ex2)
+                {
+                }
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Converts fileending into mime-type
         /// </summary>
         /// <param name="Filename">File name or complete file path</param>
         /// <returns>MIME type</returns>
@@ -84,6 +122,9 @@ namespace Webserver.Responses
             string ext = (dot >= 0) ? Filename.Substring(dot + 1) : "";
             switch (ext)
             {
+                case "txt":
+                    result = "text/plain";
+                    break;
                 case "htm":
                 case "html":
                     result = "text/html";
@@ -121,6 +162,11 @@ namespace Webserver.Responses
             return result;
         }
 
+        /// <summary>
+        /// Checks if socket is still connected
+        /// </summary>
+        /// <param name="s">Socket that should be checked</param>
+        /// <returns>True on still connect</returns>
         protected bool SocketConnected(Socket s)
         {
             bool part1 = s.Poll(1000, SelectMode.SelectRead);
@@ -135,13 +181,13 @@ namespace Webserver.Responses
         /// Override this method to implement a response logic.
         /// </summary>
         /// <returns>True if Response was sent, false if not</returns>
-        abstract public bool SendResponse(RequestReceivedEventArgs requestArguments);
+        abstract public bool SendResponse(Request e);
 
         /// <summary>
         /// Override this, check the URL and process data if needed
         /// </summary>
         /// <returns>True if SendResponse should be sent, false if not</returns>
-        abstract public bool ConditionsCheckAndDataFill(RequestReceivedEventArgs requestArguments);
+        abstract public bool ConditionsCheckAndDataFill(Request e);
 
         #region IDisposable Members
 
