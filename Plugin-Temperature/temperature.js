@@ -1,4 +1,4 @@
-var temperatureInit = function () {
+var TemperatureInit = function () {
 	var pluginEnabled = (config.config.input.Temperature.enabled === 'true');
 	var temperatureEnable = $('#PTE');
 	temperatureEnable.attr('checked', pluginEnabled);

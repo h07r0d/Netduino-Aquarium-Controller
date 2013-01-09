@@ -53,7 +53,7 @@ namespace Plugins
 		{
 			// Callback received a RelayCommand struct to execute			
 			var command = (DictionaryEntry)state;
-			Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
+			//Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
 			m_relayPins[(int)command.Key].Write((bool)command.Value);			
 		}
 
@@ -63,7 +63,7 @@ namespace Plugins
 		/// <param name="_commands">JSON formatted list of objects</param>
 		private void ParseCommands(ArrayList _commands)
 		{
-			Debug.Print("Parsing Commands");
+			//Debug.Print("Parsing Commands");
 			foreach (Hashtable command in _commands)
 			{
 				// parse out details from config

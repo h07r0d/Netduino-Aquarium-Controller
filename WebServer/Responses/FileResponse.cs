@@ -27,7 +27,7 @@ namespace Webserver.Responses
             string filePath = Settings.ROOT_PATH + RequestArguments.Request.URL;
 
 			// replace any URL paths with file paths.
-			filePath.Replace("/", "\\");
+			filePath=filePath.Replace("/", "\\");
 			Debug.Print(filePath);
 
             //File found check

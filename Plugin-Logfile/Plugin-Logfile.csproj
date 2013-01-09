@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Logfile.htm" />
-    <Content Include="logfile.js" />
+    <Content Include="Logfile.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins

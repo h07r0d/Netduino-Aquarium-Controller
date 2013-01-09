@@ -1,4 +1,4 @@
-var relayInit = function() {
+var RelaysInit = function() {
 	var pluginEnabled = (config.config.control.Relays.enabled === 'true');
 	var relayEnable = $('#PRE');
 	relayEnable.attr('checked', pluginEnabled);

@@ -67,7 +67,7 @@ namespace Controller
 			if (!_local)
 				script.Append(m_hostUrl);
 			else
-				script.Append("plugins\\");
+				script.Append("plugins/");
 			script.Append(_scriptName);
 			if (!_local)
 				script.Append(".min");

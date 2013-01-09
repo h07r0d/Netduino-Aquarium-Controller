@@ -65,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Temperature.htm" />
-    <Content Include="temperature.js" />
+    <Content Include="Temperature.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins

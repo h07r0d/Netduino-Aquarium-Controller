@@ -66,25 +66,24 @@ namespace Webserver
                 {
                     using (Socket clientSocket = _ListeningSocket.Accept())
                     {
-                        Debug.Print("Client connected");
+                        //Debug.Print("Client connected: "+clientSocket.Available.ToString());
 
                         int availableBytes = 0;
-                        int newAvBytes;
-						Debug.Print(clientSocket.LocalEndPoint.ToString());
-						Debug.Print(clientSocket.Available.ToString());
+						int loopCount = 0;
+						Thread.Sleep(100);
 
                         //if not all incoming bytes were received by the socket
                         do
                         {
-                            newAvBytes = clientSocket.Available - availableBytes;
-
-                            if (newAvBytes == 0)
-                                break;
-
-                            availableBytes += newAvBytes;
-                            newAvBytes = 0;
+							if (availableBytes < clientSocket.Available)
+							{
+								availableBytes = clientSocket.Available;
+								loopCount = 0;
+							}
+							else
+								loopCount += 1;
                             Thread.Sleep(1);
-                        } while (true);
+                        } while (availableBytes == 0 || loopCount < 300);
 
                         Debug.Print("Final byte count: " + availableBytes);
 
@@ -94,6 +93,7 @@ namespace Webserver
                             byte[] buffer = new byte[availableBytes];
                             int readByteCount = clientSocket.Receive(buffer, availableBytes, SocketFlags.None);
 
+							Debug.Print(readByteCount.ToString());
                             //reqeust created, checking the response possibilities
                             using (Request tempRequest = new Request(Encoding.UTF8.GetChars(buffer)))
                             {

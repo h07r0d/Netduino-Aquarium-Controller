@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Relays.htm" />
-    <Content Include="relays.js" />
+    <Content Include="Relays.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
