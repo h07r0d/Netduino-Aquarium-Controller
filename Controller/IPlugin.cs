@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Controller
 {
-	public enum PluginType { Input, Output, Control }
+    public enum PluginType { Input, Output, Control }
 
 	public abstract class Plugin : IDisposable
 	{
@@ -17,6 +17,7 @@ namespace Controller
 		public abstract TimeSpan TimerInterval { get; }
 		public abstract void TimerCallback(Object state);
 		public abstract void EventHandler(Object sender, IPluginData plugin);
+        public abstract bool ImplimentsEventHandler();
 	}
 
 	public abstract class OutputPlugin : Plugin 
@@ -27,46 +28,45 @@ namespace Controller
 	public abstract class ControlPlugin : Plugin
 	{	
 		public abstract void ExecuteControl(Object state);
-		public abstract Hashtable Commands();
+        public abstract CommandData[] Commands();
+        public abstract void EventHandler(Object sender, IPluginData plugin);
+        public abstract bool ImplimentsEventHandler();
 	}
 
     public interface IPluginData
     {
         PluginData[] GetData();
-        void SetData(PluginData[] _value);
+        void SetData(PluginData[] data);
     }
 
     public class PluginData
     {
-        
-        private string _Name = "";
-        private int _ThingSpeakFieldID;
-        private string _UnitOfMeasurment="";
-        private object _ValOBJ;
+        public string Name;
+        public uint ThingSpeakFieldID;
+        public string UnitOFMeasurment;
+        public double Value = 0;
+        public bool LastReadSuccess = false;
 
-        public string Name
-        { 
-            get { return _Name; }
-            set { string Val = _Name; }
-        }
+    }
 
-        public string UnitOFMeasurment
-        {
-            get { return _UnitOfMeasurment; }
-            set { string Val = _UnitOfMeasurment; } 
-        }
-
-        public int ThingSpeakFieldID
-        {
-            get { return _ThingSpeakFieldID; }
-            set { int Val = _ThingSpeakFieldID; }
-        }
-
-        public object Value
-        {
-            get { return _ValOBJ; }
-            set { object Val = _ValOBJ; }
-        }
+    public class CommandData
+    {
+        public TimeSpan FirstRun;
+        public bool Command;
+        public TimeSpan RepeatTimeSpan;
+        public TimeSpan DurationOn;
+        public TimeSpan DurationOff;
+        public int RelayID;
+        public string RelayName;
+        public string TimerType;
+        public double RangeMin;
+        public double RangeMax;
+        public bool Inverted;
+        public string RangeMetric;
+        public bool Enable;
+        public int PulseTime;
+        public int TimeBetweenPulses;
+        public DateTime NextPulseAfter;
     }
 
 }

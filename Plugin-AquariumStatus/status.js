@@ -1,1 +1,1 @@
-var aq={"time":"now","Temperature":"24.56","pH":"3.73"};
+var aq={"time":"now","Temperature":"0","pH":"0","Microsiemens":"0","TDS":"0","Salinity":"0","CO2":"0","AirTemperature":"0","Humidity":"0"};

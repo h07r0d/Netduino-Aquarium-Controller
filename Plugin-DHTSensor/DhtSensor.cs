@@ -1,251 +1,164 @@
-//---------------------------------------------------------------------------
-//<copyright file="DhtSensor.cs">
-//
-// Copyright 2011 Stanislav "CW" Simicek
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-//</copyright>
-//---------------------------------------------------------------------------
-namespace CW.NETMF.Sensors
-{
-  using System;
-  using System.Runtime.CompilerServices;
-  using System.Threading;
-  using Microsoft.SPOT;
-  using Microsoft.SPOT.Hardware;
+ï»¿using Controller;
+using System;
+using Microsoft.SPOT;
+using Microsoft.SPOT.Hardware;
+using System.IO.Ports;
+using System.Text;
+using System.Threading;
+using System.Collections;
 
-  /// <summary>
-  /// Encapsulates the common functionality of DHT sensors.
-  /// </summary>
-  public abstract class DhtSensor : IDisposable
-  {
-    private bool disposed;
 
-    private InterruptPort portIn;
-    private TristatePort portOut;
+namespace Plugins
+{	
+	public class HT : IPluginData
+	{
+        private PluginData[] _PluginData;
+        public PluginData[] GetData() { return _PluginData; }
+        public void SetData(PluginData[] _value) { _PluginData = _value; }
+	}
 
-    private float rhum; // Relative Humidity
-    private float temp; // Temperature
+	/// <summary>
+	/// Plugin for DHT11 Temperature and Humidity sensor.
+    /// This sensor is connected to the arduino bridge because I couldn't
+    /// get the bit banger code for this device to work properly.
+	/// </summary>
+	public class DHTSensor : InputPlugin
+	{
+        public override bool ImplimentsEventHandler() { return false; }
+		private TimeSpan m_timerInterval;
+        public IPluginData GetData() { return null; }
 
-    private long data;
-    private long bitMask;
-    private long lastTicks;
-    private byte[] bytes = new byte[4];
+		public DHTSensor() { }
+		public DHTSensor(object _config) : base()
+		{
+			Hashtable config = (Hashtable)_config;
+			// The Timer Interval is specified in an Arraylist of numbers
+			ArrayList interval = config["interval"] as ArrayList;			
+		
+			//TODO: Double casting since for some reason an explicit cast from a Double
+			// to an Int doesn't work.  It's a boxing issue, as interval[i] returns an object.
+			// And JSON.cs returns numbers as doubles
+			int[] times = new int[3];
+			for (int i = 0; i < 3; i++) { times[i] = (int)(double)interval[i]; }
+			m_timerInterval = new TimeSpan(times[0], times[1], times[2]);			
+		}
 
-    private AutoResetEvent dataReceived = new AutoResetEvent(false);
+        ~DHTSensor() { Dispose(); }
+		public override void Dispose() { }
 
-    // Instantiated via derived class
-    protected DhtSensor(Cpu.Pin pin1, Cpu.Pin pin2, PullUpResistor pullUp)
-    {
-      var resistorMode = (Port.ResistorMode)pullUp;
+		public override TimeSpan TimerInterval { get { return m_timerInterval; } }		
 
-      portIn = new InterruptPort(pin2, false, resistorMode, Port.InterruptMode.InterruptEdgeLow);
-      portIn.OnInterrupt += new NativeEventHandler(portIn_OnInterrupt);
-      portIn.DisableInterrupt();  // Enabled automatically in the previous call
+		// Temperature doesn't need the Output Handler
+		public override void EventHandler(object sender, IPluginData data)
+		{
+			throw new System.NotImplementedException();
+		}
 
-      portOut = new TristatePort(pin1, true, false, resistorMode);
+		public override void TimerCallback(object state)
+		{
+            Debug.Print("DHTSensor Callback");
+            HT _DHTData = new HT();
+			// get current readings
+            _DHTData.SetData(ReadSensor());
 
-      if(!CheckPins())
-      {
-        throw new InvalidOperationException("DHT sensor pins are not connected together.");
-      }
-    }
+            foreach (PluginData pd in _DHTData.GetData())
+            {
+                Debug.Print(pd.Name + " = " + pd.Value.ToString("F"));
+            }
+			//Timer Callbacks receive a Delegate in the state object
+			InputDataAvailable ida = (InputDataAvailable)state;
 
-    /// <summary>
-    /// Deletes an instance of the <see cref="DhtSensor"/> class.
-    /// </summary>
-    ~DhtSensor()
-    {
-      Dispose(false);
-    }
+			// call out to the delegate with expected value
+            ida(_DHTData);
+		}
 
-    /// <summary>
-    /// Releases resources used by this <see cref="DhtSensor"/> object.
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
+		/// <summary>
+		/// Read DHT Data
+		/// </summary>
+		/// <returns>Float value of current Temperature reading</returns>
+        private PluginData[] ReadSensor()
+		{
+            PluginData[] _PluginData = new PluginData[2];
+            _PluginData[0] = new PluginData();
+            _PluginData[1] = new PluginData();
+            Double Temp = 0;
+            Double Humidity = 0;
+            bool ReadSuccess = true;
 
-    /// <summary>
-    /// Releases the resources associated with the <see cref="DhtSensor"/> object.
-    /// </summary>
-    /// <param name="disposing">
-    /// <b>true</b> to release both managed and unmanaged resources;
-    /// <b>false</b> to release only unmanaged resources.
-    /// </param>
-    [MethodImpl(MethodImplOptions.Synchronized)]
-    protected void Dispose(bool disposing)
-    {
-      if(!disposed)
-      {
-        try
-        {
-          portIn.Dispose();
-          portOut.Dispose();
-        }
-        finally
-        {
-          disposed = true;
-        }
-      }
-    }
+            SerialPort sp = new SerialPort(SecretLabs.NETMF.Hardware.Netduino.SerialPorts.COM4, 57600, Parity.None, 8, StopBits.One);
+			sp.ReadTimeout = 3000;
+            sp.WriteTimeout = 3000;
 
-    /// <summary>
-    /// Gets the measured temperature value.
-    /// </summary>
-    public float Temperature
-    {
-      get
-      {
-        return temp;
-      }
-      protected set
-      {
-        temp = value;
-      }
-    }
+            try
+            {
+                string command = "";
+                string response = "";
+                char inChar;
+                
+                command = "R\n";
 
-    /// <summary>
-    /// Gets the measured relative humidity value.
-    /// </summary>
-    public float Humidity
-    {
-      get
-      {
-        return rhum;
-      }
-      protected set
-      {
-        rhum = value;
-      }
-    }
+                byte[] message = Encoding.UTF8.GetBytes(command);
 
-    /// <summary>
-    /// Gets the start delay, in milliseconds.
-    /// </summary>
-    protected abstract int StartDelay
-    {
-      get;
-    }
+				sp.Open();
+				sp.Write(message, 0, message.Length);
+				sp.Flush();
+				//Debug.Print("Sending \"" + command + "\" to the DHT Bridge");
+                Thread.Sleep(1000);
 
-    /// <summary>
-    /// Converts raw sensor data.
-    /// </summary>
-    /// <param name="data">The sensor raw data, excluding the checksum.</param>
-    /// <remarks>
-    /// If the checksum verification fails, this method is not called.
-    /// </remarks>
-    protected abstract void Convert(byte[] data);
+				// Now collect response
+                try
+                {
+                    while (sp.BytesToRead > 0)
+                    {
+                        inChar = (char)sp.ReadByte();
+                        if (inChar != '\r' && inChar != '\0')
+                            response += inChar;
+                    }
+                    Debug.Print("DHT Response:" + response);
+                }
+                catch(Exception e)
+                { 
+                    Debug.Print("Could not read from DHT Stamp.  Please check connection.");
+                    ReadSuccess = false;
+                }
 
-    /// <summary>
-    /// Retrieves measured data from the sensor.
-    /// </summary>
-    /// <returns>
-    /// <c>true</c> if the operation succeeds and the data is valid, otherwise <c>false</c>.
-    /// </returns>
-    public bool Read()
-    {
-      if(disposed)
-      {
-        throw new ObjectDisposedException();
-      }
-      // The 'bitMask' also serves as edge counter: data bit edges plus
-      // extra ones at the beginning of the communication (presence pulse).
-      bitMask = 1L << 42;
+                if (response.Length > 0)
+                {
+                    string[] _split;
+                    _split = response.Split(',');
+                    Temp = double.Parse(_split[0]);
+                    Humidity = double.Parse(_split[1]);
+                }
+                else ReadSuccess = false;
 
-      data = 0;
-      // lastTicks = 0; // This is not really needed, we measure duration
-      // between edges and the first three values are ignored anyway.
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+                ReadSuccess = false;
+            }
+            finally
+            {
+                //Assign the response to a PluginData Variable
 
-      // Initiate communication
-      portOut.Active = true;
-      portOut.Write(false);       // Pull bus low
-      Thread.Sleep(StartDelay);
-      portIn.EnableInterrupt();   // Turn on the receiver
-      portOut.Active = false;     // Release bus
+                for (int i=0;i< _PluginData.Length;i++)
+                    _PluginData[i].LastReadSuccess = ReadSuccess;
 
-      bool dataValid = false;
+                _PluginData[0].Value = Temp;
+                _PluginData[0].Name = "AirTemperature";
+                _PluginData[0].UnitOFMeasurment = "C";
+                _PluginData[0].ThingSpeakFieldID = 7;
 
-      // Now the interrupt handler is getting called on each falling edge.
-      // The communication takes up to 5 ms, but the interrupt handler managed
-      // code takes longer to execute than is the duration of sensor pulse
-      // (interrupts are queued), so we must wait for the last one to finish
-      // and signal completion. 20 ms should be enough, 50 ms is safe.
-      if(dataReceived.WaitOne(50, false))
-      {
-        // TODO: Use two short-s ?
-        bytes[0] = (byte)((data >> 32) & 0xFF);
-        bytes[1] = (byte)((data >> 24) & 0xFF);
-        bytes[2] = (byte)((data >> 16) & 0xFF);
-        bytes[3] = (byte)((data >>  8) & 0xFF);
+                _PluginData[1].Value = Humidity;
+                _PluginData[1].Name = "Humidity";
+                _PluginData[1].UnitOFMeasurment = "%";
+                _PluginData[1].ThingSpeakFieldID = 8;
 
-        byte checksum = (byte)(bytes[0] + bytes[1] + bytes[2] + bytes[3]);
-        if(checksum == (byte)(data & 0xFF))
-        {
-          dataValid = true;
-          Convert(bytes);
-        }
-        else
-        {
-          Debug.Print("DHT sensor data has invalid checksum.");
-        }
-      }
-      else
-      {
-        portIn.DisableInterrupt();  // Stop receiver
-        Debug.Print("DHT sensor data timeout.");  // TODO: TimeoutException?
-      }
-      return dataValid;
-    }
-
-    // If the received data has invalid checksum too often, adjust this value
-    // based on the actual sensor pulse durations. It may be a little bit
-    // tricky, because the resolution of system clock is only 21.33 µs.
-    private const long BitThreshold = 1050;
-
-    private void portIn_OnInterrupt(uint pin, uint state, DateTime time)
-    {
-      var ticks = time.Ticks;
-      if((ticks - lastTicks) > BitThreshold)
-      {
-        // If the time between edges exceeds threshold, it is bit '1'
-        data |= bitMask;
-      }
-      if((bitMask >>= 1) == 0)
-      {
-        // Received the last edge, stop and signal completion
-        portIn.DisableInterrupt();
-        dataReceived.Set();
-      }
-      lastTicks = ticks;
-    }
-
-    // Returns true if the ports are wired together, otherwise false.
-    private bool CheckPins()
-    {
-      Debug.Assert(portIn != null, "Input port should not be null.");
-      Debug.Assert(portOut != null, "Output port should not be null.");
-      Debug.Assert(!portOut.Active, "Output port should not be active.");
-
-      portOut.Active = true;  // Switch to output
-      portOut.Write(false);
-      var expectedFalse = portIn.Read();
-      portOut.Active = false; // Switch to input
-      var expectedTrue = portIn.Read();
-      return (expectedTrue && !expectedFalse);
-    }
-  }
+                if (sp.IsOpen)
+                    sp.Close();
+                sp.Dispose();
+            }
+            return _PluginData;
+		}
+	}
 }

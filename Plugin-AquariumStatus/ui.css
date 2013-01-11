@@ -1,0 +1,9 @@
+body{font-family:Verdana,Helvetica,sans-serif;}
+#content{width:800px;margin:0 auto;}			
+.input{font-size:14px;}
+.plug label{float:left;margin-right:10px;}
+.slide{float:left;width:85%}
+#status label {display: block; width: 100px; text-align: right; float: left; padding-right: 10px;}
+#status span {display: block; float: left; }
+.interval input {width: 20px; vertical-align:middle;padding-left:3px;}
+.interval label {font-size: 14px; line-height:20px; vertical-align: middle;}

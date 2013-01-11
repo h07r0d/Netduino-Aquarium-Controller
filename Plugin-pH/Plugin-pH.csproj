@@ -55,7 +55,9 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins\
+
+copy $(ProjectDir)$(TargetName).htm g:\plugins\
+copy $(ProjectDir)$(TargetName).js g:\files\$(TargetName).min.js</PostBuildEvent>
   </PropertyGroup>
 </Project>

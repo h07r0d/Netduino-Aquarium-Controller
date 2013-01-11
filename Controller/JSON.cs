@@ -41,7 +41,7 @@ namespace Controller
 					// The frontend requires a js var declaration in it, so strip the var components
 					// from the string
 					string configString = sr.ReadToEnd();
-					configString = configString.Substring(11, configString.Length - 12);
+                    configString = configString.Substring(12, configString.Length - 13);
 					bool success = true;
 					return JsonDecode(configString, ref success);
 				}
@@ -63,7 +63,7 @@ namespace Controller
 
 					// Find first location of {
 					int startAt = varString.IndexOf('{');
-					varString = varString.Substring(startAt, varString.Length - (startAt-1));
+					varString = varString.Substring(startAt, varString.Length - startAt);
 					bool success = true;
 					return JsonDecode(varString, ref success);
 				}
@@ -75,8 +75,8 @@ namespace Controller
 			using (FileStream fs = new FileStream(file, FileMode.Open))
 			{
 				using (StreamReader sr = new StreamReader(fs))
-				{					
-					string configString = sr.ReadToEnd();					
+				{
+                    string configString = sr.ReadToEnd();				
 					bool success = true;
 					return JsonDecode(configString, ref success);
 				}

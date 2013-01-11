@@ -1,26 +1,37 @@
-﻿{"config": {
+﻿var config={"config": {
 	"input": {
 		"Temperature": {
 			"enabled":"true",
-			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
-		},
+			"interval":[0,0,10]
+			},
 		"pH": {
 			"enabled":"true",
-			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
-		},
+			"interval":[0,0,10]
+			},
 		"ElectricalConductivity": {
 			"enabled":"true",
-			"interval":[0,0,10]	<- TimeSpan layout of Hour, Minute, Second
-		}
-	},
+			"ProbeType":2,
+			"interval":[0,0,10]
+        },
+        "DHTSensor": {
+            "enabled": "true",
+            "interval": [0,0,10]
+        },
+		"CO2": {
+			"enabled":"true",
+			"interval":[0,0,10]
+			}
+		},
 	"output": {
 		"Thingspeak": {
-			"enabled":"true",
-			"write-api":"Thingspeak API Key"
+		    "enabled": "true",
+		    "channel": "",
+			"writeapi": "",
+			"readapi": ""
 		},
 		"Logfile": {
 			"enabled":"true",
-			"file-name":"\\SD\\log.txt"
+			"filename":"\\SD\\log.txt"
 		},
 		"AquariumStatus": {
 			"enabled":"true"
@@ -30,11 +41,19 @@
 		"Relays": {
 			"enabled":"true",
 			"relays": [
-				{"id":0, "on":"07:30", "off":"17:00"},
-				{"id":1, "on":"07:30", "off":"17:00"},
-				{"id":2, "on":"01:00", "off":"02:00"},
-				{"id":3, "on":"10:00", "off":"10:10"}
+				{ "name": "Vent", "type": "Timer", "id": 0, "DurationOn": [00, 05, 00], "DurationOff": [01, 00, 00], "Enable": "true" },
+				{ "name": "CO2", "type": "Range", "id": 1, "min": 1400, "max": 1500, "Inverted": "true", "PulseTime": 0, "PulseSpace": 0, "RangeMetric": "CO2", "Enable": "false" },
+                { "name": "Water Pump", "type": "DailyTimer", "id": 2, "on": "00:00", "off": "23:59", "Enable": "false" },
+                { "name": "Heater", "type": "Range", "id": 3, "min": 21.1, "max": 22.8, "Inverted": "true", "PulseTime": 0, "PulseSpace": 0, "RangeMetric": "AirTemperature", "Enable": "true" },
+                { "name": "Water Heater", "type": "Range", "id": 4, "min": 18.3, "max": 19.4, "Inverted": "true", "PulseTime": 0, "PulseSpace": 0, "RangeMetric": "Temperature", "Enable": "true" },
+                { "name": "Humidifier", "type": "Range", "id": 5, "min": 50, "max": 55, "Inverted": "true", "PulseTime": 0, "PulseSpace": 0, "RangeMetric": "Humidity", "Enable": "true" },
+                { "name": "Fan", "type": "DailyTimer", "id": 6, "on": "10:00", "off": "10:10", "Enable": "false" },
+                { "name": "Lights", "type": "DailyTimer", "id": 7, "on": "05:00", "off": "23:00", "Enable": "true" },
+    			{ "name": "PH Down Pump", "type": "Range", "id": 8, "min": 5.5, "max": 6.5, "Inverted": "false", "PulseTime": 1000, "PulseSpace": 5, "RangeMetric": "pH", "Enable": "true" },
+	            { "name": "Flora Grow Pump", "type": "Range", "id": 9, "min": 1000, "max": 1500, "Inverted": "true", "PulseTime": 3000, "PulseSpace": 5, "RangeMetric": "TDS", "Enable": "true" },
+                { "name": "Flora Micro Pump", "type": "Range", "id": 10, "min": 1000, "max": 1500, "Inverted": "true", "PulseTime":2000,"PulseSpace":5, "RangeMetric": "TDS", "Enable": "true" },
+                { "name": "Flora Bloom Pump", "type": "Range", "id": 11, "min": 1000, "max": 1500, "Inverted": "true", "PulseTime":1000,"PulseSpace":5, "RangeMetric": "TDS", "Enable": "true" }
 			]
 		}
 	}
-}}
+}};

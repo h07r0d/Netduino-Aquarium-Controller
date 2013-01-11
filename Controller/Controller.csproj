@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TRACE,MF_FRAMEWORK_VERSION_V4_2</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -66,19 +66,26 @@
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Graphics" />
     <Reference Include="Microsoft.SPOT.Hardware" />
+    <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.Native" />
-    <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.SPOT.Net" />
+    <Reference Include="SecretLabs.NETMF.Hardware.Netduino, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NetduinoPlusTelnet\NetduinoPlusTelnet\NetduinoPlusTelnet.csproj">
+      <Project>{58DB2B34-17A3-448D-A0B5-A5FEBEAC6F53}</Project>
+      <Name>NetduinoPlusTelnet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebServer\WebServer.csproj">
-      <Project>{F444D76A-7C89-4AD5-B7B6-1B8293A0DC13}</Project>
+      <Project>{71B2DDB7-063C-4866-BD82-83D06E22E225}</Project>
       <Name>WebServer</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(ProjectDir)config.js g:\
-copy $(ProjectDir)fragments\* g:\fragments</PostBuildEvent>
+
+copy $(ProjectDir)fragments\* g:\fragments\</PostBuildEvent>
   </PropertyGroup>
 </Project>

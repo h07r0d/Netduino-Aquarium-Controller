@@ -1,9 +1,10 @@
 ﻿using Controller;
 using Microsoft.SPOT;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using SecretLabs.NETMF.Hardware.Netduino;
 using System.Collections;
 using System;
-using SecretLabs.NETMF.Hardware;
+using Microsoft.SPOT.Hardware;
+using ThreelnDotOrg.NETMF.Hardware;
 
 
 namespace Plugins
@@ -16,15 +17,13 @@ namespace Plugins
 	}
 
 	/// <summary>
-	/// 10K Thermistor, available at http://www.adafruit.com/products/372
+    /// DS18B20 Digital Temp Sensor: https://www.sparkfun.com/products/11050
 	/// </summary>
 	public class Temperature : InputPlugin
 	{
-		private const int SeriesResistor = 10000;
-		private const int ThermistorNominal = 10000;
-		private const int TemperatureNominal = 25;
-		private const int BetaCoefficient = 3950;
 		private TimeSpan m_timerInterval;
+        public override bool ImplimentsEventHandler() { return false; }
+
 
 		public Temperature() { }		
 		public Temperature(object _config) : base()
@@ -55,12 +54,15 @@ namespace Plugins
 
 		public override void TimerCallback(object state)
 		{
-			Debug.Print("Temperature Callback");
 			TempData tempData = new TempData();
 			// get current temperature
 			tempData.SetData(CalculateTemperature());
 
-			Debug.Print("Temperature = "+tempData.GetData()[0].Value.ToString());
+            foreach (PluginData pd in tempData.GetData())
+            {
+                Debug.Print(pd.Name + " = " + pd.Value.ToString());
+            }
+
 			//Timer Callbacks receive a Delegate in the state object
 			InputDataAvailable ida = (InputDataAvailable)state;
 
@@ -69,40 +71,37 @@ namespace Plugins
 		}
 
 		/// <summary>
-		/// Calculate Temperature value
+		/// Obtain Temperature value
 		/// </summary>
-		/// <returns>Float value of current Temperature reading</returns>
-		/// <remarks>Assuming AREF of 3.3v, the default for Rev. B Netduino Plus boards.
-		/// It's an internal value, no feed to AREF required.
-		/// Using code tutorial from adafruit http://www.ladyada.net/learn/sensors/thermistor.html </remarks>
+		/// <returns>PluginData Array</returns>
+        /// <remarks>For use with the DS18B20 Temperature sensor</remarks>
 		private PluginData[] CalculateTemperature()
 		{
-            PluginData[] _PluginData = new PluginData[0];
-			AnalogInput ain = new AnalogInput(Pins.GPIO_PIN_A0);			
+            PluginData[] _PluginData = new PluginData[1];
+            _PluginData[0] = new PluginData();
+            bool ReadSuccess = true;
+            double temp = 0.0;
+            try
+            {
+                DS18B20 t = new DS18B20(Pins.GPIO_PIN_A0);
+                temp = t.ConvertAndReadTemperature();
+                //float tempf = temp / 5 * 9 + 32;
+                t.Dispose();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+                ReadSuccess = false;
+            }
+            finally
+            {
+                _PluginData[0].Name = "Temperature";
+                _PluginData[0].UnitOFMeasurment = "C";
+                _PluginData[0].Value = temp;
+                _PluginData[0].ThingSpeakFieldID = 1;
+                _PluginData[0].LastReadSuccess = ReadSuccess;
+            }
 
-			// take 10 readings to even out the noise
-			float average = 0.0F;
-			for (int i = 0; i < 10; i++) { average += ain.Read(); }
-			average /= 10;
-			
-			// convert to a resistance
-			average = 1023 / average - 1;
-			average = SeriesResistor / average;
-
-			// apply steinhart
-			float tempValue = average / ThermistorNominal;
-			tempValue = Controller.Math.Log(tempValue);
-			tempValue /= BetaCoefficient;
-			tempValue += 1.0F / (TemperatureNominal + 273.15F);
-			tempValue = 1.0F / tempValue;
-			tempValue -= 273.15F;
-
-            _PluginData[0].Name = "Temperature";
-            _PluginData[0].UnitOFMeasurment = "C";
-            _PluginData[0].Value = tempValue;
-            _PluginData[0].ThingSpeakFieldID = 1;
-
-			ain.Dispose();
             return _PluginData;
 		}
 	}

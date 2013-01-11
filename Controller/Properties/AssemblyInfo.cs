@@ -7,10 +7,10 @@ using System.Resources;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Controller")]
-[assembly: AssemblyDescription("Netduino Plus Aquarium Controller")]
+[assembly: AssemblyDescription("Netduino Plus Grow Controller")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Fishfornerds.com")]
-[assembly: AssemblyProduct("Aquarium Controller")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Grow Controller")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

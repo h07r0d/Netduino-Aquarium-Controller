@@ -197,7 +197,7 @@ namespace Controller
 			// Time server list: http://tf.nist.gov/tf-cgi/servers.cgi
 
 			var ran = new Random(DateTime.Now.Millisecond);
-			var servers = new string[] { "time-a.nist.gov", "time-b.nist.gov", "nist1-la.ustiming.org", "nist1-chi.ustiming.org", "nist1-ny.ustiming.org", "time-nw.nist.gov" };
+            var servers = new string[] { "pool.ntp.org", "north-america.pool.ntp.org" };
 
 			// Try each server in random order to avoid blocked requests due to too frequent request  
 			for (int i = 0; i < servers.Length; i++)
@@ -208,6 +208,8 @@ namespace Controller
 					var ep = new IPEndPoint(Dns.GetHostEntry(servers[ran.Next(servers.Length)]).AddressList[0], 123);
 
 					var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    s.ReceiveTimeout = 5000;
+                    s.SendTimeout = 5000;
 					//s.Connect(ep);
 
 					byte[] ntpData = new byte[48]; // RFC 2030

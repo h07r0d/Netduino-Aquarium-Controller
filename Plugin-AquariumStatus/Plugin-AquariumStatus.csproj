@@ -30,12 +30,14 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="AquariumStatus.cs" />
     <Compile Include="LCDDriver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="AquariumStatus.htm" />
     <Content Include="AquariumStatus.js" />
+    <Content Include="jquery.css" />
     <Content Include="status.js" />
-    <Compile Include="AquariumStatus.cs" />
+    <Content Include="ui.css" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Native">
@@ -48,9 +50,19 @@
       <Name>Controller</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="images\" />
+  </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(ProjectDir)status.js g:\
-copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+
+copy $(TargetDir)le\$(TargetName).pe g:\plugins\
+
+copy $(ProjectDir)$(TargetName).htm g:\plugins\
+copy $(ProjectDir)$(TargetName).js g:\files\$(TargetName).min.js
+copy $(ProjectDir)banner.jpg g:\files\
+copy $(ProjectDir)jquery.css g:\files\
+copy $(ProjectDir)ui.css g:\files\
+copy $(ProjectDir)images\* g:\files\images\</PostBuildEvent>
   </PropertyGroup>
 </Project>

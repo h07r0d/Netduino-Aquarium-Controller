@@ -1,0 +1,67 @@
+NetDuino Pinout
+00 - EC TX
+01 - EC RX
+02 - PH TX
+03 - PH RX
+04 - Relay
+05 - Relay
+06 - Relay
+07 - Relay
+08 - Relay
+09 - Relay
+10 - Relay
+11 - Relay
+12 - 
+13 - 
+A0 - WT Sensor Pin (Orange)
+A1 - 
+Pump Pinout
+Blue Pair - 5v
+Orange Pair - 9v
+A2 - Relay (PH Down Pump) (Green)
+A3 - Relay (Flora Grow Pump) (Green\White)
+A4 - Relay (Flora Micro Pump) (Brown\White)
+A5 - Relay (Flora Bloom Pump) (Brown)
+SD - To Arduino TX (WhiteGreen)
+SC - To Arduino RX
+
+ (Green)
+
+Air Box Pinout
+
+Blue Pair - 5v
+
+Orange Pair - 9v
+
+Green - Arduino RX
+
+WhiteGreen - Arduino TX
+
+Arduino Pinout (Inside of Air Box)
+RX - Netduino
+TX - Netduino
+D2 - DHT11 Sensor Pin
+D3 - CO2 Sensor Bool Pin
+
+A7 - C02 Sensor Sensor Pin
+
+
+Water Sensor Breakout Box
+
+BW - Water Temp Sensor GND
+
+B - Water Temp Sensor VCC
+
+O - Water Temp Sensor Signal
+
+
+
+ThingSpeak IDs:
+1 - Water Temp
+2 - pH
+3 - CO2
+4 - Microsiemens
+5 - PPM
+6 - Salinity
+7 - Air Temperature
+8 - Humidity

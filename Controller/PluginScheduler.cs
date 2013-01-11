@@ -114,12 +114,12 @@ namespace Controller
 		private void PollTasks(object _state)
 		{
 			DateTime now = DateTime.Now;
-			string s_now = now.ToString(m_timerFormat);
+			int s_now = int.Parse(now.ToString(m_timerFormat));
 			Debug.Print("Polling plugin list at: " + now.ToString(m_timerFormat));
 			foreach (DictionaryEntry item in m_Tasks)
 			{
-				Debug.Print(item.Key.ToString());
-				if (item.Key.Equals(s_now))
+				//Debug.Print("Checking Item Key: " + item.Key.ToString());
+				if (int.Parse(item.Key.ToString()) <= s_now)
 				{
 					Debug.Print("Executing task");
 					// Execute task in Value
@@ -129,8 +129,8 @@ namespace Controller
 					
 					if (task.Reschedule)
 					{
-						now += task.Interval;
-						item.Key = now.ToString(m_timerFormat);
+                        now = DateTime.Now + task.Interval;
+                        item.Key = now.ToString(m_timerFormat);
 						Debug.Print("Rescheduling task for " + now.ToString());
 					}
 					else

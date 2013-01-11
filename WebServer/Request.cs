@@ -1,59 +1,135 @@
-using System;
-using Microsoft.SPOT;
-using System.Net.Sockets;
-using System.Collections;
+﻿using System;
 using System.Text;
+using System.Net.Sockets;
+using System.Net;
+using System.Diagnostics;
+using System.IO;
+using System.Collections;
 
-namespace WebServer
+namespace Webserver
 {
-	public enum RequestType { Get, Post }
+    //ToDo: Post-Values have to be copied into hashtable "postContent"
 
-	public class Request : IDisposable
-	{		
-		const int FileBufferSize = 256;
+    public class Request : IDisposable
+    {
+        protected string _method;
+        protected string _url;
+        protected Hashtable _postArguments = new Hashtable();
+        protected Hashtable _getArguments = new Hashtable();
 
-		public RequestType RequestType { get; protected set; }
-		public Socket Client { get; protected set; }
-		public string Uri { get; protected set; }
-		public string BaseUri { get; protected set; }
-		public Hashtable HeaderFields { get; protected set; }
-		public Hashtable Querystring { get; protected set; }
+        /// <summary>
+        /// Hashtable with all GET key-value pa in it
+        /// </summary>
+        public Hashtable GetArguments
+        {
+            get { return _getArguments; }
+            private set { _getArguments = value; }
+        }
 
-		public Request(Socket _client, byte[] _data)
-		{
-			Client = _client;
-			string data = new string(Encoding.UTF8.GetChars(_data));
-			string[] requestArray = data.Split('\n');
-			if (requestArray.Length > 1)
-			{
-				// split fist line to get URI information and Request type
-				string[] split = requestArray[0].Split(' ');
-				if (split.Length >= 2)
-				{
-					// get request type
-					split[0] = split[0].ToUpper();
-					switch (split[0])
-					{
-						case "GET":
-							RequestType = WebServer.RequestType.Get;
-							break;
-						case "POST":
-							RequestType = WebServer.RequestType.Post;
-							break;
-						default:
-							throw new NotImplementedException("Can only handle GET and POST");
-					}
-					// Now that we have the URI, parse out the query string
-					Uri = split[1];
-					string baseUri = "";
-					Querystring = HttpGeneral.ParseQuerystring(Uri, out baseUri);
-					BaseUri = baseUri;
-				}
+        /// <summary>
+        /// HTTP verb (Request method)
+        /// </summary>
+        public string Method
+        {
+            get { return _method; }
+            private set { _method = value; }
+        }
 
-				if (split.Length >= 3) HeaderFields.Add("HttpVersion", split[2]);
-			}
-		}
+        /// <summary>
+        /// URL of request without GET values
+        /// </summary>
+        public string URL
+        {
+            get { return _url; }
+            private set 
+            {
+                //if just the server address is requested, return the default page.
+                if (value == "")
+                    _url = "index.html";
+                else
+                    _url = value; 
+            }
+        }
 
-		public void Dispose() { }
-	}
+        /// <summary>
+        /// ToDo: Post-Values have to be copied into hashtable
+        /// Full POST line is saved to "post"-key
+        /// </summary>
+        public Hashtable PostContent
+        {
+            get { return _postArguments; }
+        }
+
+        /// <summary>
+        /// Creates request
+        /// </summary>
+        /// <param name="Data">Input from network</param>
+        public Request(char[] Data)
+        {
+            ProcessRequest(Data);
+        }
+       
+        /// <summary>
+        /// Sets up the request
+        /// </summary>
+        /// <param name="data">Input from network</param>
+        private void ProcessRequest(char[] data)
+        {
+            string content = new string(data);
+            string htmlHeader1stLine = content.Substring(0, content.IndexOf('\n'));
+
+            // Parse the first line of the request: "GET /path/ HTTP/1.1"
+            string[] headerParts = htmlHeader1stLine.Split(' ');
+            _method = headerParts[0];
+            string[] UrlAndParameters = headerParts[1].Split('?');
+            this.URL = UrlAndParameters[0].Substring(1); // Substring to ignore the '/'
+
+            if (_method.ToUpper() == "GET" && UrlAndParameters.Length > 1)
+            {
+                FillGETHashtable(UrlAndParameters[1]);
+            }
+   
+            if (_method.ToUpper() == "POST") // TODO!
+            {
+                int lastLine = content.LastIndexOf('\n');
+                _postArguments.Clear();
+                _postArguments.Add("post", content.Substring(lastLine + 1, content.Length - lastLine));
+            }
+            else
+                _postArguments = null;
+
+            // Could look for any further headers in other lines of the request if required (e.g. User-Agent, Cookie)
+        }
+
+        /// <summary>
+        /// builds arguments hash table
+        /// </summary>
+        /// <param name="value"></param>
+        private void FillGETHashtable(string url)
+        {
+            _getArguments = new Hashtable();
+
+            string[] urlArguments = url.Split('&');
+            string[] keyValuePair;
+
+            for (int i = 0; i < urlArguments.Length; i++)
+            {
+                keyValuePair = urlArguments[i].Split('=');
+                _getArguments.Add(keyValuePair[0], keyValuePair[1]);
+            }
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if(_postArguments != null)
+                _postArguments.Clear();
+            
+            if(_getArguments != null)
+                _getArguments.Clear();
+        }
+
+        #endregion
+    }
 }

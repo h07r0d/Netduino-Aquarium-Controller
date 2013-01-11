@@ -21,36 +21,41 @@ namespace Plugins
 			config = null;
 		}
 
-		public override void EventHandler(Object sender, IPluginData data)
-		{			
-			StringBuilder sb = new StringBuilder();
-
-			// Format string for output
-            sb.Append("");
-			sb.Append(DateTime.Now.ToString("s"));
-            sb.Append("");
-            foreach (PluginData _PluginData in data.GetData())
+        /// <summary>
+        /// Appends received data to the log file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="data"></param>
+        public override void EventHandler(Object sender, IPluginData data)
+        {
+            try
             {
-                sb.Append("," + "");
-                sb.Append(_PluginData.Name);
-                sb.Append("" + "," + "");
-                sb.Append(_PluginData.Value);
-                sb.Append("" + "," + "");
-                sb.Append(_PluginData.UnitOFMeasurment);
-                sb.Append("");
-                sb.Append("\n");
+                StringBuilder sb = new StringBuilder();
+                foreach (PluginData _PluginData in data.GetData())
+                {
+                    sb.Append('"');
+                    sb.Append(DateTime.Now.ToString("s"));
+                    sb.Append('"');
+                    sb.Append("," + '"');
+                    sb.Append(_PluginData.Name);
+                    sb.Append('"' + "," + '"');
+                    sb.Append(_PluginData.Value);
+                    sb.Append('"' + "," + '"');
+                    sb.Append(_PluginData.LastReadSuccess.ToString());
+                    sb.AppendLine("\"");
+                }
+                // take data and write it out to text
+                using (FileStream fs = new FileStream(m_logFile, FileMode.Append))
+                {
+                    var buf = Encoding.UTF8.GetBytes(sb.ToString());
+                    fs.Write(buf, 0, buf.Length);
+                    fs.Flush();
+                }
             }
-            
-
-			// take data and write it out to text
-			using (FileStream fs = new FileStream(m_logFile, FileMode.Append))
-			{
-				var buf = Encoding.UTF8.GetBytes(sb.ToString());
-				fs.Write(buf, 0, buf.Length);
-				fs.Flush();
-			}
-
-			Debug.Print("Written " + sb.ToString());
-		}
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+            }
+        }
 	}
 }

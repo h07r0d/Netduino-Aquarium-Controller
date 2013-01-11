@@ -33,8 +33,8 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ElectricalConductivity.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
@@ -55,8 +55,10 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
+    <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins\
 
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+
+copy $(ProjectDir)$(TargetName).htm g:\plugins\
+copy $(ProjectDir)$(TargetName).js g:\files\$(TargetName).min.js</PostBuildEvent>
   </PropertyGroup>
 </Project>

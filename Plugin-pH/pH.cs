@@ -28,13 +28,14 @@ namespace Plugins
 	{
 		private TimeSpan m_timerInterval;
 		public override TimeSpan TimerInterval { get { return m_timerInterval; } }
-		
+        public override bool ImplimentsEventHandler() { return true; }
+
 		/// <summary>
 		/// Latest temperature reading passed in from the Temperature Plugin
 		/// </summary>
-		private float m_Temperature;
+		private PluginData m_Temperature = new PluginData();
 
-		public pH() { m_Temperature = 0.0F; }
+        public pH() { }
 		public pH(object _config) : base() 
 		{
 			Hashtable config = (Hashtable)_config;
@@ -52,30 +53,36 @@ namespace Plugins
 		~pH() { Dispose(); }
 		public override void Dispose() { }
 
-		/// <summary>
-		/// Records the last temperature reading from the Temperature Plugin
-		/// </summary>
-		/// <param name="_sender">Object that raised the callback</param>
-		/// <param name="_data">Last reading</param>
-		public override void EventHandler(object _sender, PluginData[] _data)
-		{
-			// Only worry about Temperature data, so check data units.
+        /// <summary>
+        /// Records the last temperature reading from the Temperature Plugin
+        /// </summary>
+        /// <param name="_sender">Object that raised the callback</param>
+        /// <param name="_data">Last reading</param>
+        public override void EventHandler(object _sender, IPluginData _data)
+        {
+            // Only worry about Temperature data, so check data units.
             // If it's 'C' and the Name = 'Temperature' then assume it's the one we want.
-			Debug.Print("Got Temperature Value");
-            foreach (PluginData _pd in _data)
+            foreach (PluginData _pd in _data.GetData())
             {
-                if (_pd.Name.Equals("Temperature") & _pd.UnitOFMeasurment.Equals("C")) m_Temperature = (float)_pd.Value;
+                if (_pd.Name.Equals("Temperature") && _pd.UnitOFMeasurment.Equals("C") && _pd.LastReadSuccess)
+                {
+                    Debug.Print("PH Plugin Got Temperature Value");
+                    m_Temperature = _pd;
+                }
             }
-		}
+        }
 
 		public override void TimerCallback(object state)
 		{
-			Debug.Print("pH Callback");			
 			AlkalinityData phData = new AlkalinityData();
 
 			// get current pH Value			
 			phData.SetData(CalculatePH());
-			Debug.Print("pH = " + (float)phData.GetData()[0].Value);			
+
+            foreach (PluginData pd in phData.GetData())
+            {
+                Debug.Print(pd.Name + " = " + pd.Value.ToString("F"));
+            }
 
 			//Timer Callbacks receive a Delegate in the state object
 			InputDataAvailable ida = (InputDataAvailable)state;
@@ -84,7 +91,8 @@ namespace Plugins
 			// TODO: Currently there is a glitch with SerialPort and
 			// sometimes data doesn't come back from the Stamp.
 			// Discard bad readings, and report any meaningful ones
-			if ((float)phData.GetData()[0].Value > 0.0F) ida(phData);
+			//if ((float)phData.GetData()[0].Value > 0.0F) 
+            ida(phData);
 		}
 
 		/// <summary>
@@ -93,10 +101,13 @@ namespace Plugins
 		/// <returns></returns>
 		private PluginData[] CalculatePH()
 		{
-			float ph = 0.0F;
-            PluginData[] _PluginData = new PluginData[0];
-			SerialPort sp = new SerialPort(Serial.COM1, 38400, Parity.None, 8, StopBits.One);
-			sp.ReadTimeout = 1000;
+			double ph = 0.0;
+            PluginData[] _PluginData = new PluginData[1];
+            _PluginData[0] = new PluginData();
+			SerialPort sp = new SerialPort(Serial.COM2, 38400, Parity.None, 8, StopBits.One);
+			sp.ReadTimeout = 6000;
+            sp.WriteTimeout = 4000;
+            bool ReadSuccess = true;
 
 			try
 			{
@@ -105,40 +116,54 @@ namespace Plugins
 				char inChar;
 
 				// Send the temperature reading if available
-				if (m_Temperature > 0)
-					command = m_Temperature.ToString("F") + "\rR\r";
+				if (m_Temperature.LastReadSuccess)
+					command = "\r" + m_Temperature.Value.ToString("F") + "R\r";
 				else
-					command = "R\r";
+					command = "\rR\r";
 
-				Debug.Print(command);
 				byte[] message = Encoding.UTF8.GetBytes(command);
 
+                Debug.Print("sending message");
 				sp.Open();
 				sp.Write(message, 0, message.Length);
 				sp.Flush();
-				Debug.Print("sending message");
+                Thread.Sleep(2000);
 
 				// Now collect response
-				while ((inChar = (char)sp.ReadByte()) != '\r') { response += inChar; }
+                try
+                {
+                    while (sp.BytesToRead > 0)
+                    {
+                        inChar = (char)sp.ReadByte();
+                        if (inChar != '\r' && inChar != '\0')
+                            response += inChar;
+                    }
+                    Debug.Print("Response:" + response);
+                }
+                catch (Exception e)
+                { 
+                    Debug.Print("Could not read from the PH stamp.  Please check the connection.");
+                    ReadSuccess = false;
+                }
 				
 				// Stamp can return text if reading was not successful, so test before returning
 				double phReading;
 				if (Double.TryParse(response, out phReading)) ph = (float)phReading;
-
-                PluginData[] _Data = new PluginData[2];
-
-                _PluginData[0].Name = "Alkalinity";
-                _PluginData[0].UnitOFMeasurment = "pH";
-                _PluginData[0].Value = ph;
-                _PluginData[0].ThingSpeakFieldID = 2;
 			}
 			catch (Exception e)
 			{
-				Debug.Print(e.StackTrace);
+				Debug.Print(e.Message);
+                ReadSuccess = false;
 			}
 			finally
 			{
-				sp.Close();
+                _PluginData[0].Name = "pH";
+                _PluginData[0].UnitOFMeasurment = "pH";
+                _PluginData[0].Value = ph;
+                _PluginData[0].ThingSpeakFieldID = 2;
+                _PluginData[0].LastReadSuccess = ReadSuccess;
+
+				if (sp.IsOpen) sp.Close();
 				sp.Dispose();
 			}
             return _PluginData;

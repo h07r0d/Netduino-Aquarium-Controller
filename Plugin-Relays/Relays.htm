@@ -1,1 +1,643 @@
-<fieldset class="ui-widget ui-widget-content ui-corner-all plug"><legend>Relays</legend><input id="PRE" type="checkbox"/><label for="PRE"></label><p class="input">Controls the first four plugs on the power bar.</p><fieldset class="ui-widget ui-widget-content ui-corner-all"><legend>#1</legend><input id="en1" type="checkbox"/><label for="en1"></label><div id="rel1" class="slide"></div><div id="ti1"></div></fieldset><fieldset class="ui-widget ui-widget-content ui-corner-all"><legend>#2</legend><input id="en2" type="checkbox"/><label for="en2"></label><div id="rel2" class="slide"></div><div id="ti2"></div></fieldset><fieldset class="ui-widget ui-widget-content ui-corner-all"><legend>#3</legend><input id="en3" type="checkbox"/><label for="en3"></label><div id="rel3" class="slide"></div><div id="ti3"></div></fieldset><fieldset class="ui-widget ui-widget-content ui-corner-all"><legend>#4</legend><input id="en4" type="checkbox"/><label for="en4"></label><div id="rel4" class="slide"></div><div id="ti4"></div></fieldset></fieldset>
+<fieldset class="ui-widget ui-widget-content ui-corner-all plug">
+  <legend>Relays</legend>
+  <input id="PRE" type="checkbox"/>
+  <label for="PRE"></label>
+  <p class="input">Controls the first eight plugs on the power bar.</p>
+  
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#1</legend>
+	<label for="Relay1Enable"></label>
+	<input id="Relay1Enable" type="checkbox"/>
+    <div class="conditionalFields1">
+      <label for="Relay1Type">Type</label>
+      <select name="Relay1Type" id="Relay1Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay1Name">Name</label>
+      <input type="text" value="" name="Relay1Name" id="Relay1Name"/>
+      <div class="RelayTimerFields1">
+      <br/>
+      <label for="Relay1DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay1DurationOn" id="Relay1DurationOn"/>
+      <br/>
+      <label for="Relay1DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay1DurationOff" id="Relay1DurationOff"/>
+      </div>
+      <div class="RelayRangeFields1">
+      <br/>
+      <label for="Relay1Inverted">Inverted</label>
+      <input id="Relay1Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay1RangeMetric">Range Metric</label>
+      <select name="Relay1RangeMetric" id="Relay1RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay1RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay1RangeMin" id="Relay1RangeMin"/>
+      <br />
+      <label for="Relay1RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay1RangeMax" id="Relay1RangeMax"/>
+      <br />
+      <label for="Relay1PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay1PulseTime" id="Relay1PulseTime"/>
+      <br />
+      <label for="Relay1PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay1PulseSpace" id="Relay1PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields1">
+      <br/>
+      <input id="en1" type="checkbox"/>
+      <label for="en1"></label>
+      <div id="rel1" class="slide"></div>
+      <div id="ti1"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#2</legend>
+	<label for="Relay2Enable"></label>
+	<input id="Relay2Enable" type="checkbox"/>
+    <div class="conditionalFields2">
+      <label for="Relay2Type">Type</label>
+      <select name="Relay2Type" id="Relay2Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay2Name">Name</label>
+      <input type="text" value="" name="Relay2Name" id="Relay2Name"/>
+      <div class="RelayTimerFields2">
+      <br/>
+      <label for="Relay2DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay2DurationOn" id="Relay2DurationOn"/>
+      <br/>
+      <label for="Relay2DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay2DurationOff" id="Relay2DurationOff"/>
+      </div>
+      <div class="RelayRangeFields2">
+      <br/>
+      <label for="Relay2Inverted">Inverted</label>
+      <input id="Relay2Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay2RangeMetric">Range Metric</label>
+      <select name="Relay2RangeMetric" id="Relay2RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay2RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay2RangeMin" id="Relay2RangeMin"/>
+      <br />
+      <label for="Relay2RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay2RangeMax" id="Relay2RangeMax"/>
+	  <br />
+      <label for="Relay2PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay2PulseTime" id="Relay2PulseTime"/>
+      <br />
+      <label for="Relay2PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay2PulseSpace" id="Relay2PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields2">
+      <br/>
+      <input id="en2" type="checkbox"/>
+      <label for="en2"></label>
+      <div id="rel2" class="slide"></div>
+      <div id="ti2"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#3</legend>
+	<label for="Relay3Enable"></label>
+	<input id="Relay3Enable" type="checkbox"/>
+    <div class="conditionalFields3">
+      <label for="Relay3Type">Type</label>
+      <select name="Relay3Type" id="Relay3Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay3Name">Name</label>
+      <input type="text" value="" name="Relay3Name" id="Relay3Name"/>
+      <div class="RelayTimerFields3">
+      <br/>
+      <label for="Relay3DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay3DurationOn" id="Relay3DurationOn"/>
+      <br/>
+      <label for="Relay3DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay3DurationOff" id="Relay3DurationOff"/>
+      </div>
+      <div class="RelayRangeFields3">
+      <br/>
+      <label for="Relay3Inverted">Inverted</label>
+      <input id="Relay3Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay3RangeMetric">Range Metric</label>
+      <select name="Relay3RangeMetric" id="Relay3RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay3RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay3RangeMin" id="Relay3RangeMin"/>
+      <br />
+      <label for="Relay3RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay3RangeMax" id="Relay3RangeMax"/>
+	  <br />
+      <label for="Relay3PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay3PulseTime" id="Relay3PulseTime"/>
+      <br />
+      <label for="Relay3PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay3PulseSpace" id="Relay3PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields3">
+      <br/>
+      <input id="en3" type="checkbox"/>
+      <label for="en3"></label>
+      <div id="rel3" class="slide"></div>
+      <div id="ti3"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#4</legend>
+	<label for="Relay4Enable"></label>
+	<input id="Relay4Enable" type="checkbox"/>
+    <div class="conditionalFields4">
+      <label for="Relay4Type">Type</label>
+      <select name="Relay4Type" id="Relay4Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay4Name">Name</label>
+      <input type="text" value="" name="Relay4Name" id="Relay4Name"/>
+      <div class="RelayTimerFields4">
+      <br/>
+      <label for="Relay4DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay4DurationOn" id="Relay4DurationOn"/>
+      <br/>
+      <label for="Relay4DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay4DurationOff" id="Relay4DurationOff"/>
+      </div>
+      <div class="RelayRangeFields4">
+      <br/>
+      <label for="Relay4Inverted">Inverted</label>
+      <input id="Relay4Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay4RangeMetric">Range Metric</label>
+      <select name="Relay4RangeMetric" id="Relay4RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay4RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay4RangeMin" id="Relay4RangeMin"/>
+      <br />
+      <label for="Relay4RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay4RangeMax" id="Relay4RangeMax"/>
+	  <br />
+      <label for="Relay4PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay4PulseTime" id="Relay4PulseTime"/>	
+      <br />
+      <label for="Relay4PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay4PulseSpace" id="Relay4PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields4">
+      <br/>
+      <input id="en4" type="checkbox"/>
+      <label for="en4"></label>
+      <div id="rel4" class="slide"></div>
+      <div id="ti4"></div>
+      </div>
+    </div>
+  </fieldset>
+
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#5</legend>
+	<label for="Relay5Enable"></label>
+	<input id="Relay5Enable" type="checkbox"/>
+    <div class="conditionalFields5">
+      <label for="Relay5Type">Type</label>
+      <select name="Relay5Type" id="Relay5Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay5Name">Name</label>
+      <input type="text" value="" name="Relay5Name" id="Relay5Name"/>
+      <div class="RelayTimerFields5">
+      <br/>
+      <label for="Relay5DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay5DurationOn" id="Relay5DurationOn"/>
+      <br/>
+      <label for="Relay5DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay5DurationOff" id="Relay5DurationOff"/>
+      </div>
+      <div class="RelayRangeFields5">
+      <br/>
+      <label for="Relay5Inverted">Inverted</label>
+      <input id="Relay5Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay5RangeMetric">Range Metric</label>
+      <select name="Relay5RangeMetric" id="Relay5RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay5RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay5RangeMin" id="Relay5RangeMin"/>
+      <br />
+      <label for="Relay5RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay5RangeMax" id="Relay5RangeMax"/>
+	  <br />
+      <label for="Relay5PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay5PulseTime" id="Relay5PulseTime"/>
+      <br />
+      <label for="Relay5PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay5PulseSpace" id="Relay5PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields5">
+      <br/>
+      <input id="en5" type="checkbox"/>
+      <label for="en5"></label>
+      <div id="rel5" class="slide"></div>
+      <div id="ti5"></div>
+      </div>
+    </div>
+  </fieldset>
+
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#6</legend>
+	<label for="Relay6Enable"></label>
+	<input id="Relay6Enable" type="checkbox"/>
+    <div class="conditionalFields6">
+      <label for="Relay6Type">Type</label>
+      <select name="Relay6Type" id="Relay6Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay6Name">Name</label>
+      <input type="text" value="" name="Relay6Name" id="Relay6Name"/>
+      <div class="RelayTimerFields6">
+      <br/>
+      <label for="Relay6DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay6DurationOn" id="Relay6DurationOn"/>
+      <br/>
+      <label for="Relay6DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay6DurationOff" id="Relay6DurationOff"/>
+      </div>
+      <div class="RelayRangeFields6">
+      <br/>
+      <label for="Relay6Inverted">Inverted</label>
+      <input id="Relay6Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay6RangeMetric">Range Metric</label>
+      <select name="Relay6RangeMetric" id="Relay6RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay6RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay6RangeMin" id="Relay6RangeMin"/>
+      <br />
+      <label for="Relay6RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay6RangeMax" id="Relay6RangeMax"/>
+	  <br />
+      <label for="Relay6PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay6PulseTime" id="Relay6PulseTime"/>
+      <br />
+      <label for="Relay6PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay6PulseSpace" id="Relay6PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields6">
+      <br/>
+      <input id="en6" type="checkbox"/>
+      <label for="en6"></label>
+      <div id="rel6" class="slide"></div>
+      <div id="ti6"></div>
+      </div>
+    </div>
+  </fieldset>
+
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#7</legend>
+	<label for="Relay7Enable"></label>
+	<input id="Relay7Enable" type="checkbox"/>
+    <div class="conditionalFields7">
+      <label for="Relay7Type">Type</label>
+      <select name="Relay7Type" id="Relay7Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay7Name">Name</label>
+      <input type="text" value="" name="Relay7Name" id="Relay7Name"/>
+      <div class="RelayTimerFields7">
+      <br/>
+      <label for="Relay7DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay7DurationOn" id="Relay7DurationOn"/>
+      <br/>
+      <label for="Relay7DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay7DurationOff" id="Relay7DurationOff"/>
+      </div>
+      <div class="RelayRangeFields7">
+      <br/>
+      <label for="Relay7Inverted">Inverted</label>
+      <input id="Relay7Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay7RangeMetric">Range Metric</label>
+      <select name="Relay7RangeMetric" id="Relay7RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay7RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay7RangeMin" id="Relay7RangeMin"/>
+      <br />
+      <label for="Relay7RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay7RangeMax" id="Relay7RangeMax"/>
+	  <br />
+      <label for="Relay7PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay7PulseTime" id="Relay7PulseTime"/>
+      <br />
+      <label for="Relay7PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay7PulseSpace" id="Relay7PulseSpace"/>	  
+      </div>
+      <div class="RelayDailyTimerFields7">
+      <br/>
+      <input id="en7" type="checkbox"/>
+      <label for="en7"></label>
+      <div id="rel7" class="slide"></div>
+      <div id="ti7"></div>
+      </div>
+    </div>
+  </fieldset>
+
+   <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#8</legend>
+	<label for="Relay8Enable"></label>
+	<input id="Relay8Enable" type="checkbox"/>
+    <div class="conditionalFields8">
+      <label for="Relay8Type">Type</label>
+      <select name="Relay8Type" id="Relay8Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay8Name">Name</label>
+      <input type="text" value="" name="Relay8Name" id="Relay8Name"/>
+      <div class="RelayTimerFields8">
+      <br/>
+      <label for="Relay8DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay8DurationOn" id="Relay8DurationOn"/>
+      <br/>
+      <label for="Relay8DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay8DurationOff" id="Relay8DurationOff"/>
+      </div>
+      <div class="RelayRangeFields8">
+      <br/>
+      <label for="Relay8Inverted">Inverted</label>
+      <input id="Relay8Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay8RangeMetric">Range Metric</label>
+      <select name="Relay8RangeMetric" id="Relay8RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay8RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay8RangeMin" id="Relay8RangeMin"/>
+      <br />
+      <label for="Relay8RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay8RangeMax" id="Relay8RangeMax"/>
+	  <br />
+      <label for="Relay8PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay8PulseTime" id="Relay8PulseTime"/>
+	  <br />
+      <label for="Relay8PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay8PulseSpace" id="Relay8PulseSpace"/>
+      </div>
+      <div class="RelayDailyTimerFields8">
+      <br/>
+      <input id="en8" type="checkbox"/>
+      <label for="en8"></label>
+      <div id="rel8" class="slide"></div>
+      <div id="ti8"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+     <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#9</legend>
+	<label for="Relay9Enable"></label>
+	<input id="Relay9Enable" type="checkbox"/>
+    <div class="conditionalFields9">
+      <label for="Relay9Type">Type</label>
+      <select name="Relay9Type" id="Relay9Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay9Name">Name</label>
+      <input type="text" value="" name="Relay9Name" id="Relay9Name"/>
+      <div class="RelayTimerFields9">
+      <br/>
+      <label for="Relay9DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay9DurationOn" id="Relay9DurationOn"/>
+      <br/>
+      <label for="Relay9DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay9DurationOff" id="Relay9DurationOff"/>
+      </div>
+      <div class="RelayRangeFields9">
+      <br/>
+      <label for="Relay9Inverted">Inverted</label>
+      <input id="Relay9Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay9RangeMetric">Range Metric</label>
+      <select name="Relay9RangeMetric" id="Relay9RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay9RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay9RangeMin" id="Relay9RangeMin"/>
+      <br />
+      <label for="Relay9RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay9RangeMax" id="Relay9RangeMax"/>
+	  <br />
+      <label for="Relay9PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay9PulseTime" id="Relay9PulseTime"/>
+	  <br />
+      <label for="Relay9PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay9PulseSpace" id="Relay9PulseSpace"/>
+      </div>
+      <div class="RelayDailyTimerFields9">
+      <br/>
+      <input id="en9" type="checkbox"/>
+      <label for="en9"></label>
+      <div id="rel9" class="slide"></div>
+      <div id="ti9"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+     <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#10</legend>
+	<label for="Relay10Enable"></label>
+	<input id="Relay10Enable" type="checkbox"/>
+    <div class="conditionalFields10">
+      <label for="Relay10Type">Type</label>
+      <select name="Relay10Type" id="Relay10Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay10Name">Name</label>
+      <input type="text" value="" name="Relay10Name" id="Relay10Name"/>
+      <div class="RelayTimerFields10">
+      <br/>
+      <label for="Relay10DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay10DurationOn" id="Relay10DurationOn"/>
+      <br/>
+      <label for="Relay10DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay10DurationOff" id="Relay10DurationOff"/>
+      </div>
+      <div class="RelayRangeFields10">
+      <br/>
+      <label for="Relay10Inverted">Inverted</label>
+      <input id="Relay10Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay10RangeMetric">Range Metric</label>
+      <select name="Relay10RangeMetric" id="Relay10RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay10RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay10RangeMin" id="Relay10RangeMin"/>
+      <br />
+      <label for="Relay10RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay10RangeMax" id="Relay10RangeMax"/>
+	  <br />
+      <label for="Relay10PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay10PulseTime" id="Relay10PulseTime"/>
+      <br />
+      <label for="Relay10PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay10PulseSpace" id="Relay10PulseSpace"/>
+      </div>
+      <div class="RelayDailyTimerFields10">
+      <br/>
+      <input id="en10" type="checkbox"/>
+      <label for="en10"></label>
+      <div id="rel10" class="slide"></div>
+      <div id="ti10"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+       <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#11</legend>
+	<label for="Relay11Enable"></label>
+	<input id="Relay11Enable" type="checkbox"/>
+    <div class="conditionalFields11">
+      <label for="Relay11Type">Type</label>
+      <select name="Relay11Type" id="Relay11Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay11Name">Name</label>
+      <input type="text" value="" name="Relay11Name" id="Relay11Name"/>
+      <div class="RelayTimerFields11">
+      <br/>
+      <label for="Relay11DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay11DurationOn" id="Relay11DurationOn"/>
+      <br/>
+      <label for="Relay11DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay11DurationOff" id="Relay11DurationOff"/>
+      </div>
+      <div class="RelayRangeFields11">
+      <br/>
+      <label for="Relay11Inverted">Inverted</label>
+      <input id="Relay11Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay11RangeMetric">Range Metric</label>
+      <select name="Relay11RangeMetric" id="Relay11RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay11RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay11RangeMin" id="Relay11RangeMin"/>
+      <br />
+      <label for="Relay11RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay11RangeMax" id="Relay11RangeMax"/>
+	  <br />
+      <label for="Relay11PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay11PulseTime" id="Relay11PulseTime"/>
+      <br />
+      <label for="Relay11PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay11PulseSpace" id="Relay11PulseSpace"/>
+      </div>
+      <div class="RelayDailyTimerFields11">
+      <br/>
+      <input id="en11" type="checkbox"/>
+      <label for="en11"></label>
+      <div id="rel11" class="slide"></div>
+      <div id="ti11"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+       <fieldset class="ui-widget ui-widget-content ui-corner-all">
+    <legend>#12</legend>
+	<label for="Relay12Enable"></label>
+	<input id="Relay12Enable" type="checkbox"/>
+    <div class="conditionalFields12">
+      <label for="Relay12Type">Type</label>
+      <select name="Relay12Type" id="Relay12Type">
+        <option value="DailyTimer">Daily Timer</option>
+        <option value="Timer">Timer</option>
+        <option value="Range">Range</option>
+      </select>
+      <br/>
+      <label for="Relay12Name">Name</label>
+      <input type="text" value="" name="Relay12Name" id="Relay12Name"/>
+      <div class="RelayTimerFields12">
+      <br/>
+      <label for="Relay12DurationOn">Duration On</label>
+      <input type="text" value="" name="Relay12DurationOn" id="Relay12DurationOn"/>
+      <br/>
+      <label for="Relay12DurationOff">Duration Off</label>
+      <input type="text" value="" name="Relay12DurationOff" id="Relay12DurationOff"/>
+      </div>
+      <div class="RelayRangeFields12">
+      <br/>
+      <label for="Relay12Inverted">Inverted</label>
+      <input id="Relay12Inverted" type="checkbox"/>
+      <br/>      
+      <label for="Relay12RangeMetric">Range Metric</label>
+      <select name="Relay12RangeMetric" id="Relay12RangeMetric">
+      </select>
+      <br/>
+      <label for="Relay12RangeMin">Range Min</label>
+      <input type="text" value="" name="Relay12RangeMin" id="Relay12RangeMin"/>
+      <br />
+      <label for="Relay12RangeMax">Range Max</label>
+      <input type="text" value="" name="Relay12RangeMax" id="Relay12RangeMax"/>
+	  <br />
+      <label for="Relay12PulseTime">Pulse Time(MS)</label>
+      <input type="text" value="" name="Relay12PulseTime" id="Relay12PulseTime"/>
+      <br />
+      <label for="Relay12PulseSpace">Pulse Space(Minutes)</label>
+      <input type="text" value="" name="Relay12PulseSpace" id="Relay12PulseSpace"/>
+      </div>
+      <div class="RelayDailyTimerFields12">
+      <br/>
+      <input id="en12" type="checkbox"/>
+      <label for="en12"></label>
+      <div id="rel12" class="slide"></div>
+      <div id="ti12"></div>
+      </div>
+    </div>
+  </fieldset>
+  
+</fieldset>

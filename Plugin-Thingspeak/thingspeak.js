@@ -1,4 +1,4 @@
-var thingspeakInit = function() {
+var ThingspeakInit = function() {
 	var pluginEnabled = (config.config.output.Thingspeak.enabled === 'true');
 	$("#API").val(config.config.output.Thingspeak.writeapi);
 	$("#API").change(function() { config.config.output.Thingspeak.writeapi = $(this).val(); });

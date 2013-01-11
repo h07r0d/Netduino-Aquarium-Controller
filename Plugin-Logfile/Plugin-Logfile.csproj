@@ -58,10 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Logfile.htm" />
-    <Content Include="logfile.js" />
+    <Content Include="Logfile.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+\
+copy $(ProjectDir)$(TargetName).htm g:\plugins\
+copy $(ProjectDir)$(TargetName).js g:\files\$(TargetName).min.js</PostBuildEvent>
   </PropertyGroup>
 </Project>

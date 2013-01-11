@@ -5,9 +5,11 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
-using WebServer;
-
+using Microsoft.SPOT.Net;
+using Microsoft.SPOT.Net.NetworkInformation;
+using SecretLabs.NETMF.Hardware.Netduino;
+using Webserver;
+using NetduinoPlusTelnet;
 
 namespace Controller
 {
@@ -30,11 +32,12 @@ namespace Controller
 	/// <param name="_sender">Any necessary data to complete the response</param>
 	public delegate void WebResponseEventHandler(Object _sender);
 
-	public class Program
+	public class Controller
 	{
 		public const string PluginFolder = @"\SD\plugins\";
 		public const string FragmentFolder = @"\SD\fragments\";
 		public const string ConfigFile = @"\SD\config.js";
+        public const string IndexFile = @"\SD\index.html";
 
 		/// <summary>
 		/// Utility object to build any static html that can be built on boot
@@ -74,62 +77,21 @@ namespace Controller
 			if (ope != null) ope(ope, _data);
 		}
 
-		/// <summary>
-		/// Delegate to process web requests
-		/// </summary>
-		/// <param name="request">Request item received from Listener</param>
-		/// <remarks>Very much WIP</remarks>
-		private static void WebCommandReceived(Request _request)
-		{			
-			try
-			{
-				string requestString = _request.BaseUri.Substring(1);	// skip leading slash
-
-				// check ResponseHandlerList for matching response
-				WebResponseEventHandler handler = (WebResponseEventHandler)m_eventHandlerList[requestString];
-				if (handler != null)
-				{
-					// Call the matched handler with the Request object.
-					// <WIP>
-					/*handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
-						_request.Querystring["status"].ToString()));*/
-					// </WIP>
-				}
-				else
-				{
-					throw new NullReferenceException("No matching Response Handler found");
-				}
-				/*
-				string content = HtmlGeneral.HtmlStart + "<h1>Success</h1>" + HtmlGeneral.HtmlEnd;
-				string header = HttpGeneral.GetHttpHeader(content.Length, "text/html", 10);
-				result = header + content;
-				Debug.Print("\t\trequest.URI="+request.Uri);				
-				 * */
-			}
-			catch (Exception ex)
-			{
-				Debug.Print(ex.StackTrace);
-				/*
-				string content = HtmlGeneral.HtmlStart + "<h1>500 server error.</h1>" + "<h3>Uri: " + request.Uri + "</h3>";
-				content += "<p>Error: " + ex.StackTrace + "</p>" + HtmlGeneral.HtmlEnd;
-				string header = HttpGeneral.Get500Header(content.Length);
-				result = header + content;
-				 * */
-			}
-		}
-
 
 		public static void Main()
 		{
-			// Initialize required components
+			// Initialize required components 
 			bootstrap();
 			// All plugins have been spun out and are running
 
 			// <WIP>
 			// All web server components are still very WIP, not functional
 			// Startup Web Frontend
-			// Listener webServer = new Listener(WebCommandReceived);
-			// </WIP>
+            Server WebServer = new Server();
+
+            //Start Telnet Server.  Used for Calibration of sensors
+            TelnetServer telnetTest = new TelnetServer(timeout: 60);
+            telnetTest.begin(false);
 
 			Debug.EnableGCMessages(true);
 			Debug.Print(Debug.GC(true) + " bytes");
@@ -149,9 +111,15 @@ namespace Controller
 			 * Unfortunately, the DS1307 seems to be causing trouble with any AnalogInputs
 			 * when being read from in I2C.  Not sure why....using an NST server instead
 			 */
+            NetworkInterface NetworkInt = Microsoft.SPOT.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()[0];
+            //Set Static IP
+            NetworkInt.EnableStaticIP("192.168.3.20","255.255.255.0","192.168.3.1");
+            Debug.Print("IP Address is: " + Microsoft.SPOT.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces()[0].IPAddress);
 
 			// Set system time
+            Thread.Sleep(5000);
 			DateTime.Now.SetFromNetwork(new TimeSpan(-5, 0, 0));
+            Debug.Print("The current system time was set to " + DateTime.Now.ToString() + " from the network.");
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
@@ -163,11 +131,13 @@ namespace Controller
 
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element.
-			Hashtable config = ((Hashtable)JSON.JsonDecodeConfig(ConfigFile))["config"] as Hashtable;
+            Hashtable config = ((Hashtable)JSON.JsonDecodeConfig(ConfigFile))["config"] as Hashtable;
 
 			// parse each plugin type
 			foreach (string pluginType in config.Keys)
-				ParseConfig(config[pluginType] as Hashtable,pluginType);
+            {
+                ParseConfig(config[pluginType] as Hashtable, pluginType);
+            }
 
 			config = null;
 			// config parsed, write out html index
@@ -247,69 +217,98 @@ namespace Controller
 		/// <param name="_config"></param>
 		private static void LoadPlugin(string _name, string _type, Hashtable _config)
 		{
-			try
-			{
-				using (FileStream fs = new FileStream(PluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
-				{
-					// Create an assembly
-					byte[] pluginBytes = new byte[(int)fs.Length];
-					fs.Read(pluginBytes, 0, (int)fs.Length);
-					Assembly asm = Assembly.Load(pluginBytes);
+            try
+            {
+                using (FileStream fs = new FileStream(PluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
+                {
+                    // Create an assembly
+                    byte[] pluginBytes = new byte[(int)fs.Length];
+                    fs.Read(pluginBytes, 0, (int)fs.Length);
+                    Assembly asm = Assembly.Load(pluginBytes);
 
-					foreach (Type type in asm.GetTypes())
-					{
-						Debug.Print(type.FullName);
-						if (type.FullName.Contains(_name))
-						{
-							// call the constructor with the hashtable as constructor
-							// This allows individual plugins to parse out the components they need,
-							// and the main application doesn't need to know how each needs to be called
-							object plugin = (object)type.GetConstructor(new[] { typeof(object) }).Invoke(new object[] { _config });
-							switch (_type)
-							{
-								case "input":
-									// Input plugins should spin out a timer
-									InputPlugin ip = (InputPlugin)plugin;
-									m_pluginScheduler.AddTask(
-										new PluginEventHandler(ip.TimerCallback),
-										m_inputAvailable,
-										ip.TimerInterval,
-										ip.TimerInterval,
-										true);
+                    foreach (Type type in asm.GetTypes())
+                    {
+                        Debug.Print(type.FullName);
+                        if (type.FullName.Contains(_name))
+                        {
+                            // call the constructor with the hashtable as constructor
+                            // This allows individual plugins to parse out the components they need,
+                            // and the main application doesn't need to know how each needs to be called
+                            object plugin;
+                            switch(_name)
+                            { 
+                                //case "Temperature":
+                                //plugin = new Plugins.Temperature(_config); 
+                                //    break;
+                                //case "AquariumStatus":
+                                //    plugin=new Plugins.AquariumStatus(_config);
+                                //    break;
+                                //case "CO2":
+                                //    plugin = new Plugins.CO2(_config);
+                                //    break;
+                                //case "ElectricalConductivity":
+                                //    plugin = new Plugins.ElectricalConductivity(_config);
+                                //    break;
+                                //case "Thingspeak":
+                                //    plugin = new Plugins.Thingspeak(_config);
+                                //    break;
+                                //case "Relays":
+                                //    plugin = new Plugins.Relays(_config);
+                                //    break;
+                                default:
+                                plugin = (object)type.GetConstructor(new[] { typeof(object) }).Invoke(new object[] { _config });
+                                break;
+                            }
+                            switch (_type)
+                            {
+                                case "input":
+                                    // Input plugins should spin out a timer
+                                    InputPlugin ip = (InputPlugin)plugin;
+                                    m_pluginScheduler.AddTask(
+                                        new PluginEventHandler(ip.TimerCallback),
+                                        m_inputAvailable,
+                                        ip.TimerInterval,
+                                        ip.TimerInterval,
+                                        true);
 
-									// There is a special case with the pH plugin.  The pH Stamp can receive a temperature
-									// reading to make the pH more accurate. In order to properly update the value, the pH
-									// plugin registers an output event to catch a temperature update.
-									if (_name.Equals("pH") || _name.Equals("ElectricalConductivity"))
-										m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)ip.EventHandler);
+                                    // There is a special case with some plugins.  The pH Stamp can receive a temperature
+                                    // reading to make the pH more accurate. In order to properly update the value, the pH
+                                    // plugin registers an output event to catch a temperature update.
+                                    if (ip.ImplimentsEventHandler())
+                                        m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)ip.EventHandler);
+                                    break;
+                                case "output":
+                                    OutputPlugin op = (OutputPlugin)plugin;
+                                    // Output plugins need to register an event handler
+                                    m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)op.EventHandler);
+                                    break;
+                                case "control":
+                                    // Control Plugins contain a command set that is parsed out into individual timers
+                                    // They also register a Web Response Handler to allow the web front end to call ExecuteControl
+                                    ControlPlugin cp = (ControlPlugin)plugin;
+                                    foreach (CommandData item in cp.Commands())
+                                        m_pluginScheduler.AddTask(new PluginEventHandler(cp.ExecuteControl),
+                                            item,
+                                            item.FirstRun,
+                                            item.RepeatTimeSpan,
+                                            true);
 
-									break;
-								case "output":
-									// Output plugins need to register an event handler
-									OutputPlugin op = (OutputPlugin)plugin;
-									m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)op.EventHandler);
-									break;
-								case "control":
-									// Control Plugins contain a command set that is parsed out into individual timers
-									// They also register a Web Response Handler to allow the web front end to call ExecuteControl
-									ControlPlugin cp = (ControlPlugin)plugin;
-									foreach (DictionaryEntry item in cp.Commands())
-										m_pluginScheduler.AddTask(new PluginEventHandler(cp.ExecuteControl),
-											item.Value,
-											(TimeSpan)item.Key,
-											new TimeSpan(24, 0, 0),		// assuming controls should repeat every 24 hours
-											true);
-
-									m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
-									break;
-								default:
-									break;
-							}
-						}
-					}
-				}
-			}
-			catch (IOException) { throw; }
+                                    m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
+                                    
+                                    //Some control plugins need to receive the sensor values from the input plugins.
+                                    //if the plugin says its implimented, set up to send on receive.
+                                    if (cp.ImplimentsEventHandler())
+                                        m_eventHandlerList.AddHandler("OutputPlugins", (OutputPluginEventHandler)cp.EventHandler);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (IOException) { throw; }
+            //catch (NullReferenceException) { Debug.Print("Null Reference exception error loading plugin: " + _name); }
 			return;
 		}
 	}

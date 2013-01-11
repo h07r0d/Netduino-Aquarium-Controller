@@ -17,21 +17,33 @@ namespace Controller
 		public void Dispose() { }
 
 		private byte[] m_closeDiv;
-		private readonly string m_hostUrl = @"http://fishfornerds.com/files/";
+		private readonly string m_hostUrl = @"files/";
 		private readonly string m_headerScriptFileName = "headerScripts.tmp";
 		private readonly string m_scriptCallFileName = "scriptCall.tmp";
 		private ArrayList m_controlPlugins;
 		private ArrayList m_inputPlugins;
 		private ArrayList m_outputPlugins;
 
-
+		/// <summary>
+		/// Constructor, initializes temp files and necessary paths.
+		/// </summary>
+		/// <remarks>
+		/// When the HtmlBuilder is initialized, check for any temp files and remove them.
+		/// This ensures that the index.htm file that is built doesn't have any errors from
+		/// the previous runs
+		/// </remarks>		
 		public HtmlBuilder()
 		{
 			m_controlPlugins = new ArrayList();
 			m_inputPlugins = new ArrayList();
 			m_outputPlugins = new ArrayList();
 			m_closeDiv = Encoding.UTF8.GetBytes("</div>");
+
+			// just delete it, don't check for exist, as no exception will be thrown on missing file
+			File.Delete(Controller.FragmentFolder + m_headerScriptFileName);
+			File.Delete(Controller.FragmentFolder + m_scriptCallFileName);
 		}
+
 		/// <summary>
 		/// Add required js and html for a specific plugin to the index generator
 		/// </summary>
@@ -47,7 +59,7 @@ namespace Controller
 				script.Append(m_hostUrl);
 			script.Append(_scriptName);
 			script.Append(".min.js\" type=\"text/javascript\"></script>");
-			using (FileStream fs = new FileStream(Program.FragmentFolder + m_headerScriptFileName, FileMode.Append))
+			using (FileStream fs = new FileStream(Controller.FragmentFolder + m_headerScriptFileName, FileMode.Append))
 			{
 				byte[] text = script.ToBytes();
 				fs.Write(text, 0, text.Length);
@@ -59,7 +71,7 @@ namespace Controller
 			script.Append("$(");
 			script.Append(_scriptName);
 			script.Append("Init);");
-			using (FileStream fs = new FileStream(Program.FragmentFolder + m_scriptCallFileName, FileMode.Append))
+			using (FileStream fs = new FileStream(Controller.FragmentFolder + m_scriptCallFileName, FileMode.Append))
 			{
 				byte[] text = script.ToBytes();
 				fs.Write(text, 0, text.Length);
@@ -90,20 +102,20 @@ namespace Controller
 		public void GenerateIndex()
 		{
 			byte[] stringBytes;
-			FileStream index = new FileStream(@"\SD\index.html", FileMode.Create);
+			FileStream index = new FileStream(Controller.IndexFile, FileMode.Create);
 			
-			FileStream fragment = new FileStream(Program.FragmentFolder+"header.htm", FileMode.Open);
+			FileStream fragment = new FileStream(Controller.FragmentFolder+"header.htm", FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();
 			index.Flush();
 
 			// Header written, add JS Script links
-			fragment = new FileStream(Program.FragmentFolder + m_headerScriptFileName, FileMode.Open);
+			fragment = new FileStream(Controller.FragmentFolder + m_headerScriptFileName, FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();
 			index.Flush();
 			
-			fragment = new FileStream(Program.FragmentFolder+"body-start.htm", FileMode.Open);
+			fragment = new FileStream(Controller.FragmentFolder+"body-start.htm", FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();
 			index.Flush();
@@ -127,17 +139,17 @@ namespace Controller
 				return;
 			
 			// close body
-			fragment = new FileStream(Program.FragmentFolder+"body-end.htm", FileMode.Open);
+			fragment = new FileStream(Controller.FragmentFolder+"body-end.htm", FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();
 				
 			// add JS calls to initiate front end
-			fragment = new FileStream(Program.FragmentFolder + m_scriptCallFileName, FileMode.Open);
+			fragment = new FileStream(Controller.FragmentFolder + m_scriptCallFileName, FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();			
 
 			// close document
-			fragment = new FileStream(Program.FragmentFolder+"footer.htm", FileMode.Open);
+			fragment = new FileStream(Controller.FragmentFolder+"footer.htm", FileMode.Open);
 			fragment.CopyTo(index);
 			fragment.Close();
 
@@ -146,8 +158,8 @@ namespace Controller
 			index.Close();					
 
 			// delete temp files used in building index
-			File.Delete(Program.FragmentFolder + m_headerScriptFileName);
-			File.Delete(Program.FragmentFolder + m_scriptCallFileName);
+			File.Delete(Controller.FragmentFolder + m_headerScriptFileName);
+			File.Delete(Controller.FragmentFolder + m_scriptCallFileName);
 
 		}
 
@@ -181,7 +193,7 @@ namespace Controller
 			{
 				foreach (string item in currArray)
 				{
-					fragment = new FileStream(Program.PluginFolder + item + ".htm", FileMode.Open);
+					fragment = new FileStream(Controller.PluginFolder + item + ".htm", FileMode.Open);
 					fragment.CopyTo(_index);
 					fragment.Close();
 				}
