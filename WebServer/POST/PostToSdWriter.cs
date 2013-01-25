@@ -45,8 +45,8 @@ namespace Webserver.POST
                 Debug.Print(Debug.GC(true).ToString());
                 Debug.Print(Debug.GC(true).ToString());
                 
-                //fs.Write(_buffer,_startAt,_buffer.Length-_startAt);
-                //availableBytes -= _buffer.Length;
+                fs.Write(_buffer,_startAt,_buffer.Length-_startAt);
+                availableBytes -= (_buffer.Length-_startAt);
 
                 _buffer = new byte[availableBytes > Settings.MAX_REQUESTSIZE ? Settings.MAX_REQUESTSIZE : availableBytes];
 
@@ -55,12 +55,12 @@ namespace Webserver.POST
                     if(availableBytes < Settings.MAX_REQUESTSIZE)
                         _buffer = new byte[availableBytes];
 
-                    while (_e.Client.Available < _buffer.Length)
-                        Thread.Sleep(1);
+                   // while (_e.Client.Available < _buffer.Length)
+                   //     Thread.Sleep(1);
 
                     _e.Client.Receive(_buffer, _buffer.Length, SocketFlags.None);
 					bufferContents = Encoding.UTF8.GetChars(_buffer);
-					object json = Extensions.JSON.JsonDecode(new string(bufferContents));
+					//object json = Extensions.JSON.JsonDecode(new string(bufferContents));
 					Debug.Print(new string(bufferContents));
                     fs.Write(_buffer, 0, _buffer.Length);
                     availableBytes -= Settings.MAX_REQUESTSIZE;
