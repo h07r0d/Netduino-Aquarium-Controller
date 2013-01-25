@@ -153,7 +153,7 @@ namespace Controller
 			 */
 
 			// Set system time
-			DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
+			DateTime.Now.SetFromNetwork(new TimeSpan(-5, 0, 0));
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
@@ -210,7 +210,7 @@ namespace Controller
 		/// <param name="_name">Name of Plugin being searched for</param>
 		private static void ParseConfig(Hashtable _section, string _type = null, string _name = null)
 		{
-			bool localHtmlResources = true;
+			bool localHtmlResources = false;
 			foreach (string name in _section.Keys)
 			{
 				if (_section[name] is Hashtable)

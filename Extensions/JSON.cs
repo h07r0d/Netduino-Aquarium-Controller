@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
-using Extensions;
 
-namespace Controller
+namespace Extensions
 {
 	/// <summary>
 	/// This class encodes and decodes JSON strings.

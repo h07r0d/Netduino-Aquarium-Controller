@@ -35,7 +35,7 @@ namespace Webserver.Responses
         /// <returns></returns>
         public override bool SendResponse(Request e)
         {
-            string filePath = e.URL;
+            string filePath = Settings.ROOT_PATH + e.URL;
             bool isDirectory = false;
 
             char[] chars = filePath.ToCharArray();

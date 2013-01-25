@@ -90,9 +90,10 @@ namespace Webserver
 						Debug.Print("Client Connected");
                         int availableBytes = 0;
 						int LoopCount = 0;
+						int newAvBytes = 0;
 						Thread.Sleep(100);
 						//if not all incoming bytes were received by the socket
-						do
+						/*do
 						{
 							if (availableBytes < clientSocket.Available)
 							{
@@ -103,6 +104,20 @@ namespace Webserver
 								LoopCount += 1;
 							Thread.Sleep(1);
 						} while (availableBytes == 0 || LoopCount < 300);
+						*/
+						do
+						{
+							newAvBytes = clientSocket.Available - availableBytes;
+
+							if (newAvBytes == 0)
+								break;
+
+							availableBytes += newAvBytes;
+							newAvBytes = 0;
+							Thread.Sleep(1);
+						} while (true);
+
+						Debug.Print("Available Bytes: " + availableBytes);
 
                         if ( availableBytes > 0 )
                         {
