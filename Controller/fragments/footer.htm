@@ -1,1 +1,1 @@
-﻿$("#tabs").tabs();$("input:submit").button().click(function(){$.post("/SaveConfig", JSON.stringify(config))});});</script></body></html>
+﻿$("#tabs").tabs();$("body").on({ajaxStart:function(){$(this).addClass("loading");},ajaxStop:function(){$(this).removeClass("loading");}});$("input:submit").button().click(function(){$.post("/SaveConfig", JSON.stringify(config))});});</script></body></html>
