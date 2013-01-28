@@ -36,9 +36,7 @@ namespace Webserver.POST
             Debug.Print(Debug.GC(true).ToString());
 
             int availableBytes = Convert.ToInt32(_e.Headers["Content-Length"].ToString().TrimEnd('\r'));
-			char[] bufferContents = Encoding.UTF8.GetChars(_buffer);
-			Debug.Print(new string(bufferContents));
-
+			
             try
             {
                 FileStream fs = new FileStream(Settings.POST_TEMP_PATH, FileMode.Create, FileAccess.Write);
@@ -59,10 +57,7 @@ namespace Webserver.POST
                    //     Thread.Sleep(1);
 
                     _e.Client.Receive(_buffer, _buffer.Length, SocketFlags.None);
-					bufferContents = Encoding.UTF8.GetChars(_buffer);
-					//object json = Extensions.JSON.JsonDecode(new string(bufferContents));
-					Debug.Print(new string(bufferContents));
-                    fs.Write(_buffer, 0, _buffer.Length);
+			        fs.Write(_buffer, 0, _buffer.Length);
                     availableBytes -= Settings.MAX_REQUESTSIZE;
                 }
 
