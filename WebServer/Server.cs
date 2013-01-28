@@ -39,10 +39,11 @@ namespace Webserver
         public int _PortNumber { get; private set; }
         private Socket _ListeningSocket = null;
         private Hashtable _Responses = new Hashtable( );
+		private Thread _webserverThread;
         
 
         /// <summary>
-        /// Creates an NeonMika.Webserver instance running in a seperate thread
+        /// Creates an NeonMika.Webserver instance
         /// </summary>
         /// <param name="portNumber">The port to listen for incoming requests</param>
         public Server(int portNumber = 80, bool DhcpEnable = true, string ipAddress = "", string subnetMask = "", string gatewayAddress = "")
@@ -71,9 +72,24 @@ namespace Webserver
             _ListeningSocket.Bind(new IPEndPoint(IPAddress.Any, portNumber));
             _ListeningSocket.Listen(4);
 
-            var webserverThread = new Thread(WaitingForRequest);
-            webserverThread.Start( );
         }
+
+		/// <summary>
+		/// Start the webserver thread
+		/// </summary>
+		public void Start()
+		{
+			_webserverThread = new Thread(WaitingForRequest);
+			_webserverThread.Start(); 
+		}
+
+		/// <summary>
+		/// Stop the webserver thread
+		/// </summary>
+		public void Stop()
+		{
+			_webserverThread.Abort();
+		}
 
         /// <summary>
         /// Waiting for client to connect.
@@ -88,8 +104,7 @@ namespace Webserver
                     using ( Socket clientSocket = _ListeningSocket.Accept( ) )
                     {
 						Debug.Print("Client Connected");
-                        int availableBytes = 0;
-						int LoopCount = 0;
+                        int availableBytes = 0;						
 						int newAvBytes = 0;
 						Thread.Sleep(100);
 						//if not all incoming bytes were received by the socket
