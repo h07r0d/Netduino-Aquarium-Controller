@@ -160,7 +160,7 @@ namespace Controller
 			//clock.Dispose();
 			Debug.Print(DateTime.Now.ToString());
 
-			m_htmlBuilder = new HtmlBuilder();
+			m_htmlBuilder = new HtmlBuilder(/* Use local file resources?*/false);
 			m_eventHandlerList = new EventHandlerList();
 			m_pluginScheduler = new PluginScheduler();
 
@@ -209,8 +209,7 @@ namespace Controller
 		/// <param name="_type">Plugin type being processed</param>
 		/// <param name="_name">Name of Plugin being searched for</param>
 		private static void ParseConfig(Hashtable _section, string _type = null, string _name = null)
-		{
-			bool localHtmlResources = false;
+		{			
 			foreach (string name in _section.Keys)
 			{
 				if (_section[name] is Hashtable)
@@ -226,13 +225,13 @@ namespace Controller
 					switch (_type)
 					{
 						case "input":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Input, localHtmlResources);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Input);
 							break;
 						case "output":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Output, localHtmlResources);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Output);
 							break;
 						case "control":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Control, localHtmlResources);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Control);
 							break;
 						default:
 							break;

@@ -18,6 +18,7 @@ namespace Controller
 		public void Dispose() { }
 
 		private byte[] m_closeDiv;
+		private bool m_useLocal;
 		private readonly string m_hostUrl = @"http://fishfornerds.com/files/";
 		private readonly string m_headerScriptFileName = "headerScripts.tmp";
 		private readonly string m_scriptCallFileName = "scriptCall.tmp";
@@ -25,20 +26,24 @@ namespace Controller
 		private ArrayList m_inputPlugins;
 		private ArrayList m_outputPlugins;
 
+
+		public HtmlBuilder() : this(true) { }
 		/// <summary>
 		/// Constructor, initializes temp files and necessary paths.
 		/// </summary>
+		/// <param name="_local">Use local resources or web sourced?</param>
 		/// <remarks>
 		/// When the HtmlBuilder is initialized, check for any temp files and remove them.
 		/// This ensures that the index.htm file that is built doesn't have any errors from
 		/// the previous runs
 		/// </remarks>		
-		public HtmlBuilder()
+		public HtmlBuilder(bool _local)
 		{
 			m_controlPlugins = new ArrayList();
 			m_inputPlugins = new ArrayList();
 			m_outputPlugins = new ArrayList();
 			m_closeDiv = Encoding.UTF8.GetBytes("</div>");
+			m_useLocal = _local;
 
 			// just delete it, don't check for exist, as no exception will be thrown on missing file
 			try
@@ -59,17 +64,17 @@ namespace Controller
 		/// <param name="_scriptName">string containing the name of the plugins javascript files</param>
 		/// <param name="_type">class of plugin.  Different classes require different placement in the homepage</param>
 		/// <param name="_local">are all the resources for this plugin hosted on the Netduino, or off site?</param>
-		public void AddPlugin(string _scriptName, PluginType _type, bool _local)
+		public void AddPlugin(string _scriptName, PluginType _type)
 		{
 			// Add header js block
 			StringBuilder script = new StringBuilder();
 			script.Append("<script src=\"");
-			if (!_local)
+			if (!m_useLocal)
 				script.Append(m_hostUrl);
 			else
 				script.Append("plugins/");
 			script.Append(_scriptName);
-			if (!_local)
+			if (!m_useLocal)
 				script.Append(".min");
 			script.Append(".js\" type=\"text/javascript\"></script>");
 			using (FileStream fs = new FileStream(Controller.FragmentFolder + m_headerScriptFileName, FileMode.Append))
