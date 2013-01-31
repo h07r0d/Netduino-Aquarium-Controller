@@ -135,6 +135,7 @@ namespace Webserver
             string[] urlArguments = parameters.Split('&');
 
             _getArguments = Converter.ToHashtable(urlArguments, "=");
+			
         }
 
         #region IDisposable Members

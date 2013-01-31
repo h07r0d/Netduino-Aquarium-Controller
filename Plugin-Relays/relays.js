@@ -32,14 +32,13 @@ var RelaysInit = function() {
 		// AJAX call to Netduino to toggle relay status
 		onButton.click(function() { $(this).button("option","label", this.checked ? "On" : "Off");
 			var button = this;
+			var relayData = {};
+			relayData[relayNumber-1] = button.checked;
 			$.ajax({
 				url: '/Relays',
 				type: 'GET',
 				dataType: 'json',
-				data: {
-					relay: relayNumber-1,	//Relays are 0 indexed on the control system.
-					status: button.checked,
-				},
+				data: relayData,
 				success: function(result) {
 					
 				}

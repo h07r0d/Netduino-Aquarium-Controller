@@ -55,7 +55,6 @@ namespace Plugins
 		{
 			foreach (DictionaryEntry entry in request.GetArguments)
 				ExecuteControl(entry);
-			
 		}
 
 		/// <summary>
@@ -66,7 +65,7 @@ namespace Plugins
 		{
 			// Callback received a RelayCommand struct to execute			
 			var command = (DictionaryEntry)state;
-			Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
+			//Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
 			m_relayPins[(int)command.Key].Write((bool)command.Value);			
 		}
 
