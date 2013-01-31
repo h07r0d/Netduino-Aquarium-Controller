@@ -5,6 +5,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Text;
 using Webserver.Responses;
+using Extensions;
 
 namespace Webserver.POST
 {
@@ -39,18 +40,18 @@ namespace Webserver.POST
 			
             try
             {
-                FileStream fs = new FileStream(Settings.POST_TEMP_PATH, FileMode.Create, FileAccess.Write);
+                FileStream fs = new FileStream(Settings.PostTempPath, FileMode.Create, FileAccess.Write);
                 Debug.Print(Debug.GC(true).ToString());
                 Debug.Print(Debug.GC(true).ToString());
                 
                 fs.Write(_buffer,_startAt,_buffer.Length-_startAt);
                 availableBytes -= (_buffer.Length-_startAt);
 
-                _buffer = new byte[availableBytes > Settings.MAX_REQUESTSIZE ? Settings.MAX_REQUESTSIZE : availableBytes];
+                _buffer = new byte[availableBytes > Settings.MaxRequestSize ? Settings.MaxRequestSize : availableBytes];
 
                 while (availableBytes > 0)
                 {
-                    if(availableBytes < Settings.MAX_REQUESTSIZE)
+                    if(availableBytes < Settings.MaxRequestSize)
                         _buffer = new byte[availableBytes];
 
                    // while (_e.Client.Available < _buffer.Length)
@@ -58,7 +59,7 @@ namespace Webserver.POST
 
                     _e.Client.Receive(_buffer, _buffer.Length, SocketFlags.None);
 			        fs.Write(_buffer, 0, _buffer.Length);
-                    availableBytes -= Settings.MAX_REQUESTSIZE;
+                    availableBytes -= Settings.MaxRequestSize;
                 }
 
                 fs.Flush();

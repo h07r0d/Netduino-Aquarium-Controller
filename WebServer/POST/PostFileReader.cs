@@ -1,6 +1,6 @@
 using System;
-using Microsoft.SPOT;
 using System.IO;
+using Extensions;
 
 namespace Webserver.POST
 {
@@ -10,7 +10,7 @@ namespace Webserver.POST
 
         public PostFileReader()
         {
-            fs = new FileStream(Settings.POST_TEMP_PATH, FileMode.Open);
+            fs = new FileStream(Settings.PostTempPath, FileMode.Open);
         }
 
         public byte[] Read(int count)

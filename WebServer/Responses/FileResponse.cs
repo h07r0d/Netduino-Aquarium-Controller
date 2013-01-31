@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using Microsoft.SPOT;
 using System.Collections;
 using Microsoft.SPOT.Net.NetworkInformation;
+using Extensions;
 
 namespace Webserver.Responses
 {
@@ -37,9 +38,9 @@ namespace Webserver.Responses
         {
 			string filePath;
 			if (e.URL.Length > 0)
-				filePath = Settings.ROOT_PATH + e.URL;
+				filePath = Settings.RootPath + e.URL;
 			else
-				filePath = Settings.ROOT_PATH + "/index.html";
+				filePath = Settings.RootPath + "/index.html";
             bool isDirectory = false;
 
             char[] chars = filePath.ToCharArray();
@@ -103,7 +104,7 @@ namespace Webserver.Responses
                 {
                     Send200_OK(mType, (int)inputStream.Length, e.Client);
 
-                    byte[] readBuffer = new byte[Settings.FILE_BUFFERSIZE];
+                    byte[] readBuffer = new byte[Settings.FileBufferSize];
                     int sentBytes = 0;
 
                     //Sending parts in size of "Settings.FILE_BUFFERSIZE"

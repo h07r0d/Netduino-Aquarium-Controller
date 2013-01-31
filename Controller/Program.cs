@@ -33,10 +33,7 @@ namespace Controller
 
 	public class Controller
 	{
-		public const string PluginFolder = @"\SD\plugins\";
-		public const string FragmentFolder = @"\SD\fragments\";
-		public const string ConfigFile = @"\SD\config.js";
-		public const string IndexFile = @"\SD\index.html";
+		
 
 		/// <summary>
 		/// Utility object to build any static html that can be built on boot
@@ -125,7 +122,7 @@ namespace Controller
 
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element.
-			Hashtable config = ((Hashtable)JSON.JsonDecodeFromVar(ConfigFile))["config"] as Hashtable;
+			Hashtable config = ((Hashtable)JSON.JsonDecodeFromVar(Settings.ConfigFile))["config"] as Hashtable;
 
 			// parse each plugin type
 			foreach (string pluginType in config.Keys)
@@ -192,7 +189,7 @@ namespace Controller
 		{
 			try
 			{
-				using (FileStream fs = new FileStream(PluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
+				using (FileStream fs = new FileStream(Settings.PluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
 				{
 					// Create an assembly
 					byte[] pluginBytes = new byte[(int)fs.Length];

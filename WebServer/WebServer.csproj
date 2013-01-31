@@ -43,7 +43,6 @@
     <Compile Include="Responses\ResponseErrorType.cs" />
     <Compile Include="Responses\XMLResponse.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Graphics" />
