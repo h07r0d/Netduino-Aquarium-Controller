@@ -244,8 +244,8 @@ namespace Webserver
 		{
 			try
 			{
-				// Open LastPost
-				FileStream fs = new FileStream(Settings.ConfigFile, FileMode.OpenOrCreate, FileAccess.Write);
+				// Open LastPost, and config.js to overwrite
+				FileStream fs = new FileStream(Settings.ConfigFile, FileMode.Create, FileAccess.Write);
 				PostFileReader post = new PostFileReader();
 
 				// before new config settings are written down, config must be stored as a JS var, so write in the preamble
