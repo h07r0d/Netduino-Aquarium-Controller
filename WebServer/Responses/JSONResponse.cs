@@ -30,7 +30,7 @@ namespace Webserver.Responses
         /// <returns>True if URL refers to this method, otherwise false (false = SendRequest should not be executed) </returns>
         public override bool ConditionsCheckAndDataFill(Request e)
         {
-            _JSONObject.Clear();
+			_JSONObject = null;
             if (e.URL == this.URL)
                 _ResponseMethod(e, _JSONObject);
             else

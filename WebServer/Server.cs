@@ -26,7 +26,6 @@ namespace Webserver
     /// </summary>
     /// <param name="e">Access to GET or POST arguments,...</param>
     /// <param name="results">This Object gets converted into JSON on response</param>
-    /// <returns>True if URL refers to this method, otherwise false (false = SendRequest should not be executed) </returns>        
     public delegate void JSONResponseMethod(Request e, Object results);
 
     public delegate void POSTOperationMethod(Request e, PostFileReader access);

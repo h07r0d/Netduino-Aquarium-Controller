@@ -38,6 +38,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="Responses\FileResponse.cs" />
+    <Compile Include="Responses\JSONResponse.cs" />
     <Compile Include="Responses\Response.cs" />
     <Compile Include="Responses\ResponseErrorType.cs" />
     <Compile Include="Responses\XMLResponse.cs" />

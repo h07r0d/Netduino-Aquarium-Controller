@@ -243,7 +243,8 @@ namespace Controller
 											new TimeSpan(24, 0, 0),		// assuming controls should repeat every 24 hours
 											true);
 
-									m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
+									m_webServer.AddResponse(new Webserver.Responses.JSONResponse(_name, cp.HandleWebRequest));
+									//m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
 									break;
 								default:
 									break;
