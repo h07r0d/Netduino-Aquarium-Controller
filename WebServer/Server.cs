@@ -25,9 +25,9 @@ namespace Webserver
     /// JSON Expansion methods have to be in this form
     /// </summary>
     /// <param name="e">Access to GET or POST arguments,...</param>
-    /// <param name="results">This JsonArray gets converted into JSON on response</param>
+    /// <param name="results">This Object gets converted into JSON on response</param>
     /// <returns>True if URL refers to this method, otherwise false (false = SendRequest should not be executed) </returns>        
-    //public delegate void JSONResponseMethod(Request e, JsonArray results);
+    public delegate void JSONResponseMethod(Request e, Object results);
 
     public delegate void POSTOperationMethod(Request e, PostFileReader access);
 
@@ -107,19 +107,7 @@ namespace Webserver
                         int availableBytes = 0;						
 						int newAvBytes = 0;
 						Thread.Sleep(100);
-						//if not all incoming bytes were received by the socket
-						/*do
-						{
-							if (availableBytes < clientSocket.Available)
-							{
-								availableBytes = clientSocket.Available;
-								LoopCount = 0;
-							}
-							else
-								LoopCount += 1;
-							Thread.Sleep(1);
-						} while (availableBytes == 0 || LoopCount < 300);
-						*/
+						
 						do
 						{
 							newAvBytes = clientSocket.Available - availableBytes;

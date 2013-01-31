@@ -45,6 +45,12 @@ namespace Controller
 		private static HtmlBuilder m_htmlBuilder;
 
 		/// <summary>
+		/// Web Front End server.
+		/// <remarks>Needs to be created in order to register plugins to the Web Handlers.</remarks>
+		/// </summary>
+		private static Webserver.Server m_webServer = new Server();
+
+		/// <summary>
 		/// Scheduler for Plugin tasks
 		/// </summary>
 		private static PluginScheduler m_pluginScheduler;
@@ -76,62 +82,15 @@ namespace Controller
 			if (ope != null) ope(ope, _data);
 		}
 
-		/// <summary>
-		/// Delegate to process web requests
-		/// </summary>
-		/// <param name="request">Request item received from Listener</param>
-		/// <remarks>Very much WIP</remarks>
-		/*private static void WebCommandReceived(Request _request)
-		{			
-			try
-			{
-				string requestString = _request.BaseUri.Substring(1);	// skip leading slash
-
-				// check ResponseHandlerList for matching response
-				WebResponseEventHandler handler = (WebResponseEventHandler)m_eventHandlerList[requestString];
-				if (handler != null)
-				{
-					// Call the matched handler with the Request object.
-					// <WIP>
-					/*handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
-						_request.Querystring["status"].ToString()));
-					// </WIP>
-				}
-				else
-				{
-					throw new NullReferenceException("No matching Response Handler found");
-				}
-				/*
-				string content = HtmlGeneral.HtmlStart + "<h1>Success</h1>" + HtmlGeneral.HtmlEnd;
-				string header = HttpGeneral.GetHttpHeader(content.Length, "text/html", 10);
-				result = header + content;
-				Debug.Print("\t\trequest.URI="+request.Uri);				
-				 * 
-			}
-			catch (Exception ex)
-			{
-				Debug.Print(ex.StackTrace);
-				/*
-				string content = HtmlGeneral.HtmlStart + "<h1>500 server error.</h1>" + "<h3>Uri: " + request.Uri + "</h3>";
-				content += "<p>Error: " + ex.StackTrace + "</p>" + HtmlGeneral.HtmlEnd;
-				string header = HttpGeneral.Get500Header(content.Length);
-				result = header + content;
-				 * 
-			}
-		}*/
-
-
+		
 		public static void Main()
 		{
 			// Initialize required components
 			bootstrap();
 			// All plugins have been spun out and are running
 
-			// <WIP>
-			// All web server components are still very WIP, not functional
-			// Startup Web Frontend
-			Server WebServer = new Server();
-			// </WIP>
+			//Startup web server front end
+			m_webServer.Start();
 
 			Debug.EnableGCMessages(true);
 			Debug.Print(Debug.GC(true) + " bytes");
@@ -181,26 +140,7 @@ namespace Controller
 			m_pluginScheduler.Start();
 		}
 
-		/// <summary>
-		/// Web Frontend POSTs the JSON config as a string on save.
-		/// Extract string from Request and overwrite config file with new values
-		/// </summary>
-		/// <param name="_request">PostRequest received from ResponseHandler</param>
-		/// <remarks>Very WIP</remarks>
 		
-		/*
-		private static void SaveConfig(object _request)
-		{
-			PostRequest postRequest = (PostRequest)_request;
-			using (FileStream fs = new FileStream(ConfigFile, FileMode.Create))
-			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append("var config=");
-				
-			}
-		}
-		*/
-
 		/// <summary>
 		/// JSON Object contains nested components which need to be parsed down to indvidual plugin instructions.
 		/// This is done recursively to load all necessary plugins
