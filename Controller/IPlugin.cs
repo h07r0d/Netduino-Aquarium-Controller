@@ -29,7 +29,7 @@ namespace Controller
 	public abstract class ControlPlugin : Plugin
 	{	
 		public abstract void ExecuteControl(Object state);
-		public abstract void HandleWebRequest(Request request, Object state);
+		public abstract void HandleWebRequest(Request request, Object response);
 		public abstract Hashtable Commands();
 	}
 

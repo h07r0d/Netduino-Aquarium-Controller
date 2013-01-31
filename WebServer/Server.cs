@@ -257,7 +257,7 @@ namespace Webserver
             //AddResponse(new XMLResponse("getDigitalPinState", new XMLResponseMethod(GetDigitalPinState)));
             //AddResponse(new XMLResponse("multixml", new XMLResponseMethod(MultipleXML)));
             //AddResponse(new IndexResponse(""));
-            AddResponse(new XMLResponse("upload", new XMLResponseMethod(Upload)));
+            AddResponse(new JSONResponse("SaveConfig", new JSONResponseMethod(SaveConfig)));
         }
 
         //-------------------------------------------------------------
@@ -312,7 +312,7 @@ namespace Webserver
 
         
 
-        private void Upload(Request e, Hashtable ret)
+        private void SaveConfig(Request e, Object ret)
         {
             if ( e.GetArguments.Contains("path") )
             {

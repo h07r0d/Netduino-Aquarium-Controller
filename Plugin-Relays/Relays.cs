@@ -51,7 +51,7 @@ namespace Plugins
 		/// </summary>
 		/// <param name="request"></param>
 		/// <param name="state"></param>
-		public override void HandleWebRequest(Request request, object state)
+		public override void HandleWebRequest(Request request, object response)
 		{
 			foreach (DictionaryEntry entry in request.GetArguments)
 				ExecuteControl(entry);

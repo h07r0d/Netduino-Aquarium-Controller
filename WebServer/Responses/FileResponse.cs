@@ -35,7 +35,11 @@ namespace Webserver.Responses
         /// <returns></returns>
         public override bool SendResponse(Request e)
         {
-            string filePath = Settings.ROOT_PATH + e.URL;
+			string filePath;
+			if (e.URL.Length > 0)
+				filePath = Settings.ROOT_PATH + e.URL;
+			else
+				filePath = Settings.ROOT_PATH + "/index.html";
             bool isDirectory = false;
 
             char[] chars = filePath.ToCharArray();
