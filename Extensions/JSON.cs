@@ -63,7 +63,7 @@ namespace Extensions
 
 					// Find first location of {
 					int startAt = varString.IndexOf('{');
-					varString = varString.Substring(startAt-1, varString.Length-startAt);
+					varString = varString.Substring(startAt, varString.Length-startAt);
 					bool success = true;
 					return JsonDecode(varString, ref success);
 				}

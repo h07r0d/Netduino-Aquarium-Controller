@@ -80,7 +80,7 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(ProjectDir)config.js g:\
-copy $(ProjectDir)fragments\* g:\fragments</PostBuildEvent>
+    <PostBuildEvent>copy /y $(ProjectDir)config.js g:\
+copy /y $(ProjectDir)fragments\* g:\fragments\</PostBuildEvent>
   </PropertyGroup>
 </Project>
