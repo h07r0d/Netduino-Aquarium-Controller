@@ -53,19 +53,25 @@
       <Project>{117848BD-213C-4AE4-8F58-D27F14DAA534}</Project>
       <Name>Controller</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{C4E8D63B-A08E-48CD-AD72-9EBB2AB94F07}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
     <Reference Include="Microsoft.SPOT.Native" />
     <Reference Include="SecretLabs.NETMF.Hardware.AnalogInput, Version=4.2.0.1, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="SecretLabs.NETMF.Hardware.Netduino, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Temperature.htm" />
-    <Content Include="temperature.js" />
+    <Content Include="Temperature.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins
+copy $(ProjectDir)$(TargetName).js g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

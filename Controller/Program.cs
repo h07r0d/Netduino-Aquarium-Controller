@@ -3,10 +3,11 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using Extensions;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
-using WebServer;
+using SecretLabs.NETMF.Hardware.Netduino;
+using Webserver;
 
 
 namespace Controller
@@ -30,17 +31,21 @@ namespace Controller
 	/// <param name="_sender">Any necessary data to complete the response</param>
 	public delegate void WebResponseEventHandler(Object _sender);
 
-	public class Program
+	public class Controller
 	{
-		public const string PluginFolder = @"\SD\plugins\";
-		public const string FragmentFolder = @"\SD\fragments\";
-		public const string ConfigFile = @"\SD\config.js";
+		
 
 		/// <summary>
 		/// Utility object to build any static html that can be built on boot
 		/// Saves computation time where possible
 		/// </summary>
 		private static HtmlBuilder m_htmlBuilder;
+
+		/// <summary>
+		/// Web Front End server.
+		/// <remarks>Needs to be created in order to register plugins to the Web Handlers.</remarks>
+		/// </summary>
+		private static Webserver.Server m_webServer = new Server();
 
 		/// <summary>
 		/// Scheduler for Plugin tasks
@@ -74,62 +79,15 @@ namespace Controller
 			if (ope != null) ope(ope, _data);
 		}
 
-		/// <summary>
-		/// Delegate to process web requests
-		/// </summary>
-		/// <param name="request">Request item received from Listener</param>
-		/// <remarks>Very much WIP</remarks>
-		private static void WebCommandReceived(Request _request)
-		{			
-			try
-			{
-				string requestString = _request.BaseUri.Substring(1);	// skip leading slash
-
-				// check ResponseHandlerList for matching response
-				WebResponseEventHandler handler = (WebResponseEventHandler)m_eventHandlerList[requestString];
-				if (handler != null)
-				{
-					// Call the matched handler with the Request object.
-					// <WIP>
-					/*handler(new DictionaryEntry(_request.Querystring["relay"].ToString(),
-						_request.Querystring["status"].ToString()));*/
-					// </WIP>
-				}
-				else
-				{
-					throw new NullReferenceException("No matching Response Handler found");
-				}
-				/*
-				string content = HtmlGeneral.HtmlStart + "<h1>Success</h1>" + HtmlGeneral.HtmlEnd;
-				string header = HttpGeneral.GetHttpHeader(content.Length, "text/html", 10);
-				result = header + content;
-				Debug.Print("\t\trequest.URI="+request.Uri);				
-				 * */
-			}
-			catch (Exception ex)
-			{
-				Debug.Print(ex.StackTrace);
-				/*
-				string content = HtmlGeneral.HtmlStart + "<h1>500 server error.</h1>" + "<h3>Uri: " + request.Uri + "</h3>";
-				content += "<p>Error: " + ex.StackTrace + "</p>" + HtmlGeneral.HtmlEnd;
-				string header = HttpGeneral.Get500Header(content.Length);
-				result = header + content;
-				 * */
-			}
-		}
-
-
+		
 		public static void Main()
 		{
 			// Initialize required components
 			bootstrap();
 			// All plugins have been spun out and are running
 
-			// <WIP>
-			// All web server components are still very WIP, not functional
-			// Startup Web Frontend
-			// Listener webServer = new Listener(WebCommandReceived);
-			// </WIP>
+			//Startup web server front end
+			m_webServer.Start();
 
 			Debug.EnableGCMessages(true);
 			Debug.Print(Debug.GC(true) + " bytes");
@@ -151,19 +109,20 @@ namespace Controller
 			 */
 
 			// Set system time
-			//DateTime.Now.SetFromNetwork(new TimeSpan(-4, 0, 0));
+			DateTime.Now.SetFromNetwork(new TimeSpan(-5, 0, 0));
 			//DS1307 clock = new DS1307();
 			//clock.TwelveHourMode = false;
 			//Utility.SetLocalTime(clock.CurrentDateTime);
 			//clock.Dispose();
+			Debug.Print(DateTime.Now.ToString());
 
-			m_htmlBuilder = new HtmlBuilder();
+			m_htmlBuilder = new HtmlBuilder(/* Use local file resources?*/false);
 			m_eventHandlerList = new EventHandlerList();
 			m_pluginScheduler = new PluginScheduler();
 
 			// Each key in 'config' is a collection of plugin types (input, output, control),
 			// so pull out of the root element.
-			Hashtable config = ((Hashtable)JSON.JsonDecodeConfig(ConfigFile))["config"] as Hashtable;
+			Hashtable config = ((Hashtable)JSON.JsonDecodeFromVar(Settings.ConfigFile))["config"] as Hashtable;
 
 			// parse each plugin type
 			foreach (string pluginType in config.Keys)
@@ -178,26 +137,7 @@ namespace Controller
 			m_pluginScheduler.Start();
 		}
 
-		/// <summary>
-		/// Web Frontend POSTs the JSON config as a string on save.
-		/// Extract string from Request and overwrite config file with new values
-		/// </summary>
-		/// <param name="_request">PostRequest received from ResponseHandler</param>
-		/// <remarks>Very WIP</remarks>
 		
-		/*
-		private static void SaveConfig(object _request)
-		{
-			PostRequest postRequest = (PostRequest)_request;
-			using (FileStream fs = new FileStream(ConfigFile, FileMode.Create))
-			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append("var config=");
-				
-			}
-		}
-		*/
-
 		/// <summary>
 		/// JSON Object contains nested components which need to be parsed down to indvidual plugin instructions.
 		/// This is done recursively to load all necessary plugins
@@ -206,7 +146,7 @@ namespace Controller
 		/// <param name="_type">Plugin type being processed</param>
 		/// <param name="_name">Name of Plugin being searched for</param>
 		private static void ParseConfig(Hashtable _section, string _type = null, string _name = null)
-		{
+		{			
 			foreach (string name in _section.Keys)
 			{
 				if (_section[name] is Hashtable)
@@ -222,13 +162,13 @@ namespace Controller
 					switch (_type)
 					{
 						case "input":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Input, false);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Input);
 							break;
 						case "output":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Output, false);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Output);
 							break;
 						case "control":
-							m_htmlBuilder.AddPlugin(_name, PluginType.Control, false);
+							m_htmlBuilder.AddPlugin(_name, PluginType.Control);
 							break;
 						default:
 							break;
@@ -249,7 +189,7 @@ namespace Controller
 		{
 			try
 			{
-				using (FileStream fs = new FileStream(PluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
+				using (FileStream fs = new FileStream(Settings.PluginFolder + _name + ".pe", FileMode.Open, FileAccess.Read))
 				{
 					// Create an assembly
 					byte[] pluginBytes = new byte[(int)fs.Length];
@@ -300,7 +240,8 @@ namespace Controller
 											new TimeSpan(24, 0, 0),		// assuming controls should repeat every 24 hours
 											true);
 
-									m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
+									m_webServer.AddResponse(new Webserver.Responses.JSONResponse(_name, cp.HandleWebRequest));
+									//m_eventHandlerList.AddHandler(_name, new WebResponseEventHandler(cp.ExecuteControl));
 									break;
 								default:
 									break;

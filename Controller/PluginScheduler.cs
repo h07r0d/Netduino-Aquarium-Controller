@@ -115,10 +115,10 @@ namespace Controller
 		{
 			DateTime now = DateTime.Now;
 			string s_now = now.ToString(m_timerFormat);
-			Debug.Print("Polling plugin list at: " + now.ToString(m_timerFormat));
+			//Debug.Print("Polling plugin list at: " + now.ToString(m_timerFormat));
 			foreach (DictionaryEntry item in m_Tasks)
 			{
-				Debug.Print(item.Key.ToString());
+				//Debug.Print(item.Key.ToString());
 				if (item.Key.Equals(s_now))
 				{
 					Debug.Print("Executing task");

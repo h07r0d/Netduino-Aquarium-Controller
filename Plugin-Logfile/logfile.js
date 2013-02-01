@@ -1,4 +1,4 @@
-var logfileInit = function() {
+var LogfileInit = function() {
 	var pluginEnabled = (config.config.output.Logfile.enabled === 'true');
 	$("#FN").val(config.config.output.Logfile.filename);
 	$("#FN").change(function() { config.config.output.Logfile.filename = $(this).val(); });

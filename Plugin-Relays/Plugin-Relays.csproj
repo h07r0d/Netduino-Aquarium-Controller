@@ -51,19 +51,26 @@
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
     <Reference Include="SecretLabs.NETMF.Hardware.NetduinoPlus, Version=4.2.0.1, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="SecretLabs.NETMF.Diagnostics, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="SecretLabs.NETMF.Hardware.Netduino, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Controller\Controller.csproj">
       <Project>{117848BD-213C-4AE4-8F58-D27F14DAA534}</Project>
       <Name>Controller</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WebServer\WebServer.csproj">
+      <Project>{71B2DDB7-063C-4866-BD82-83D06E22E225}</Project>
+      <Name>WebServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Relays.htm" />
-    <Content Include="relays.js" />
+    <Content Include="Relays.js" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins
+copy $(ProjectDir)$(TargetName).js g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

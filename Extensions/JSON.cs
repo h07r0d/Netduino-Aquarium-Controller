@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
-using System.Text;
 using System.IO;
+using System.Text;
 
-namespace Controller
+namespace Extensions
 {
 	/// <summary>
 	/// This class encodes and decodes JSON strings.
@@ -63,7 +63,7 @@ namespace Controller
 
 					// Find first location of {
 					int startAt = varString.IndexOf('{');
-					varString = varString.Substring(startAt, varString.Length - (startAt-1));
+					varString = varString.Substring(startAt, varString.Length-startAt);
 					bool success = true;
 					return JsonDecode(varString, ref success);
 				}

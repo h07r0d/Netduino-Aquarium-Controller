@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Webserver;
 
 namespace Controller
 {
@@ -28,6 +29,7 @@ namespace Controller
 	public abstract class ControlPlugin : Plugin
 	{	
 		public abstract void ExecuteControl(Object state);
+		public abstract void HandleWebRequest(Request request, Object response);
 		public abstract Hashtable Commands();
 	}
 

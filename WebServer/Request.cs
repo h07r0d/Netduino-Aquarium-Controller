@@ -1,59 +1,154 @@
-using System;
-using Microsoft.SPOT;
-using System.Net.Sockets;
-using System.Collections;
+﻿using System;
 using System.Text;
+using System.Net.Sockets;
+using System.Net;
+using System.Diagnostics;
+using System.IO;
+using System.Collections;
+using Extensions;
 
-namespace WebServer
+namespace Webserver
 {
-	public enum RequestType { Get, Post }
+    /// <summary>
+    /// Contains information about a request
+    /// </summary>
+    public class Request : IDisposable
+    {
+        /// <summary>
+        /// Socket that sent the request
+        /// </summary>
+        public Socket Client { get; private set; }
 
-	public class Request : IDisposable
-	{		
-		const int FileBufferSize = 256;
+        protected string _method;
+        protected string _url;
+        protected Hashtable _getArguments = new Hashtable();
+        protected Hashtable _headers = new Hashtable();
 
-		public RequestType RequestType { get; protected set; }
-		public Socket Client { get; protected set; }
-		public string Uri { get; protected set; }
-		public string BaseUri { get; protected set; }
-		public Hashtable HeaderFields { get; protected set; }
-		public Hashtable Querystring { get; protected set; }
+        /// <summary>
+        /// All header lines
+        /// </summary>
+        public Hashtable Headers
+        {
+            get { return _headers; }
+            set { _headers = value; }
+        }
 
-		public Request(Socket _client, byte[] _data)
-		{
-			Client = _client;
-			string data = new string(Encoding.UTF8.GetChars(_data));
-			string[] requestArray = data.Split('\n');
-			if (requestArray.Length > 1)
-			{
-				// split fist line to get URI information and Request type
-				string[] split = requestArray[0].Split(' ');
-				if (split.Length >= 2)
-				{
-					// get request type
-					split[0] = split[0].ToUpper();
-					switch (split[0])
-					{
-						case "GET":
-							RequestType = WebServer.RequestType.Get;
-							break;
-						case "POST":
-							RequestType = WebServer.RequestType.Post;
-							break;
-						default:
-							throw new NotImplementedException("Can only handle GET and POST");
-					}
-					// Now that we have the URI, parse out the query string
-					Uri = split[1];
-					string baseUri = "";
-					Querystring = HttpGeneral.ParseQuerystring(Uri, out baseUri);
-					BaseUri = baseUri;
-				}
+        /// <summary>
+        /// Hashtable with all GET key-value pa in it
+        /// </summary>
+        public Hashtable GetArguments
+        {
+            get { return _getArguments; }
+            private set { _getArguments = value; }
+        }
 
-				if (split.Length >= 3) HeaderFields.Add("HttpVersion", split[2]);
-			}
-		}
+        /// <summary>
+        /// HTTP verb (Request method)
+        /// </summary>
+        public string Method
+        {
+            get { return _method; }
+            private set { _method = value; }
+        }
 
-		public void Dispose() { }
-	}
+        /// <summary>
+        /// URL of request without GET values
+        /// </summary>
+        public string URL
+        {
+            get { return _url; }
+            private set { _url = value; }
+        }
+
+        /// <summary>
+        /// Creates request
+        /// </summary>
+        /// <param name="Data">Input from network</param>
+        /// <param name="client">Socket that sent the request</param>
+        public Request(char[] header, Socket client)
+        {
+            this.Client = client;
+            ProcessHeader(header);
+        }
+       
+        /// <summary>
+        /// Fills the Request with the header values
+        /// </summary>
+        /// <param name="data">Input from network</param>
+        private void ProcessHeader(char[] data)
+        {
+            bool replace = false;
+
+            for (int i = 0; i < data.Length-3; i++)
+            {
+                replace = false;
+
+                switch (data[i].ToString()+data[i+1]+data[i+2])
+                {
+                    case "%5C":
+                        data[i] = '\\';
+                        data[i+1] = '\0';
+                        data[i+2] = '\0';
+                        replace = true;
+                        break;
+
+                    case "%2F":
+                        data[i] = '/';
+                        data[i+1] = '\0';
+                        data[i+2] = '\0';
+                        replace = true;
+                        break;                        	
+                }
+
+                if(replace)
+                for (int x = i + 3; x < data.Length; x++)
+                    if (data[x] != '\0')
+                    {
+                        data[x - 2] = data[x];
+                        data[x] = '\0';
+                    }
+            }
+
+            string content = new string(data);
+            string[] lines = content.Split('\n');
+
+            // Parse the first line of the request: "GET /path/ HTTP/1.1"
+            string[] firstLineSplit = lines[0].Split(' ');
+            _method = firstLineSplit[0];
+            string[] path = firstLineSplit[1].Split('?');
+            _url = path[0].Substring(1); // Substring to ignore the leading '/'
+
+            _getArguments.Clear();
+            if (path.Length > 1)
+                ProcessGETParameters(path[1]);
+
+            Headers = Converter.ToHashtable(lines, ": ", 1);
+        }
+
+        /// <summary>
+        /// Generated Key-Value-Hashtable for GET-Parameters
+        /// </summary>
+        /// <param name="value"></param>
+        private void ProcessGETParameters(string parameters)
+        {
+            _getArguments = new Hashtable();
+            string[] urlArguments = parameters.Split('&');
+
+            _getArguments = Converter.ToHashtable(urlArguments, "=");
+			
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if(_headers != null)
+                _headers.Clear();
+            
+            if(_getArguments != null)
+                _getArguments.Clear();
+        }
+
+        #endregion
+    }
 }

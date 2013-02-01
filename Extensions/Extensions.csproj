@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>AquariumStatus</AssemblyName>
+    <AssemblyName>Extensions</AssemblyName>
     <OutputType>Library</OutputType>
-    <RootNamespace>Plugins</RootNamespace>
+    <RootNamespace>Extensions</RootNamespace>
     <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F0F2B76C-B9A5-4BA8-B551-5217295EF377}</ProjectGuid>
+    <ProjectGuid>{C4E8D63B-A08E-48CD-AD72-9EBB2AB94F07}</ProjectGuid>
     <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
     <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
   </PropertyGroup>
@@ -30,32 +30,15 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="LCDDriver.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="JSON.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="AquariumStatus.htm" />
-    <Content Include="AquariumStatus.js" />
-    <Content Include="status.js" />
-    <Compile Include="AquariumStatus.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
+    <Reference Include="System" />
     <Reference Include="System.IO" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Controller\Controller.csproj">
-      <Project>{117848BD-213C-4AE4-8F58-D27F14DAA534}</Project>
-      <Name>Controller</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Extensions\Extensions.csproj">
-      <Project>{C4E8D63B-A08E-48CD-AD72-9EBB2AB94F07}</Project>
-      <Name>Extensions</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>copy $(ProjectDir)status.js g:\
-copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins
-copy $(ProjectDir)$(TargetName).js g:\plugins</PostBuildEvent>
-  </PropertyGroup>
 </Project>

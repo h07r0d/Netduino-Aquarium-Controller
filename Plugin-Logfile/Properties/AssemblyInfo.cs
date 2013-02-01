@@ -10,7 +10,7 @@ using System.Resources;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("fishfornerds.com")]
-[assembly: AssemblyProduct("Controller - Output Plugin")]
+[assembly: AssemblyProduct("Aquarium Controller")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
