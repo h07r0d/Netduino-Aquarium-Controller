@@ -3,7 +3,8 @@ using System.Collections;
 using Controller;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using SecretLabs.NETMF.Hardware.NetduinoPlus;
+using SecretLabs.NETMF.Hardware.Netduino;
+using Webserver;
 
 namespace Plugins
 {
@@ -46,6 +47,17 @@ namespace Plugins
 		}
 
 		/// <summary>
+		/// Event handler registered with the Web Server to process incomming web requests
+		/// </summary>
+		/// <param name="request"></param>
+		/// <param name="state"></param>
+		public override void HandleWebRequest(Request request, object response)
+		{
+			foreach (DictionaryEntry entry in request.GetArguments)
+				ExecuteControl(entry);
+		}
+
+		/// <summary>
 		/// Execute RelayCommand given in state object
 		/// </summary>
 		/// <param name="state">DictionaryEntry object to process on execution</param>
@@ -53,7 +65,7 @@ namespace Plugins
 		{
 			// Callback received a RelayCommand struct to execute			
 			var command = (DictionaryEntry)state;
-			Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
+			//Debug.Print(command.Key.ToString() + "=" + command.Value.ToString());
 			m_relayPins[(int)command.Key].Write((bool)command.Value);			
 		}
 
@@ -62,7 +74,8 @@ namespace Plugins
 		/// </summary>
 		/// <param name="_commands">JSON formatted list of objects</param>
 		private void ParseCommands(ArrayList _commands)
-		{			
+		{
+			//Debug.Print("Parsing Commands");
 			foreach (Hashtable command in _commands)
 			{
 				// parse out details from config

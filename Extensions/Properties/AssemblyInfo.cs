@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Plugin-pH")]
+[assembly: AssemblyTitle("Extensions")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("fishfornerds.com")]
-[assembly: AssemblyProduct("Aquarium Controller")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCompany("NRCan-RNCan")]
+[assembly: AssemblyProduct("Extensions")]
+[assembly: AssemblyCopyright("Copyright © NRCan-RNCan 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -47,10 +47,15 @@
       <Project>{117848BD-213C-4AE4-8F58-D27F14DAA534}</Project>
       <Name>Controller</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{C4E8D63B-A08E-48CD-AD72-9EBB2AB94F07}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(ProjectDir)status.js g:\
 copy $(TargetDir)le\$(TargetName).pe g:\plugins
-copy $(ProjectDir)$(TargetName).htm g:\plugins</PostBuildEvent>
+copy $(ProjectDir)$(TargetName).htm g:\plugins
+copy $(ProjectDir)$(TargetName).js g:\plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>
